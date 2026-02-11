@@ -3,10 +3,10 @@ import { useRef, useState } from 'react';
 import { Send, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 
-// EmailJS Configuration - Replace with your actual credentials
-const EMAILJS_SERVICE_ID = 'YOUR_SERVICE_ID';
-const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
-const EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY';
+// EmailJS Configuration
+const EMAILJS_SERVICE_ID = 'service_035hjcs';
+const EMAILJS_TEMPLATE_ID = 'template_sjwr9ag';
+const EMAILJS_PUBLIC_KEY = '4kITqwgwXtJr6ubMM';
 
 export function Contact() {
   const ref = useRef(null);
