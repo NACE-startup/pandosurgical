@@ -78,6 +78,7 @@ export function Team() {
               href={member.linkedin}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label={`View ${member.name}'s LinkedIn profile`}
               className="relative group cursor-pointer"
               initial={{ opacity: 0, y: 50 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -105,8 +106,9 @@ export function Team() {
                     {member.image ? (
                       <img
                         src={member.image}
-                        alt={member.name}
+                        alt={`${member.name}, ${member.role} at Pando Surgical`}
                         className="w-full h-full object-cover relative"
+                        loading="lazy"
                         style={
                           member.name === 'Derek Hua' 
                             ? { transform: 'scale(2.2) translateY(10%)' } 

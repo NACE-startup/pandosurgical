@@ -1,0 +1,28 @@
+{
+  "name": "Pando Surgical",
+  "short_name": "Pando",
+  "description": "Pando Surgical's LapRotator enables simple, intuitive laparoscope rotation for surgeons.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#D4A24A",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["medical", "business", "health"],
+  "lang": "en-US",
+  "dir": "ltr"
+}
+

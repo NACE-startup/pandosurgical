@@ -40,8 +40,9 @@ export function Comparison() {
               <div className="aspect-video bg-white p-4 sm:p-8 border-b border-gray-200/30">
                 <img
                   src={withoutImage}
-                  alt="Without LapRotator"
+                  alt="Traditional laparoscopic surgery technique without LapRotator - demonstrating two-handed scope manipulation"
                   className="w-full h-full object-contain"
+                  loading="lazy"
                 />
               </div>
               <div className="p-4 sm:p-8 text-center bg-white/50">
@@ -78,8 +79,9 @@ export function Comparison() {
               <div className="aspect-video bg-white p-4 sm:p-8 border-b border-[#D4A24A]/20">
                 <img
                   src={withImage}
-                  alt="With LapRotator V1"
+                  alt="Laparoscopic surgery with LapRotator V1 - showing improved one-handed scope rotation and control"
                   className="w-full h-full object-contain"
+                  loading="lazy"
                 />
               </div>
               <div className="p-4 sm:p-8 text-center bg-white/60">

@@ -18,7 +18,7 @@ export function Footer() {
             whileHover={{ scale: 1.1, rotate: 360 }}
             transition={{ duration: 0.6 }}
           >
-            <img src={logoImage} alt="Pando Surgical" className="w-6 h-6 sm:w-8 sm:h-8" />
+            <img src={logoImage} alt="Pando Surgical logo" className="w-6 h-6 sm:w-8 sm:h-8" />
           </motion.div>
           
           {/* LinkedIn Icon */}
@@ -29,8 +29,9 @@ export function Footer() {
             className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#D4A24A]/20 hover:bg-[#D4A24A] transition-colors duration-300 group"
             whileHover={{ scale: 1.1, y: -2 }}
             whileTap={{ scale: 0.95 }}
+            aria-label="Follow Pando Surgical on LinkedIn"
           >
-            <Linkedin className="w-4 h-4 sm:w-5 sm:h-5 text-[#D4A24A] group-hover:text-white transition-colors duration-300" />
+            <Linkedin className="w-4 h-4 sm:w-5 sm:h-5 text-[#D4A24A] group-hover:text-white transition-colors duration-300" aria-hidden="true" />
           </motion.a>
           
           <div className="w-full h-px bg-gradient-to-r from-transparent via-[#D4A24A] to-transparent" />

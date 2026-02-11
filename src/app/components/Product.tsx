@@ -54,8 +54,11 @@ export function Product() {
                 
                 <img
                   src={productImage}
-                  alt="LapRotator Technical Diagram"
+                  alt="LapRotator laparoscope rotation device technical diagram showing one-handed surgical instrument attachment"
                   className="w-full relative z-10"
+                  loading="lazy"
+                  width="600"
+                  height="400"
                 />
               </motion.div>
             </div>

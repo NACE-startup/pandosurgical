@@ -68,7 +68,7 @@ export function Header() {
             {/* Glass-morphic logo container with actual logo */}
             <div className="relative">
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-lg border border-white/60 p-1 sm:p-1.5">
-                <img src={logoImage} alt="Pando Surgical" className="w-full h-full object-contain" />
+                <img src={logoImage} alt="Pando Surgical logo" className="w-full h-full object-contain" />
               </div>
               {/* Golden glow */}
               <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#D4A24A]/40 to-transparent blur-md -z-10 opacity-70" />
@@ -79,7 +79,7 @@ export function Header() {
           </motion.div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-6 lg:gap-8">
+          <nav className="hidden md:flex items-center gap-6 lg:gap-8" aria-label="Main navigation">
             {navItems.map((item, index) => (
               <motion.button
                 key={item}
@@ -100,6 +100,8 @@ export function Header() {
             className="md:hidden p-2 rounded-lg bg-white/50 backdrop-blur-sm border border-white/60 shadow-sm"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             whileTap={{ scale: 0.95 }}
+            aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? (
               <X className="w-5 h-5 text-gray-700" />
@@ -131,7 +133,7 @@ export function Header() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.2 }}
             >
-              <nav className="flex flex-col p-4">
+              <nav className="flex flex-col p-4" aria-label="Mobile navigation">
                 {navItems.map((item, index) => (
                   <motion.button
                     key={item}
