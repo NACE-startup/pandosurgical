@@ -68,17 +68,11 @@ export function Contact() {
         inquiryType: '',
         message: '',
       });
-      
-      // Reset to idle after 5 seconds
-      setTimeout(() => setStatus('idle'), 5000);
     } catch (error: any) {
       console.error('EmailJS Error:', error);
       setStatus('error');
       const errorText = error?.text || error?.message || 'Unknown error';
       setErrorMessage(`Failed to send: ${errorText}. Please try again or contact us directly.`);
-      
-      // Reset to idle after 5 seconds
-      setTimeout(() => setStatus('idle'), 5000);
     }
   };
 
@@ -119,154 +113,196 @@ export function Contact() {
             {/* Golden border glow on hover */}
             <div className="absolute -inset-1 bg-gradient-to-r from-[#D4A24A]/20 via-amber-300/10 to-[#D4A24A]/20 rounded-2xl sm:rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
             
-            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-              {/* Name and Email - side by side on larger screens */}
-              <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
-                <div>
-                  <label className="block text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base">
-                    Full Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A24A] focus:border-transparent transition-all shadow-sm text-base"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base">
-                    Email Address <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A24A] focus:border-transparent transition-all shadow-sm text-base"
-                  />
-                </div>
-              </div>
-
-              {/* Phone and Company - side by side on larger screens */}
-              <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
-                <div>
-                  <label className="block text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base">Phone Number</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A24A] focus:border-transparent transition-all shadow-sm text-base"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base">Company/Organization</label>
-                  <input
-                    type="text"
-                    name="company"
-                    value={formData.company}
-                    onChange={handleChange}
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A24A] focus:border-transparent transition-all shadow-sm text-base"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base">
-                  Inquiry Type <span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="inquiryType"
-                  value={formData.inquiryType}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A24A] focus:border-transparent transition-all shadow-sm text-base appearance-none"
-                  style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
-                >
-                  <option value="">Select an option</option>
-                  <option value="product">Product Information</option>
-                  <option value="demo">Request a Demo</option>
-                  <option value="partnership">Partnership Opportunity</option>
-                  <option value="support">Technical Support</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base">
-                  Message <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  required
-                  rows={4}
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A24A] focus:border-transparent transition-all resize-none shadow-sm text-base"
-                />
-              </div>
-
-              {/* Status Messages */}
-              {status === 'success' && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-2 p-3 sm:p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm sm:text-base"
-                >
-                  <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-                  <span>Thank you! Your message has been sent successfully.</span>
-                </motion.div>
-              )}
-              
-              {status === 'error' && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-2 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm sm:text-base"
-                >
-                  <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-                  <span>{errorMessage}</span>
-                </motion.div>
-              )}
-
-              <motion.button
-                type="submit"
-                disabled={status === 'sending'}
-                className={`relative w-full bg-gradient-to-r from-[#D4A24A] to-[#B8883D] text-white py-3 sm:py-4 rounded-xl flex items-center justify-center gap-2 shadow-xl overflow-hidden group text-sm sm:text-base ${
-                  status === 'sending' ? 'opacity-80 cursor-not-allowed' : ''
-                }`}
-                whileHover={status !== 'sending' ? { scale: 1.02, y: -2 } : {}}
-                whileTap={status !== 'sending' ? { scale: 0.98 } : {}}
+            {/* Success State - Full replacement of form */}
+            {status === 'success' ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center py-8 sm:py-12"
               >
-                <span className="relative z-10 flex items-center gap-2">
-                  {status === 'sending' ? (
-                    <>
-                      <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4 sm:w-5 sm:h-5" />
-                      Submit Inquiry
-                    </>
-                  )}
-                </span>
-                {/* Shine effect */}
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                  initial={{ x: '-100%' }}
-                  whileHover={{ x: '100%' }}
-                  transition={{ duration: 0.6 }}
-                />
-                {/* Golden glow */}
-                <div className="absolute inset-0 bg-[#D4A24A] blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300 -z-10" />
-              </motion.button>
-            </form>
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
+                  className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-500/30"
+                >
+                  <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                </motion.div>
+                
+                <h3 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-3">
+                  Thank You for Your Inquiry!
+                </h3>
+                
+                <p className="text-gray-600 mb-2 text-sm sm:text-base">
+                  Your message has been successfully submitted.
+                </p>
+                
+                <p className="text-gray-600 mb-2 text-sm sm:text-base">
+                  A confirmation email has been sent to your inbox.
+                </p>
+                
+                <p className="text-gray-500 text-xs sm:text-sm mb-8">
+                  Please check your <strong>spam or junk folder</strong> if you don't see it within a few minutes.
+                </p>
+                
+                <p className="text-gray-600 mb-6 text-sm sm:text-base">
+                  We'll get back to you as soon as possible!
+                </p>
+                
+                <motion.button
+                  onClick={() => setStatus('idle')}
+                  className="relative px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-[#D4A24A] to-[#B8883D] text-white rounded-xl shadow-xl overflow-hidden group text-sm sm:text-base"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <span className="relative z-10">Submit Another Inquiry</span>
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                    initial={{ x: '-100%' }}
+                    whileHover={{ x: '100%' }}
+                    transition={{ duration: 0.6 }}
+                  />
+                </motion.button>
+              </motion.div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+                {/* Name and Email - side by side on larger screens */}
+                <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div>
+                    <label className="block text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base">
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="fullName"
+                      value={formData.fullName}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A24A] focus:border-transparent transition-all shadow-sm text-base"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base">
+                      Email Address <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A24A] focus:border-transparent transition-all shadow-sm text-base"
+                    />
+                  </div>
+                </div>
+
+                {/* Phone and Company - side by side on larger screens */}
+                <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div>
+                    <label className="block text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base">Phone Number</label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A24A] focus:border-transparent transition-all shadow-sm text-base"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base">Company/Organization</label>
+                    <input
+                      type="text"
+                      name="company"
+                      value={formData.company}
+                      onChange={handleChange}
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A24A] focus:border-transparent transition-all shadow-sm text-base"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base">
+                    Inquiry Type <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    name="inquiryType"
+                    value={formData.inquiryType}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A24A] focus:border-transparent transition-all shadow-sm text-base appearance-none"
+                    style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
+                  >
+                    <option value="">Select an option</option>
+                    <option value="product">Product Information</option>
+                    <option value="demo">Request a Demo</option>
+                    <option value="partnership">Partnership Opportunity</option>
+                    <option value="support">Technical Support</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base">
+                    Message <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    required
+                    rows={4}
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A24A] focus:border-transparent transition-all resize-none shadow-sm text-base"
+                  />
+                </div>
+
+                {/* Error Message */}
+                {status === 'error' && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-2 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm sm:text-base"
+                  >
+                    <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                    <span>{errorMessage}</span>
+                  </motion.div>
+                )}
+
+                <motion.button
+                  type="submit"
+                  disabled={status === 'sending'}
+                  className={`relative w-full bg-gradient-to-r from-[#D4A24A] to-[#B8883D] text-white py-3 sm:py-4 rounded-xl flex items-center justify-center gap-2 shadow-xl overflow-hidden group text-sm sm:text-base ${
+                    status === 'sending' ? 'opacity-80 cursor-not-allowed' : ''
+                  }`}
+                  whileHover={status !== 'sending' ? { scale: 1.02, y: -2 } : {}}
+                  whileTap={status !== 'sending' ? { scale: 0.98 } : {}}
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    {status === 'sending' ? (
+                      <>
+                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 sm:w-5 sm:h-5" />
+                        Submit Inquiry
+                      </>
+                    )}
+                  </span>
+                  {/* Shine effect */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                    initial={{ x: '-100%' }}
+                    whileHover={{ x: '100%' }}
+                    transition={{ duration: 0.6 }}
+                  />
+                  {/* Golden glow */}
+                  <div className="absolute inset-0 bg-[#D4A24A] blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300 -z-10" />
+                </motion.button>
+              </form>
+            )}
           </div>
         </motion.div>
       </div>
