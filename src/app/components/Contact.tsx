@@ -39,25 +39,39 @@ export function Contact() {
         phone: formData.phone || 'Not provided',
         company: formData.company || 'Not provided',
         message: formData.message,
+        to_email: formData.email, // Explicitly set recipient for auto-reply
       };
       
+      console.log('Sending with templateData:', templateData);
+      
       // Send notification to Pando Surgical
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_CONTACT,
-        templateData,
-        EMAILJS_PUBLIC_KEY
-      );
-      console.log('Contact notification sent to Pando Surgical');
+      try {
+        await emailjs.send(
+          EMAILJS_SERVICE_ID,
+          EMAILJS_TEMPLATE_CONTACT,
+          templateData,
+          EMAILJS_PUBLIC_KEY
+        );
+        console.log('✅ Contact notification sent to Pando Surgical');
+      } catch (contactError: any) {
+        console.error('❌ Contact notification failed:', contactError);
+        throw contactError;
+      }
       
       // Send auto-reply to user
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_AUTOREPLY,
-        templateData,
-        EMAILJS_PUBLIC_KEY
-      );
-      console.log('Auto-reply sent to user');
+      try {
+        const autoReplyResult = await emailjs.send(
+          EMAILJS_SERVICE_ID,
+          EMAILJS_TEMPLATE_AUTOREPLY,
+          templateData,
+          EMAILJS_PUBLIC_KEY
+        );
+        console.log('✅ Auto-reply sent to user:', autoReplyResult);
+      } catch (autoReplyError: any) {
+        console.error('❌ Auto-reply failed:', autoReplyError);
+        // Don't throw - still show success since main email was sent
+        console.warn('Auto-reply failed but contact notification was sent');
+      }
       
       setStatus('success');
       setFormData({
