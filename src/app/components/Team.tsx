@@ -46,7 +46,7 @@ export function Team() {
     },
     {
       name: 'Sean Lee',
-      role: 'Head of Clinical Affairs',
+      role: 'Head of Engineering',
       image: seanImage,
       linkedin: 'https://www.linkedin.com/in/sean-long-siang-lee-9bbab8373/',
       description:
