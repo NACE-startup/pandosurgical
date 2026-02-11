@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
-import logoImage from 'figma:asset/0c6f0bb1f894e59d5c97c02e2b86e66e1b5d65e8.png';
+import logoImage from '@/assets/0c6f0bb1f894e59d5c97c02e2b86e66e1b5d65e8.png';
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);

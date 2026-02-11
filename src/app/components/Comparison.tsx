@@ -1,7 +1,7 @@
 import { motion, useInView } from 'motion/react';
 import { useRef } from 'react';
-import withoutImage from 'figma:asset/4fec24e54aaf45e3afd92a2ce7745cf5eca2e82c.png';
-import withImage from 'figma:asset/4032ba0b38a12acf65ad2f27674d4b81431314e0.png';
+import withoutImage from '@/assets/4fec24e54aaf45e3afd92a2ce7745cf5eca2e82c.png';
+import withImage from '@/assets/4032ba0b38a12acf65ad2f27674d4b81431314e0.png';
 
 export function Comparison() {
   const ref = useRef(null);

@@ -1,10 +1,10 @@
 import { motion, useInView } from 'motion/react';
 import { useRef } from 'react';
-import aidenImage from 'figma:asset/027189a00b21afa9a3c06baca936f81ca39a3e89.png';
-import noahImage from 'figma:asset/8ee06f89fcb2cc02961b34226e63e63a73f4a3f6.png';
-import seanImage from 'figma:asset/3fd5dc0d150c84d1b711b9d02daf057b44f80a37.png';
-import derekImage from 'figma:asset/aa0c3a7a09c6d51040532cd537dd0918948e3d44.png';
-import toshiImage from 'figma:asset/27bc2f71d3258489976d02225ee535b830fc269d.png';
+import aidenImage from '@/assets/027189a00b21afa9a3c06baca936f81ca39a3e89.png';
+import noahImage from '@/assets/8ee06f89fcb2cc02961b34226e63e63a73f4a3f6.png';
+import seanImage from '@/assets/3fd5dc0d150c84d1b711b9d02daf057b44f80a37.png';
+import derekImage from '@/assets/aa0c3a7a09c6d51040532cd537dd0918948e3d44.png';
+import toshiImage from '@/assets/27bc2f71d3258489976d02225ee535b830fc269d.png';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
 export function Team() {

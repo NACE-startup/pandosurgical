@@ -1,7 +1,7 @@
 import { motion, useInView } from 'motion/react';
 import { useRef } from 'react';
 import { Check } from 'lucide-react';
-import productImage from 'figma:asset/66ea698fd6801088f2e00c323f698a687b89cc53.png';
+import productImage from '@/assets/66ea698fd6801088f2e00c323f698a687b89cc53.png';
 
 export function Product() {
   const ref = useRef(null);
