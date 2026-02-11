@@ -35,8 +35,10 @@ export function Contact() {
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
         {
+          to_name: 'Pando Surgical',
           from_name: formData.fullName,
           from_email: formData.email,
+          reply_to: formData.email,
           phone: formData.phone || 'Not provided',
           company: formData.company || 'Not provided',
           inquiry_type: formData.inquiryType,
