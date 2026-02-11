@@ -31,7 +31,17 @@ export function Contact() {
     setErrorMessage('');
 
     try {
-      await emailjs.send(
+      console.log('Sending email with:', {
+        serviceId: EMAILJS_SERVICE_ID,
+        templateId: EMAILJS_TEMPLATE_ID,
+        data: {
+          name: formData.fullName,
+          email: formData.email,
+          title: formData.inquiryType,
+        }
+      });
+      
+      const result = await emailjs.send(
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
         {
@@ -44,6 +54,8 @@ export function Contact() {
         },
         EMAILJS_PUBLIC_KEY
       );
+      
+      console.log('EmailJS Success:', result);
       
       setStatus('success');
       setFormData({
