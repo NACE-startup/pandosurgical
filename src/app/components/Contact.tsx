@@ -3,8 +3,8 @@ import { useRef, useState } from 'react';
 import { Send, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 
-// EmailJS Configuration - Using SMTP Server
-const EMAILJS_SERVICE_ID = 'service_sfkvcpc';
+// EmailJS Configuration - Using SendGrid
+const EMAILJS_SERVICE_ID = 'service_ajie1au';
 const EMAILJS_TEMPLATE_CONTACT = 'template_g40ybbn';  // Sends to Pando Surgical
 const EMAILJS_TEMPLATE_AUTOREPLY = 'template_sjwr9ag'; // Auto-reply to user
 const EMAILJS_PUBLIC_KEY = '4kITqwgwXtJr6ubMM';
