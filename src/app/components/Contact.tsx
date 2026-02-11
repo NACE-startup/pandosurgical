@@ -5,7 +5,8 @@ import emailjs from '@emailjs/browser';
 
 // EmailJS Configuration
 const EMAILJS_SERVICE_ID = 'service_035hjcs';
-const EMAILJS_TEMPLATE_ID = 'template_g40ybbn';
+const EMAILJS_TEMPLATE_CONTACT = 'template_g40ybbn';  // Sends to Pando Surgical
+const EMAILJS_TEMPLATE_AUTOREPLY = 'template_sjwr9ag'; // Auto-reply to user
 const EMAILJS_PUBLIC_KEY = '4kITqwgwXtJr6ubMM';
 
 export function Contact() {
@@ -31,31 +32,32 @@ export function Contact() {
     setErrorMessage('');
 
     try {
-      console.log('Sending email with:', {
-        serviceId: EMAILJS_SERVICE_ID,
-        templateId: EMAILJS_TEMPLATE_ID,
-        data: {
-          name: formData.fullName,
-          email: formData.email,
-          title: formData.inquiryType,
-        }
-      });
+      const templateData = {
+        name: formData.fullName,
+        email: formData.email,
+        title: formData.inquiryType,
+        phone: formData.phone || 'Not provided',
+        company: formData.company || 'Not provided',
+        message: formData.message,
+      };
       
-      const result = await emailjs.send(
+      // Send notification to Pando Surgical
+      await emailjs.send(
         EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
-        {
-          name: formData.fullName,
-          email: formData.email,
-          title: formData.inquiryType,
-          phone: formData.phone || 'Not provided',
-          company: formData.company || 'Not provided',
-          message: formData.message,
-        },
+        EMAILJS_TEMPLATE_CONTACT,
+        templateData,
         EMAILJS_PUBLIC_KEY
       );
+      console.log('Contact notification sent to Pando Surgical');
       
-      console.log('EmailJS Success:', result);
+      // Send auto-reply to user
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_AUTOREPLY,
+        templateData,
+        EMAILJS_PUBLIC_KEY
+      );
+      console.log('Auto-reply sent to user');
       
       setStatus('success');
       setFormData({
