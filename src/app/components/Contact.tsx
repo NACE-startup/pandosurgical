@@ -57,10 +57,11 @@ export function Contact() {
       
       // Reset to idle after 5 seconds
       setTimeout(() => setStatus('idle'), 5000);
-    } catch (error) {
+    } catch (error: any) {
       console.error('EmailJS Error:', error);
       setStatus('error');
-      setErrorMessage('Failed to send message. Please try again or contact us directly.');
+      const errorText = error?.text || error?.message || 'Unknown error';
+      setErrorMessage(`Failed to send: ${errorText}. Please try again or contact us directly.`);
       
       // Reset to idle after 5 seconds
       setTimeout(() => setStatus('idle'), 5000);
