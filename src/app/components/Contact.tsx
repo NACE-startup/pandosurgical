@@ -1,9 +1,16 @@
 import { motion, useInView } from 'motion/react';
 import { useRef, useState } from 'react';
-import { Send } from 'lucide-react';
+import { Send, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import emailjs from '@emailjs/browser';
+
+// EmailJS Configuration - Replace with your actual credentials
+const EMAILJS_SERVICE_ID = 'YOUR_SERVICE_ID';
+const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
+const EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY';
 
 export function Contact() {
   const ref = useRef(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   
   const [formData, setFormData] = useState({
@@ -14,11 +21,50 @@ export function Contact() {
     inquiryType: '',
     message: '',
   });
+  
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    alert('Thank you for your inquiry! We will get back to you soon.');
+    setStatus('sending');
+    setErrorMessage('');
+
+    try {
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          from_name: formData.fullName,
+          from_email: formData.email,
+          phone: formData.phone || 'Not provided',
+          company: formData.company || 'Not provided',
+          inquiry_type: formData.inquiryType,
+          message: formData.message,
+        },
+        EMAILJS_PUBLIC_KEY
+      );
+      
+      setStatus('success');
+      setFormData({
+        fullName: '',
+        email: '',
+        phone: '',
+        company: '',
+        inquiryType: '',
+        message: '',
+      });
+      
+      // Reset to idle after 5 seconds
+      setTimeout(() => setStatus('idle'), 5000);
+    } catch (error) {
+      console.error('EmailJS Error:', error);
+      setStatus('error');
+      setErrorMessage('Failed to send message. Please try again or contact us directly.');
+      
+      // Reset to idle after 5 seconds
+      setTimeout(() => setStatus('idle'), 5000);
+    }
   };
 
   const handleChange = (
@@ -149,15 +195,50 @@ export function Contact() {
                 />
               </div>
 
+              {/* Status Messages */}
+              {status === 'success' && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700"
+                >
+                  <CheckCircle className="w-5 h-5" />
+                  <span>Thank you! Your message has been sent successfully.</span>
+                </motion.div>
+              )}
+              
+              {status === 'error' && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700"
+                >
+                  <AlertCircle className="w-5 h-5" />
+                  <span>{errorMessage}</span>
+                </motion.div>
+              )}
+
               <motion.button
                 type="submit"
-                className="relative w-full bg-gradient-to-r from-[#D4A24A] to-[#B8883D] text-white py-4 rounded-xl flex items-center justify-center gap-2 shadow-xl overflow-hidden group"
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
+                disabled={status === 'sending'}
+                className={`relative w-full bg-gradient-to-r from-[#D4A24A] to-[#B8883D] text-white py-4 rounded-xl flex items-center justify-center gap-2 shadow-xl overflow-hidden group ${
+                  status === 'sending' ? 'opacity-80 cursor-not-allowed' : ''
+                }`}
+                whileHover={status !== 'sending' ? { scale: 1.02, y: -2 } : {}}
+                whileTap={status !== 'sending' ? { scale: 0.98 } : {}}
               >
                 <span className="relative z-10 flex items-center gap-2">
-                  <Send className="w-5 h-5" />
-                  Submit Inquiry
+                  {status === 'sending' ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5" />
+                      Submit Inquiry
+                    </>
+                  )}
                 </span>
                 {/* Shine effect */}
                 <motion.div
