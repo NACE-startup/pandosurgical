@@ -50,7 +50,7 @@ export function Team() {
       image: seanImage,
       linkedin: 'https://www.linkedin.com/in/sean-long-siang-lee-9bbab8373/',
       description:
-        'Sean is a biomedical engineering student at USC.',
+        'Sean is a biomedical engineering student at USC. His passion for biomaterials and nanotechnology confirmed his career path in a biotech/pharmaceutical startup. He aims to improve healthcare safety, efficiency, and accessibility. In his free time, Sean enjoys fencing, cooking, and playing his violin.',
     },
   ];
 
