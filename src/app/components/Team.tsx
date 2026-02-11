@@ -9,7 +9,7 @@ import { ImageWithFallback } from './figma/ImageWithFallback';
 
 export function Team() {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const isInView = useInView(ref, { once: true, margin: '-50px' });
 
   const teamMembers = [
     {
@@ -55,23 +55,23 @@ export function Team() {
   ];
 
   return (
-    <section id="our-team" className="py-16 bg-gradient-to-b from-amber-50/20 via-slate-50 to-white relative overflow-hidden" ref={ref}>
+    <section id="our-team" className="py-12 sm:py-16 bg-gradient-to-b from-amber-50/20 via-slate-50 to-white relative overflow-hidden" ref={ref}>
       {/* Background glass effects */}
-      <div className="absolute top-1/3 right-0 w-96 h-96 bg-gradient-to-bl from-[#D4A24A]/10 to-transparent rounded-full blur-3xl" />
-      <div className="absolute bottom-1/3 left-0 w-80 h-80 bg-gradient-to-tr from-blue-100/30 to-transparent rounded-full blur-3xl" />
+      <div className="absolute top-1/3 right-0 w-64 sm:w-96 h-64 sm:h-96 bg-gradient-to-bl from-[#D4A24A]/10 to-transparent rounded-full blur-3xl" />
+      <div className="absolute bottom-1/3 left-0 w-56 sm:w-80 h-56 sm:h-80 bg-gradient-to-tr from-blue-100/30 to-transparent rounded-full blur-3xl" />
       
-      <div className="max-w-7xl mx-auto px-6 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 relative">
         <motion.div
-          className="text-center mb-12"
+          className="text-center mb-8 sm:mb-12"
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-5xl mb-4 bg-gradient-to-r from-[#1E293B] to-[#D4A24A] bg-clip-text text-transparent">Our Team</h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-[#D4A24A] to-[#B8883D] mx-auto rounded-full shadow-lg shadow-[#D4A24A]/30" />
+          <h2 className="text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-4 bg-gradient-to-r from-[#1E293B] to-[#D4A24A] bg-clip-text text-transparent">Our Team</h2>
+          <div className="w-20 sm:w-24 h-1 bg-gradient-to-r from-[#D4A24A] to-[#B8883D] mx-auto rounded-full shadow-lg shadow-[#D4A24A]/30" />
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {teamMembers.map((member, index) => (
             <motion.a
               key={member.name}
@@ -85,16 +85,16 @@ export function Team() {
             >
               {/* Glass-morphic team card */}
               <motion.div 
-                className="bg-white/80 rounded-3xl shadow-xl p-6 border border-white/60 hover:shadow-2xl transition-all"
+                className="bg-white/80 rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-6 border border-white/60 hover:shadow-2xl transition-all h-full"
                 whileHover={{ y: -10 }}
                 transition={{ duration: 0.3 }}
               >
                 {/* Golden glow on hover */}
-                <div className="absolute -inset-1 bg-gradient-to-br from-[#D4A24A]/20 via-amber-300/10 to-[#D4A24A]/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
+                <div className="absolute -inset-1 bg-gradient-to-br from-[#D4A24A]/20 via-amber-300/10 to-[#D4A24A]/20 rounded-2xl sm:rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
                 
                 <div className="flex flex-col items-center text-center">
                   <motion.div
-                    className="relative w-32 h-32 rounded-full overflow-hidden mb-4 shadow-lg bg-white"
+                    className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden mb-3 sm:mb-4 shadow-lg bg-white"
                     whileHover={{ scale: 1.1, rotate: 5 }}
                     transition={{ duration: 0.3 }}
                   >
@@ -126,13 +126,13 @@ export function Team() {
                     )}
                   </motion.div>
                   
-                  <h3 className="text-2xl mb-2 bg-gradient-to-r from-[#1E293B] to-[#334155] bg-clip-text text-transparent">{member.name}</h3>
-                  <div className="relative mb-4">
-                    <p className="text-lg text-[#D4A24A] px-4 py-1 rounded-full bg-[#D4A24A]/10 border border-[#D4A24A]/20">
+                  <h3 className="text-xl sm:text-2xl mb-1 sm:mb-2 bg-gradient-to-r from-[#1E293B] to-[#334155] bg-clip-text text-transparent">{member.name}</h3>
+                  <div className="relative mb-3 sm:mb-4">
+                    <p className="text-sm sm:text-lg text-[#D4A24A] px-3 sm:px-4 py-1 rounded-full bg-[#D4A24A]/10 border border-[#D4A24A]/20">
                       {member.role}
                     </p>
                   </div>
-                  <p className="text-gray-700 leading-relaxed text-sm">{member.description}</p>
+                  <p className="text-gray-700 leading-relaxed text-xs sm:text-sm line-clamp-4 sm:line-clamp-none">{member.description}</p>
                 </div>
               </motion.div>
             </motion.a>
