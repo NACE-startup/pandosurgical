@@ -1,4 +1,4 @@
-import { initializeApp } from 'firebase/app';
+import { initializeApp, FirebaseApp } from 'firebase/app';
 import { 
   getAuth, 
   GoogleAuthProvider, 
@@ -9,7 +9,8 @@ import {
   onAuthStateChanged,
   sendPasswordResetEmail,
   updateProfile,
-  User
+  User,
+  Auth
 } from 'firebase/auth';
 
 // Firebase configuration - Use environment variables in production
@@ -22,18 +23,32 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+// Check if Firebase config is available
+const isFirebaseConfigured = firebaseConfig.apiKey && firebaseConfig.projectId;
 
-// Google Auth Provider
-const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({
-  prompt: 'select_account'
-});
+// Initialize Firebase only if configured
+let app: FirebaseApp | null = null;
+let auth: Auth | null = null;
+let googleProvider: GoogleAuthProvider | null = null;
 
-// Auth functions
+if (isFirebaseConfigured) {
+  try {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    googleProvider = new GoogleAuthProvider();
+    googleProvider.setCustomParameters({
+      prompt: 'select_account'
+    });
+  } catch (error) {
+    console.error('Firebase initialization error:', error);
+  }
+}
+
+// Auth functions with safety checks
 export const signInWithGoogle = async () => {
+  if (!auth || !googleProvider) {
+    return { user: null, error: 'Authentication not configured' };
+  }
   try {
     const result = await signInWithPopup(auth, googleProvider);
     return { user: result.user, error: null };
@@ -43,6 +58,9 @@ export const signInWithGoogle = async () => {
 };
 
 export const signInWithEmail = async (email: string, password: string) => {
+  if (!auth) {
+    return { user: null, error: 'Authentication not configured' };
+  }
   try {
     const result = await signInWithEmailAndPassword(auth, email, password);
     return { user: result.user, error: null };
@@ -56,12 +74,17 @@ export const signInWithEmail = async (email: string, password: string) => {
       errorMessage = 'Invalid email address';
     } else if (error.code === 'auth/too-many-requests') {
       errorMessage = 'Too many failed attempts. Please try again later';
+    } else if (error.code === 'auth/invalid-credential') {
+      errorMessage = 'Invalid email or password';
     }
     return { user: null, error: errorMessage };
   }
 };
 
 export const signUpWithEmail = async (email: string, password: string, displayName: string) => {
+  if (!auth) {
+    return { user: null, error: 'Authentication not configured' };
+  }
   try {
     const result = await createUserWithEmailAndPassword(auth, email, password);
     // Update the user's display name
@@ -83,6 +106,9 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
 };
 
 export const resetPassword = async (email: string) => {
+  if (!auth) {
+    return { success: false, error: 'Authentication not configured' };
+  }
   try {
     await sendPasswordResetEmail(auth, email);
     return { success: true, error: null };
@@ -96,6 +122,9 @@ export const resetPassword = async (email: string) => {
 };
 
 export const logOut = async () => {
+  if (!auth) {
+    return { success: false, error: 'Authentication not configured' };
+  }
   try {
     await signOut(auth);
     return { success: true, error: null };
@@ -106,8 +135,12 @@ export const logOut = async () => {
 
 // Auth state observer
 export const onAuthChange = (callback: (user: User | null) => void) => {
+  if (!auth) {
+    callback(null);
+    return () => {};
+  }
   return onAuthStateChanged(auth, callback);
 };
 
+export { auth };
 export type { User };
-
