@@ -2,10 +2,12 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import logoImage from '@/assets/0c6f0bb1f894e59d5c97c02e2b86e66e1b5d65e8.png';
+import { LoginModal } from './LoginModal';
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,9 +28,9 @@ export function Header() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Prevent body scroll when mobile menu is open
+  // Prevent body scroll when mobile menu or login modal is open
   useEffect(() => {
-    if (mobileMenuOpen) {
+    if (mobileMenuOpen || loginModalOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -36,7 +38,7 @@ export function Header() {
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [mobileMenuOpen]);
+  }, [mobileMenuOpen, loginModalOpen]);
 
   const scrollToSection = (id: string) => {
     setMobileMenuOpen(false);
@@ -44,6 +46,10 @@ export function Header() {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
+  };
+
+  const handleLogoClick = () => {
+    setLoginModalOpen(true);
   };
 
   const navItems = ['Home', 'LapRotator', 'Our Team', 'Contact'];
@@ -61,9 +67,11 @@ export function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <motion.div
             className="flex items-center gap-2 sm:gap-3 cursor-pointer"
-            onClick={() => scrollToSection('home')}
+            onClick={handleLogoClick}
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2 }}
+            role="button"
+            aria-label="Open login"
           >
             {/* Glass-morphic logo container with actual logo */}
             <div className="relative">
@@ -151,6 +159,12 @@ export function Header() {
           </>
         )}
       </AnimatePresence>
+
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={loginModalOpen} 
+        onClose={() => setLoginModalOpen(false)} 
+      />
     </>
   );
 }
