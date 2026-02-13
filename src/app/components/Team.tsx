@@ -42,7 +42,7 @@ export function Team() {
       image: derekImage,
       linkedin: 'https://www.linkedin.com/in/derekhuausc/',
       description:
-        'Derek is a biomedical engineering student at USC.',
+        'Derek Hua is a Biomedical Engineering and Pre-Medicine student at the University of Southern California focused on the intersection of engineering and surgical technique. His experience is rooted in clinical research and the hands-on development of medical devices, with a specific specialization in endoscopic devices and biomaterials. Derek brings this technical expertise to Pando Surgical with a persistent drive to improve patient outcomes and save lives through smarter engineering.',
     },
     {
       name: 'Sean Lee',
