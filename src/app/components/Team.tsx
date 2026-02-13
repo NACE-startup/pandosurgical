@@ -134,7 +134,7 @@ export function Team() {
                       {member.role}
                     </p>
                   </div>
-                  <p className="text-gray-700 leading-relaxed text-xs sm:text-sm line-clamp-4 sm:line-clamp-none">{member.description}</p>
+                  <p className="text-gray-700 leading-relaxed text-xs sm:text-sm">{member.description}</p>
                 </div>
               </motion.div>
             </motion.a>
