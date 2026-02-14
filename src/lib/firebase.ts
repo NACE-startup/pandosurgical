@@ -269,16 +269,23 @@ export interface FirestoreEvent {
 
 // Add event
 export const addEvent = async (event: Omit<FirestoreEvent, 'id' | 'createdAt'>) => {
-  if (!db) return null;
+  if (!db) {
+    console.error('Firestore not initialized - cannot add event');
+    return null;
+  }
   try {
+    console.log('Saving event to Firestore:', event);
     const eventsRef = collection(db, 'events');
     const docRef = await addDoc(eventsRef, {
       ...event,
       createdAt: serverTimestamp()
     });
+    console.log('Event saved successfully with ID:', docRef.id);
     return docRef.id;
-  } catch (error) {
-    console.error('Error adding event:', error);
+  } catch (error: any) {
+    console.error('Error adding event to Firestore:', error);
+    console.error('Error code:', error.code);
+    console.error('Error message:', error.message);
     return null;
   }
 };
@@ -371,16 +378,23 @@ export interface FirestoreTask {
 
 // Add task
 export const addTask = async (task: Omit<FirestoreTask, 'id' | 'createdAt'>) => {
-  if (!db) return null;
+  if (!db) {
+    console.error('Firestore not initialized - cannot add task');
+    return null;
+  }
   try {
+    console.log('Saving task to Firestore:', task);
     const tasksRef = collection(db, 'tasks');
     const docRef = await addDoc(tasksRef, {
       ...task,
       createdAt: serverTimestamp()
     });
+    console.log('Task saved successfully with ID:', docRef.id);
     return docRef.id;
-  } catch (error) {
-    console.error('Error adding task:', error);
+  } catch (error: any) {
+    console.error('Error adding task to Firestore:', error);
+    console.error('Error code:', error.code);
+    console.error('Error message:', error.message);
     return null;
   }
 };

@@ -310,7 +310,13 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
       visibility: newEvent.visibility
     };
     const eventId = await addEventToDb(eventData);
-    if (eventId) setEvents([...events, { id: eventId, ...eventData }]);
+    if (eventId) {
+      setEvents([...events, { id: eventId, ...eventData }]);
+      console.log('Event added successfully:', eventId);
+    } else {
+      console.error('Failed to save event to database');
+      alert('Failed to save event. Please check your connection and try again.');
+    }
     setNewEvent({ title: '', date: '', time: '', type: 'meeting', description: '', assignees: [], visibility: 'private' });
     setShowEventModal(false);
   };
@@ -333,7 +339,13 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
       visibility: newTask.visibility
     };
     const taskId = await addTaskToDb(taskData);
-    if (taskId) setTasks([...tasks, { id: taskId, ...taskData }]);
+    if (taskId) {
+      setTasks([...tasks, { id: taskId, ...taskData }]);
+      console.log('Task added successfully:', taskId);
+    } else {
+      console.error('Failed to save task to database');
+      alert('Failed to save task. Please check your connection and try again.');
+    }
     setNewTask({ title: '', description: '', dueDate: '', priority: 'medium', status: 'todo', assignees: [], visibility: 'private' });
     setShowTaskModal(false);
   };
