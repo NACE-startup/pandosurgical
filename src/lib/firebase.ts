@@ -12,6 +12,23 @@ import {
   User,
   Auth
 } from 'firebase/auth';
+import {
+  getFirestore,
+  collection,
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  serverTimestamp,
+  Firestore
+} from 'firebase/firestore';
 
 // Firebase configuration - Use environment variables in production
 const firebaseConfig = {
@@ -29,12 +46,14 @@ const isFirebaseConfigured = firebaseConfig.apiKey && firebaseConfig.projectId;
 // Initialize Firebase only if configured
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
+let db: Firestore | null = null;
 let googleProvider: GoogleAuthProvider | null = null;
 
 if (isFirebaseConfigured) {
   try {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
+    db = getFirestore(app);
     googleProvider = new GoogleAuthProvider();
     googleProvider.setCustomParameters({
       prompt: 'select_account'
@@ -51,6 +70,10 @@ export const signInWithGoogle = async () => {
   }
   try {
     const result = await signInWithPopup(auth, googleProvider);
+    // Save user to Firestore
+    if (result.user && db) {
+      await saveUserToFirestore(result.user);
+    }
     return { user: result.user, error: null };
   } catch (error: any) {
     return { user: null, error: error.message };
@@ -90,6 +113,10 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
     // Update the user's display name
     if (result.user) {
       await updateProfile(result.user, { displayName });
+      // Save user to Firestore
+      if (db) {
+        await saveUserToFirestore(result.user);
+      }
     }
     return { user: result.user, error: null };
   } catch (error: any) {
@@ -142,5 +169,299 @@ export const onAuthChange = (callback: (user: User | null) => void) => {
   return onAuthStateChanged(auth, callback);
 };
 
-export { auth };
+// ============ FIRESTORE FUNCTIONS ============
+
+// Save user to Firestore when they sign up/sign in
+const saveUserToFirestore = async (user: User) => {
+  if (!db) return;
+  try {
+    const userRef = doc(db, 'users', user.uid);
+    const userSnap = await getDoc(userRef);
+    
+    if (!userSnap.exists()) {
+      await setDoc(userRef, {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName || '',
+        photoURL: user.photoURL || '',
+        createdAt: serverTimestamp(),
+        lastLogin: serverTimestamp()
+      });
+    } else {
+      await updateDoc(userRef, {
+        lastLogin: serverTimestamp()
+      });
+    }
+  } catch (error) {
+    console.error('Error saving user to Firestore:', error);
+  }
+};
+
+// Search users by email
+export const searchUsersByEmail = async (emailQuery: string) => {
+  if (!db) return [];
+  try {
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('email', '>=', emailQuery), where('email', '<=', emailQuery + '\uf8ff'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error('Error searching users:', error);
+    return [];
+  }
+};
+
+// Get all users (for team display)
+export const getAllUsers = async () => {
+  if (!db) return [];
+  try {
+    const usersRef = collection(db, 'users');
+    const snapshot = await getDocs(usersRef);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error('Error getting users:', error);
+    return [];
+  }
+};
+
+// ============ EVENTS ============
+
+export interface FirestoreEvent {
+  id?: string;
+  title: string;
+  date: string;
+  time: string;
+  type: 'meeting' | 'interview' | 'deadline' | 'other';
+  description?: string;
+  createdBy: string;
+  createdByEmail: string;
+  sharedWith: string[]; // Array of user IDs who can view
+  createdAt?: any;
+}
+
+// Add event
+export const addEvent = async (event: Omit<FirestoreEvent, 'id' | 'createdAt'>) => {
+  if (!db) return null;
+  try {
+    const eventsRef = collection(db, 'events');
+    const docRef = await addDoc(eventsRef, {
+      ...event,
+      createdAt: serverTimestamp()
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding event:', error);
+    return null;
+  }
+};
+
+// Get events for user (created by them or shared with them)
+export const getEventsForUser = async (userId: string) => {
+  if (!db) return [];
+  try {
+    const eventsRef = collection(db, 'events');
+    // Get events created by user
+    const createdQuery = query(eventsRef, where('createdBy', '==', userId));
+    const createdSnap = await getDocs(createdQuery);
+    
+    // Get events shared with user
+    const sharedQuery = query(eventsRef, where('sharedWith', 'array-contains', userId));
+    const sharedSnap = await getDocs(sharedQuery);
+    
+    const events = new Map();
+    createdSnap.docs.forEach(doc => events.set(doc.id, { id: doc.id, ...doc.data() }));
+    sharedSnap.docs.forEach(doc => events.set(doc.id, { id: doc.id, ...doc.data() }));
+    
+    return Array.from(events.values());
+  } catch (error) {
+    console.error('Error getting events:', error);
+    return [];
+  }
+};
+
+// Delete event
+export const deleteEvent = async (eventId: string) => {
+  if (!db) return false;
+  try {
+    await deleteDoc(doc(db, 'events', eventId));
+    return true;
+  } catch (error) {
+    console.error('Error deleting event:', error);
+    return false;
+  }
+};
+
+// Update event shared users
+export const updateEventSharing = async (eventId: string, sharedWith: string[]) => {
+  if (!db) return false;
+  try {
+    await updateDoc(doc(db, 'events', eventId), { sharedWith });
+    return true;
+  } catch (error) {
+    console.error('Error updating event sharing:', error);
+    return false;
+  }
+};
+
+// ============ TASKS ============
+
+export interface FirestoreTask {
+  id?: string;
+  title: string;
+  description?: string;
+  dueDate?: string;
+  priority: 'low' | 'medium' | 'high';
+  status: 'todo' | 'in_progress' | 'done';
+  createdBy: string;
+  assignedTo?: string;
+  createdAt?: any;
+}
+
+// Add task
+export const addTask = async (task: Omit<FirestoreTask, 'id' | 'createdAt'>) => {
+  if (!db) return null;
+  try {
+    const tasksRef = collection(db, 'tasks');
+    const docRef = await addDoc(tasksRef, {
+      ...task,
+      createdAt: serverTimestamp()
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding task:', error);
+    return null;
+  }
+};
+
+// Get tasks for user
+export const getTasksForUser = async (userId: string) => {
+  if (!db) return [];
+  try {
+    const tasksRef = collection(db, 'tasks');
+    const q = query(tasksRef, where('createdBy', '==', userId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error('Error getting tasks:', error);
+    return [];
+  }
+};
+
+// Update task
+export const updateTask = async (taskId: string, updates: Partial<FirestoreTask>) => {
+  if (!db) return false;
+  try {
+    await updateDoc(doc(db, 'tasks', taskId), updates);
+    return true;
+  } catch (error) {
+    console.error('Error updating task:', error);
+    return false;
+  }
+};
+
+// Delete task
+export const deleteTask = async (taskId: string) => {
+  if (!db) return false;
+  try {
+    await deleteDoc(doc(db, 'tasks', taskId));
+    return true;
+  } catch (error) {
+    console.error('Error deleting task:', error);
+    return false;
+  }
+};
+
+// ============ TEAM INVITES ============
+
+export interface TeamInvite {
+  id?: string;
+  inviterId: string;
+  inviterEmail: string;
+  inviteeId: string;
+  inviteeEmail: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  createdAt?: any;
+}
+
+// Send team invite
+export const sendTeamInvite = async (inviterId: string, inviterEmail: string, inviteeId: string, inviteeEmail: string) => {
+  if (!db) return null;
+  try {
+    const invitesRef = collection(db, 'teamInvites');
+    const docRef = await addDoc(invitesRef, {
+      inviterId,
+      inviterEmail,
+      inviteeId,
+      inviteeEmail,
+      status: 'pending',
+      createdAt: serverTimestamp()
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Error sending invite:', error);
+    return null;
+  }
+};
+
+// Get team members (accepted invites)
+export const getTeamMembers = async (userId: string) => {
+  if (!db) return [];
+  try {
+    const invitesRef = collection(db, 'teamInvites');
+    
+    // Get invites sent by user
+    const sentQuery = query(invitesRef, where('inviterId', '==', userId), where('status', '==', 'accepted'));
+    const sentSnap = await getDocs(sentQuery);
+    
+    // Get invites received by user
+    const receivedQuery = query(invitesRef, where('inviteeId', '==', userId), where('status', '==', 'accepted'));
+    const receivedSnap = await getDocs(receivedQuery);
+    
+    const memberIds = new Set<string>();
+    sentSnap.docs.forEach(doc => memberIds.add(doc.data().inviteeId));
+    receivedSnap.docs.forEach(doc => memberIds.add(doc.data().inviterId));
+    
+    // Get user details for each member
+    const members = [];
+    for (const memberId of memberIds) {
+      const userDoc = await getDoc(doc(db, 'users', memberId));
+      if (userDoc.exists()) {
+        members.push({ id: userDoc.id, ...userDoc.data() });
+      }
+    }
+    
+    return members;
+  } catch (error) {
+    console.error('Error getting team members:', error);
+    return [];
+  }
+};
+
+// Get pending invites for user
+export const getPendingInvites = async (userId: string) => {
+  if (!db) return [];
+  try {
+    const invitesRef = collection(db, 'teamInvites');
+    const q = query(invitesRef, where('inviteeId', '==', userId), where('status', '==', 'pending'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error('Error getting invites:', error);
+    return [];
+  }
+};
+
+// Accept/reject invite
+export const respondToInvite = async (inviteId: string, status: 'accepted' | 'rejected') => {
+  if (!db) return false;
+  try {
+    await updateDoc(doc(db, 'teamInvites', inviteId), { status });
+    return true;
+  } catch (error) {
+    console.error('Error responding to invite:', error);
+    return false;
+  }
+};
+
+export { auth, db };
 export type { User };
