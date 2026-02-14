@@ -21,7 +21,7 @@ import {
   CalendarDays
 } from 'lucide-react';
 import { logOut, User } from '@/lib/firebase';
-import { loadCronofyElements, isCronofyConfigured } from '@/lib/cronofy';
+import { loadCronofyElements } from '@/lib/cronofy';
 
 interface DashboardProps {
   isOpen: boolean;
@@ -74,14 +74,13 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
   });
   
   const calendarRef = useRef<HTMLDivElement>(null);
-  const agendaRef = useRef<HTMLDivElement>(null);
 
   // Save tasks to localStorage
   useEffect(() => {
     localStorage.setItem('pando_tasks', JSON.stringify(tasks));
   }, [tasks]);
 
-  // Load Cronofy Elements
+  // Load Cronofy Elements in Demo Mode
   useEffect(() => {
     if (isOpen && activeTab === 'schedule') {
       loadCronofyElements()
@@ -96,46 +95,23 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
     }
   }, [isOpen, activeTab]);
 
-  // Initialize Cronofy Elements when loaded
+  // Initialize Cronofy Elements in Demo Mode
   useEffect(() => {
-    if (cronofyLoaded && activeTab === 'schedule' && isCronofyConfigured()) {
-      const elementToken = import.meta.env.VITE_CRONOFY_ELEMENT_TOKEN;
+    if (cronofyLoaded && activeTab === 'schedule') {
+      const CronofyElements = (window as any).CronofyElements;
       
-      if (elementToken && calendarRef.current) {
-        const CronofyElements = (window as any).CronofyElements;
-        
+      if (calendarRef.current && CronofyElements) {
         // Clear previous elements
-        if (calendarRef.current) {
-          calendarRef.current.innerHTML = '<div id="cronofy-calendar"></div>';
-        }
-        if (agendaRef.current) {
-          agendaRef.current.innerHTML = '<div id="cronofy-agenda"></div>';
-        }
+        calendarRef.current.innerHTML = '<div id="cronofy-agenda"></div>';
 
-        // Initialize Date Time Picker for scheduling
+        // Initialize in Demo Mode (no token needed!)
         setTimeout(() => {
           try {
-            CronofyElements.DateTimePicker({
-              element_token: elementToken,
-              target_id: 'cronofy-calendar',
-              data_center: import.meta.env.VITE_CRONOFY_DATA_CENTER || 'us',
-              availability_query: {
-                participants: [
-                  {
-                    required: 'all',
-                    members: [{ sub: 'acc_placeholder' }]
-                  }
-                ],
-                required_duration: { minutes: 30 },
-                query_periods: getNextTwoWeeks()
-              },
+            CronofyElements.Agenda({
+              target_id: 'cronofy-agenda',
+              demo: true, // Demo mode - shows mock data
               styles: {
                 prefix: 'cronofy-pando'
-              },
-              callback: (notification: any) => {
-                if (notification.notification.type === 'slot_selected') {
-                  console.log('Slot selected:', notification.notification.slot);
-                }
               }
             });
           } catch (e) {
@@ -145,24 +121,6 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
       }
     }
   }, [cronofyLoaded, activeTab]);
-
-  const getNextTwoWeeks = () => {
-    const periods = [];
-    const now = new Date();
-    
-    for (let i = 0; i < 14; i++) {
-      const date = new Date(now);
-      date.setDate(date.getDate() + i);
-      const dateStr = date.toISOString().split('T')[0];
-      
-      periods.push({
-        start: `${dateStr}T09:00:00Z`,
-        end: `${dateStr}T18:00:00Z`
-      });
-    }
-    
-    return periods;
-  };
 
   const handleLogout = async () => {
     await logOut();
@@ -202,7 +160,8 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
     high: 'bg-red-100 text-red-700'
   };
 
-  const cronofyConfigured = isCronofyConfigured();
+  // Cronofy dashboard URL with your Client ID
+  const cronofyDashboardUrl = 'https://app.cronofy.com';
 
   return (
     <AnimatePresence>
@@ -313,71 +272,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                 <div className="flex-1 overflow-auto p-4 sm:p-8">
                   {activeTab === 'schedule' && (
                     <div className="space-y-6">
-                      {!cronofyConfigured ? (
-                        /* Setup Instructions */
-                        <div className="bg-gradient-to-br from-[#D4A24A]/10 to-[#B8883D]/10 rounded-2xl border border-[#D4A24A]/30 p-8">
-                          <div className="max-w-2xl mx-auto text-center">
-                            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-[#D4A24A] to-[#B8883D] flex items-center justify-center">
-                              <CalendarDays className="w-10 h-10 text-white" />
-                            </div>
-                            <h2 className="text-2xl font-bold text-gray-900 mb-3">Connect Your Calendars</h2>
-                            <p className="text-gray-600 mb-8">
-                              Set up Cronofy to sync your team's calendars (Google, Outlook, Apple) and schedule meetings instantly.
-                            </p>
-                            
-                            <div className="bg-white rounded-xl p-6 text-left mb-6">
-                              <h3 className="font-semibold text-gray-900 mb-4">Quick Setup Guide:</h3>
-                              <ol className="space-y-4">
-                                <li className="flex gap-3">
-                                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#D4A24A] text-white text-sm flex items-center justify-center">1</span>
-                                  <div>
-                                    <p className="font-medium text-gray-900">Create a Cronofy Account</p>
-                                    <p className="text-sm text-gray-500">Sign up at <a href="https://app.cronofy.com/sign_up" target="_blank" rel="noopener noreferrer" className="text-[#D4A24A] hover:underline">app.cronofy.com</a> (free trial available)</p>
-                                  </div>
-                                </li>
-                                <li className="flex gap-3">
-                                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#D4A24A] text-white text-sm flex items-center justify-center">2</span>
-                                  <div>
-                                    <p className="font-medium text-gray-900">Get Your API Credentials</p>
-                                    <p className="text-sm text-gray-500">Go to Developer Dashboard → Create an App → Copy Client ID</p>
-                                  </div>
-                                </li>
-                                <li className="flex gap-3">
-                                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#D4A24A] text-white text-sm flex items-center justify-center">3</span>
-                                  <div>
-                                    <p className="font-medium text-gray-900">Generate Element Token</p>
-                                    <p className="text-sm text-gray-500">In your Cronofy dashboard, generate an Element Token for UI components</p>
-                                  </div>
-                                </li>
-                                <li className="flex gap-3">
-                                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#D4A24A] text-white text-sm flex items-center justify-center">4</span>
-                                  <div>
-                                    <p className="font-medium text-gray-900">Add to Vercel Environment</p>
-                                    <p className="text-sm text-gray-500">Add these variables to your Vercel project:</p>
-                                    <code className="block mt-2 p-3 bg-gray-100 rounded-lg text-xs overflow-x-auto">
-                                      VITE_CRONOFY_CLIENT_ID=your_client_id<br/>
-                                      VITE_CRONOFY_ELEMENT_TOKEN=your_element_token<br/>
-                                      VITE_CRONOFY_DATA_CENTER=us
-                                    </code>
-                                  </div>
-                                </li>
-                              </ol>
-                            </div>
-
-                            <motion.a
-                              href="https://app.cronofy.com/sign_up"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#D4A24A] to-[#B8883D] text-white rounded-xl font-medium shadow-lg shadow-[#D4A24A]/30"
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                            >
-                              <ExternalLink className="w-5 h-5" />
-                              Get Started with Cronofy
-                            </motion.a>
-                          </div>
-                        </div>
-                      ) : cronofyError ? (
+                      {cronofyError ? (
                         /* Error State */
                         <div className="bg-red-50 rounded-2xl border border-red-200 p-8 text-center">
                           <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
@@ -402,31 +297,62 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                       ) : (
                         /* Calendar View */
                         <div className="grid lg:grid-cols-3 gap-6">
-                          <div className="lg:col-span-2">
+                          <div className="lg:col-span-2 space-y-6">
+                            {/* Demo Calendar Preview */}
                             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                               <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-lg font-semibold text-gray-900">Schedule a Meeting</h2>
-                                <a
-                                  href="https://app.cronofy.com"
+                                <div>
+                                  <h2 className="text-lg font-semibold text-gray-900">Your Agenda</h2>
+                                  <p className="text-sm text-gray-500">Preview mode - Connect calendar for real data</p>
+                                </div>
+                                <span className="px-3 py-1 bg-[#D4A24A]/20 text-[#D4A24A] text-xs font-medium rounded-full">
+                                  Demo
+                                </span>
+                              </div>
+                              <div ref={calendarRef} className="min-h-[300px]">
+                                <div id="cronofy-agenda" />
+                              </div>
+                            </div>
+
+                            {/* Main Action - Go to Cronofy */}
+                            <div className="bg-gradient-to-br from-[#D4A24A] to-[#B8883D] rounded-2xl p-6 text-white">
+                              <h3 className="text-xl font-bold mb-2">Ready to Schedule?</h3>
+                              <p className="text-white/80 mb-4">
+                                Use Cronofy's dashboard to connect your calendars, create scheduling links, and manage your team's availability.
+                              </p>
+                              <div className="flex flex-wrap gap-3">
+                                <motion.a
+                                  href={cronofyDashboardUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-sm text-[#D4A24A] hover:underline flex items-center gap-1"
+                                  className="inline-flex items-center gap-2 px-4 py-2 bg-white text-[#D4A24A] rounded-xl font-medium"
+                                  whileHover={{ scale: 1.02 }}
+                                  whileTap={{ scale: 0.98 }}
                                 >
-                                  <Settings className="w-4 h-4" />
-                                  Manage Calendars
-                                </a>
-                              </div>
-                              <div ref={calendarRef} className="min-h-[400px]">
-                                <div id="cronofy-calendar" />
+                                  <CalendarDays className="w-5 h-5" />
+                                  Open Cronofy Dashboard
+                                </motion.a>
+                                <motion.a
+                                  href="https://app.cronofy.com/oauth/authorize"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 text-white rounded-xl font-medium"
+                                  whileHover={{ scale: 1.02 }}
+                                  whileTap={{ scale: 0.98 }}
+                                >
+                                  <Link2 className="w-5 h-5" />
+                                  Connect Calendar
+                                </motion.a>
                               </div>
                             </div>
                           </div>
                           
                           <div className="space-y-4">
+                            {/* Quick Actions */}
                             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
                               <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                                 <Link2 className="w-5 h-5 text-[#D4A24A]" />
-                                Quick Links
+                                Quick Actions
                               </h3>
                               <div className="space-y-2">
                                 <a
@@ -453,17 +379,42 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                   rel="noopener noreferrer"
                                   className="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
                                 >
-                                  <span className="text-sm text-gray-700">View Team Availability</span>
+                                  <span className="text-sm text-gray-700">Team Availability</span>
+                                  <ExternalLink className="w-4 h-4 text-gray-400" />
+                                </a>
+                                <a
+                                  href="https://app.cronofy.com/users"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                                >
+                                  <span className="text-sm text-gray-700">Invite Team Members</span>
                                   <ExternalLink className="w-4 h-4 text-gray-400" />
                                 </a>
                               </div>
                             </div>
 
-                            <div className="bg-gradient-to-br from-[#D4A24A]/10 to-[#B8883D]/10 rounded-2xl border border-[#D4A24A]/30 p-4">
-                              <h3 className="font-semibold text-gray-900 mb-2">💡 Pro Tip</h3>
-                              <p className="text-sm text-gray-600">
-                                Share your Cronofy scheduling link with external contacts. They can book time on your calendar without back-and-forth emails!
-                              </p>
+                            {/* Pro Tip */}
+                            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-4">
+                              <h3 className="font-semibold text-gray-900 mb-2">💡 How It Works</h3>
+                              <ol className="text-sm text-gray-600 space-y-2">
+                                <li className="flex gap-2">
+                                  <span className="text-[#D4A24A] font-bold">1.</span>
+                                  Connect your Google/Outlook calendar
+                                </li>
+                                <li className="flex gap-2">
+                                  <span className="text-[#D4A24A] font-bold">2.</span>
+                                  Create a scheduling link
+                                </li>
+                                <li className="flex gap-2">
+                                  <span className="text-[#D4A24A] font-bold">3.</span>
+                                  Share link with others
+                                </li>
+                                <li className="flex gap-2">
+                                  <span className="text-[#D4A24A] font-bold">4.</span>
+                                  They pick a time, it's on your calendar!
+                                </li>
+                              </ol>
                             </div>
                           </div>
                         </div>
@@ -672,15 +623,15 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                         <h3 className="font-semibold text-gray-900 mb-4">Cronofy Integration</h3>
                         <div className="space-y-3">
-                          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                            <div>
-                              <p className="font-medium text-gray-900">Calendar Status</p>
-                              <p className="text-sm text-gray-500">
-                                {cronofyConfigured ? 'Connected' : 'Not configured'}
-                              </p>
-                            </div>
-                            <div className={`w-3 h-3 rounded-full ${cronofyConfigured ? 'bg-green-500' : 'bg-gray-300'}`} />
-                          </div>
+                          <a
+                            href="https://app.cronofy.com/calendars"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                          >
+                            <span className="text-sm text-gray-700">Connect Calendars</span>
+                            <ExternalLink className="w-4 h-4 text-gray-400" />
+                          </a>
                           <a
                             href="https://app.cronofy.com/settings"
                             target="_blank"
