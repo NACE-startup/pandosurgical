@@ -262,6 +262,7 @@ export interface FirestoreEvent {
   createdBy: string;
   createdByEmail: string;
   sharedWith: string[]; // Array of user IDs who can view
+  assignees?: string[]; // Array of user IDs involved in the event
   createdAt?: any;
 }
 
@@ -281,7 +282,7 @@ export const addEvent = async (event: Omit<FirestoreEvent, 'id' | 'createdAt'>) 
   }
 };
 
-// Get events for user (created by them or shared with them)
+// Get events for user (created by them, shared with them, or assigned to them)
 export const getEventsForUser = async (userId: string) => {
   if (!db) return [];
   try {
@@ -294,9 +295,14 @@ export const getEventsForUser = async (userId: string) => {
     const sharedQuery = query(eventsRef, where('sharedWith', 'array-contains', userId));
     const sharedSnap = await getDocs(sharedQuery);
     
+    // Get events where user is an assignee
+    const assignedQuery = query(eventsRef, where('assignees', 'array-contains', userId));
+    const assignedSnap = await getDocs(assignedQuery);
+    
     const events = new Map();
     createdSnap.docs.forEach(doc => events.set(doc.id, { id: doc.id, ...doc.data() }));
     sharedSnap.docs.forEach(doc => events.set(doc.id, { id: doc.id, ...doc.data() }));
+    assignedSnap.docs.forEach(doc => events.set(doc.id, { id: doc.id, ...doc.data() }));
     
     return Array.from(events.values());
   } catch (error) {
@@ -339,7 +345,7 @@ export interface FirestoreTask {
   priority: 'low' | 'medium' | 'high';
   status: 'todo' | 'in_progress' | 'done';
   createdBy: string;
-  assignedTo?: string;
+  assignees?: string[]; // Array of user IDs assigned to the task
   createdAt?: any;
 }
 
@@ -359,14 +365,24 @@ export const addTask = async (task: Omit<FirestoreTask, 'id' | 'createdAt'>) => 
   }
 };
 
-// Get tasks for user
+// Get tasks for user (created by them or assigned to them)
 export const getTasksForUser = async (userId: string) => {
   if (!db) return [];
   try {
     const tasksRef = collection(db, 'tasks');
-    const q = query(tasksRef, where('createdBy', '==', userId));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    // Get tasks created by user
+    const createdQuery = query(tasksRef, where('createdBy', '==', userId));
+    const createdSnap = await getDocs(createdQuery);
+    
+    // Get tasks assigned to user
+    const assignedQuery = query(tasksRef, where('assignees', 'array-contains', userId));
+    const assignedSnap = await getDocs(assignedQuery);
+    
+    const tasks = new Map();
+    createdSnap.docs.forEach(doc => tasks.set(doc.id, { id: doc.id, ...doc.data() }));
+    assignedSnap.docs.forEach(doc => tasks.set(doc.id, { id: doc.id, ...doc.data() }));
+    
+    return Array.from(tasks.values());
   } catch (error) {
     console.error('Error getting tasks:', error);
     return [];

@@ -23,7 +23,9 @@ import {
   Sparkles,
   Zap,
   Sun,
-  Moon
+  Moon,
+  Check,
+  ListTodo
 } from 'lucide-react';
 import { 
   logOut, 
@@ -61,6 +63,7 @@ interface Event {
   createdBy: string;
   createdByEmail: string;
   sharedWith: string[];
+  assignees?: string[];
 }
 
 interface Task {
@@ -71,6 +74,7 @@ interface Task {
   priority: 'low' | 'medium' | 'high';
   status: 'todo' | 'in_progress' | 'done';
   createdBy: string;
+  assignees?: string[];
 }
 
 interface TeamMember {
@@ -84,6 +88,20 @@ interface Invite {
   inviterId: string;
   inviterEmail: string;
   status: string;
+}
+
+// Calendar item type for unified display
+interface CalendarItem {
+  id: string;
+  title: string;
+  date: string;
+  time?: string;
+  type: 'meeting' | 'interview' | 'deadline' | 'other' | 'task';
+  isTask?: boolean;
+  priority?: 'low' | 'medium' | 'high';
+  status?: 'todo' | 'in_progress' | 'done';
+  createdBy: string;
+  assignees?: string[];
 }
 
 // Theme configuration
@@ -113,6 +131,8 @@ const themes = {
     cancelBtn: 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200',
     taskCard: 'bg-slate-50 border-slate-200',
     glowOpacity: '0.1',
+    checkboxBg: 'bg-slate-100 border-slate-300',
+    checkboxChecked: 'bg-[#D4A24A] border-[#D4A24A]',
   },
   dark: {
     backdrop: 'bg-black/60',
@@ -139,6 +159,8 @@ const themes = {
     cancelBtn: 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10',
     taskCard: 'bg-black/20 border-white/5',
     glowOpacity: '0.2',
+    checkboxBg: 'bg-white/10 border-white/20',
+    checkboxChecked: 'bg-[#D4A24A] border-[#D4A24A]',
   }
 };
 
@@ -160,12 +182,12 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState<string | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
-  const [newEvent, setNewEvent] = useState({ title: '', date: '', time: '', type: 'meeting' as const, description: '' });
+  const [newEvent, setNewEvent] = useState({ title: '', date: '', time: '', type: 'meeting' as const, description: '', assignees: [] as string[] });
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showDeleteTaskConfirm, setShowDeleteTaskConfirm] = useState<string | null>(null);
-  const [newTask, setNewTask] = useState({ title: '', description: '', dueDate: '', priority: 'medium' as const, status: 'todo' as const });
+  const [newTask, setNewTask] = useState({ title: '', description: '', dueDate: '', priority: 'medium' as const, status: 'todo' as const, assignees: [] as string[] });
 
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [pendingInvites, setPendingInvites] = useState<Invite[]>([]);
@@ -177,6 +199,12 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
 
   const [shareSearchEmail, setShareSearchEmail] = useState('');
   const [shareSearchResults, setShareSearchResults] = useState<TeamMember[]>([]);
+
+  // Get all selectable team members (including current user)
+  const selectableMembers: TeamMember[] = user ? [
+    { id: user.uid, email: user.email || '', displayName: user.displayName || 'You' },
+    ...teamMembers.filter(m => m.id !== user.uid)
+  ] : [];
 
   useEffect(() => {
     if (isOpen && user) loadAllData();
@@ -222,16 +250,50 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
   };
 
   const formatDate = (date: Date) => date.toISOString().split('T')[0];
-  const getEventsForDate = (date: Date) => events.filter(e => e.date === formatDate(date));
+  
+  // Get calendar items for a date (events + tasks with due dates)
+  const getCalendarItemsForDate = (date: Date): CalendarItem[] => {
+    const dateStr = formatDate(date);
+    const eventItems: CalendarItem[] = events
+      .filter(e => e.date === dateStr)
+      .map(e => ({ ...e, isTask: false }));
+    
+    const taskItems: CalendarItem[] = tasks
+      .filter(t => t.dueDate === dateStr)
+      .map(t => ({
+        id: t.id,
+        title: t.title,
+        date: t.dueDate!,
+        type: 'task' as const,
+        isTask: true,
+        priority: t.priority,
+        status: t.status,
+        createdBy: t.createdBy,
+        assignees: t.assignees
+      }));
+    
+    return [...eventItems, ...taskItems];
+  };
+
+  // Check if date has any items
+  const getItemCountForDate = (date: Date) => getCalendarItemsForDate(date).length;
 
   const handleAddEvent = async () => {
     if (!user || !newEvent.title || !newEvent.date || !newEvent.time) return;
     const eventData: Omit<FirestoreEvent, 'id' | 'createdAt'> = {
-      ...newEvent, createdBy: user.uid, createdByEmail: user.email || '', sharedWith: []
+      title: newEvent.title,
+      date: newEvent.date,
+      time: newEvent.time,
+      type: newEvent.type,
+      description: newEvent.description,
+      createdBy: user.uid,
+      createdByEmail: user.email || '',
+      sharedWith: [],
+      assignees: newEvent.assignees
     };
     const eventId = await addEventToDb(eventData);
     if (eventId) setEvents([...events, { id: eventId, ...eventData }]);
-    setNewEvent({ title: '', date: '', time: '', type: 'meeting', description: '' });
+    setNewEvent({ title: '', date: '', time: '', type: 'meeting', description: '', assignees: [] });
     setShowEventModal(false);
   };
 
@@ -242,10 +304,18 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
 
   const handleAddTask = async () => {
     if (!user || !newTask.title) return;
-    const taskData: Omit<FirestoreTask, 'id' | 'createdAt'> = { ...newTask, createdBy: user.uid };
+    const taskData: Omit<FirestoreTask, 'id' | 'createdAt'> = {
+      title: newTask.title,
+      description: newTask.description,
+      dueDate: newTask.dueDate,
+      priority: newTask.priority,
+      status: newTask.status,
+      createdBy: user.uid,
+      assignees: newTask.assignees
+    };
     const taskId = await addTaskToDb(taskData);
     if (taskId) setTasks([...tasks, { id: taskId, ...taskData }]);
-    setNewTask({ title: '', description: '', dueDate: '', priority: 'medium', status: 'todo' });
+    setNewTask({ title: '', description: '', dueDate: '', priority: 'medium', status: 'todo', assignees: [] });
     setShowTaskModal(false);
   };
 
@@ -263,11 +333,8 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
     setSearching(true);
     setSearchPerformed(false);
     try {
-      console.log('Searching for:', searchEmail.toLowerCase());
       const results = await searchUsersByEmail(searchEmail.toLowerCase());
-      console.log('Raw search results:', results);
       const filtered = (results as TeamMember[]).filter((r: any) => r.id !== user.uid && !teamMembers.find(m => m.id === r.id));
-      console.log('Filtered results:', filtered);
       setSearchResults(filtered);
       setSearchPerformed(true);
     } catch (error) { 
@@ -315,9 +382,23 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
     if (await updateEventSharing(eventId, newSharedWith)) setEvents(events.map(e => e.id === eventId ? { ...e, sharedWith: newSharedWith } : e));
   };
 
-  const eventTypeColors = { meeting: 'from-blue-500 to-cyan-400', interview: 'from-emerald-500 to-teal-400', deadline: 'from-rose-500 to-pink-400', other: 'from-slate-500 to-gray-400' };
-  const eventTypeBgLight = { meeting: 'bg-blue-50 border-blue-200', interview: 'bg-emerald-50 border-emerald-200', deadline: 'bg-rose-50 border-rose-200', other: 'bg-slate-50 border-slate-200' };
-  const eventTypeBgDark = { meeting: 'bg-blue-500/20 border-blue-500/30', interview: 'bg-emerald-500/20 border-emerald-500/30', deadline: 'bg-rose-500/20 border-rose-500/30', other: 'bg-slate-500/20 border-slate-500/30' };
+  const toggleAssignee = (assignees: string[], setAssignees: (a: string[]) => void, memberId: string) => {
+    if (assignees.includes(memberId)) {
+      setAssignees(assignees.filter(id => id !== memberId));
+    } else {
+      setAssignees([...assignees, memberId]);
+    }
+  };
+
+  const getMemberName = (memberId: string) => {
+    if (memberId === user?.uid) return 'You';
+    const member = teamMembers.find(m => m.id === memberId);
+    return member?.displayName || member?.email?.split('@')[0] || 'Unknown';
+  };
+
+  const eventTypeColors = { meeting: 'from-blue-500 to-cyan-400', interview: 'from-emerald-500 to-teal-400', deadline: 'from-rose-500 to-pink-400', other: 'from-slate-500 to-gray-400', task: 'from-purple-500 to-violet-400' };
+  const eventTypeBgLight = { meeting: 'bg-blue-50 border-blue-200', interview: 'bg-emerald-50 border-emerald-200', deadline: 'bg-rose-50 border-rose-200', other: 'bg-slate-50 border-slate-200', task: 'bg-purple-50 border-purple-200' };
+  const eventTypeBgDark = { meeting: 'bg-blue-500/20 border-blue-500/30', interview: 'bg-emerald-500/20 border-emerald-500/30', deadline: 'bg-rose-500/20 border-rose-500/30', other: 'bg-slate-500/20 border-slate-500/30', task: 'bg-purple-500/20 border-purple-500/30' };
   const eventTypeBg = theme === 'light' ? eventTypeBgLight : eventTypeBgDark;
   
   const priorityColorsLight = { low: 'bg-emerald-100 text-emerald-700 border-emerald-200', medium: 'bg-amber-100 text-amber-700 border-amber-200', high: 'bg-rose-100 text-rose-700 border-rose-200' };
@@ -377,7 +458,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                 {/* Navigation */}
                 <nav className="flex-1 p-2 sm:p-4 space-y-2">
                   {[
-                    { id: 'schedule', icon: Calendar, label: 'Schedule', desc: 'Team calendar' },
+                    { id: 'schedule', icon: Calendar, label: 'Schedule', desc: 'Calendar & tasks' },
                     { id: 'tasks', icon: Zap, label: 'Tasks', desc: 'Track progress' },
                     { id: 'team', icon: Users, label: 'Team', desc: 'Manage members', badge: pendingInvites.length },
                     { id: 'settings', icon: Settings, label: 'Settings', desc: 'Preferences' },
@@ -448,25 +529,20 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                       <span className="text-xs px-2 py-1 bg-[#D4A24A]/20 text-[#D4A24A] rounded-full font-normal">Live</span>
                     </h1>
                     <p className={`${t.textMuted} text-sm`}>
-                      {activeTab === 'schedule' && 'Synced with your team'}
+                      {activeTab === 'schedule' && 'Events & task deadlines'}
                       {activeTab === 'tasks' && 'Track your progress'}
                       {activeTab === 'team' && 'Manage team members'}
                       {activeTab === 'settings' && 'Configure preferences'}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    {/* Theme Toggle */}
                     <motion.button 
                       onClick={toggleTheme}
                       className={`p-2 rounded-xl ${t.card} border transition-all`}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      {theme === 'light' ? (
-                        <Moon className={`w-5 h-5 ${t.textMuted}`} />
-                      ) : (
-                        <Sun className="w-5 h-5 text-amber-400" />
-                      )}
+                      {theme === 'light' ? <Moon className={`w-5 h-5 ${t.textMuted}`} /> : <Sun className="w-5 h-5 text-amber-400" />}
                     </motion.button>
                     <motion.button 
                       onClick={onClose} 
@@ -516,7 +592,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                               {getDaysInMonth(currentMonth).map((day, index) => {
                                 const isToday = day && formatDate(day) === formatDate(new Date());
                                 const isSelected = day && selectedDate && formatDate(day) === formatDate(selectedDate);
-                                const dayEvents = day ? getEventsForDate(day) : [];
+                                const dayItems = day ? getCalendarItemsForDate(day) : [];
                                 
                                 return (
                                   <motion.button
@@ -532,16 +608,31 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                     whileTap={day ? { scale: 0.95 } : {}}
                                   >
                                     {day?.getDate()}
-                                    {dayEvents.length > 0 && (
+                                    {dayItems.length > 0 && (
                                       <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
-                                        {dayEvents.slice(0, 3).map((event, i) => (
-                                          <div key={i} className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${eventTypeColors[event.type]}`} />
+                                        {dayItems.slice(0, 3).map((item, i) => (
+                                          <div key={i} className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${eventTypeColors[item.type]}`} />
                                         ))}
                                       </div>
                                     )}
                                   </motion.button>
                                 );
                               })}
+                            </div>
+                            
+                            {/* Legend */}
+                            <div className={`mt-4 pt-4 border-t ${t.sidebarBorder} flex flex-wrap gap-3`}>
+                              {[
+                                { type: 'meeting', label: 'Meeting' },
+                                { type: 'interview', label: 'Interview' },
+                                { type: 'deadline', label: 'Deadline' },
+                                { type: 'task', label: 'Task Due' },
+                              ].map(item => (
+                                <div key={item.type} className="flex items-center gap-1.5">
+                                  <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${eventTypeColors[item.type as keyof typeof eventTypeColors]}`} />
+                                  <span className={`text-xs ${t.textMuted}`}>{item.label}</span>
+                                </div>
+                              ))}
                             </div>
                           </div>
 
@@ -563,26 +654,39 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                 {selectedDate ? selectedDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : 'Select a date'}
                               </h3>
                               
-                              {selectedDate && getEventsForDate(selectedDate).length > 0 ? (
+                              {selectedDate && getCalendarItemsForDate(selectedDate).length > 0 ? (
                                 <div className="space-y-3">
-                                  {getEventsForDate(selectedDate).map(event => (
-                                    <motion.div key={event.id} className={`p-3 rounded-xl border ${eventTypeBg[event.type]} group`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                                  {getCalendarItemsForDate(selectedDate).map(item => (
+                                    <motion.div key={item.id} className={`p-3 rounded-xl border ${eventTypeBg[item.type]} group`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                                       <div className="flex items-start justify-between">
-                                        <div>
-                                          <p className={`font-medium ${t.text} text-sm`}>{event.title}</p>
-                                          <p className={`text-xs ${t.textMuted} flex items-center gap-1 mt-1`}>
-                                            <Clock className="w-3 h-3" />{event.time}
-                                          </p>
-                                          {event.createdBy !== user?.uid && (
-                                            <p className="text-xs text-[#D4A24A] mt-1">Shared by {event.createdByEmail}</p>
+                                        <div className="flex-1">
+                                          <div className="flex items-center gap-2">
+                                            {item.isTask && <ListTodo className="w-3 h-3 text-purple-500" />}
+                                            <p className={`font-medium ${t.text} text-sm`}>{item.title}</p>
+                                          </div>
+                                          {item.time && (
+                                            <p className={`text-xs ${t.textMuted} flex items-center gap-1 mt-1`}>
+                                              <Clock className="w-3 h-3" />{item.time}
+                                            </p>
+                                          )}
+                                          {item.isTask && item.priority && (
+                                            <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full border ${priorityColors[item.priority]}`}>{item.priority}</span>
+                                          )}
+                                          {item.assignees && item.assignees.length > 0 && (
+                                            <div className="flex items-center gap-1 mt-2">
+                                              <Users className={`w-3 h-3 ${t.textMuted}`} />
+                                              <span className={`text-xs ${t.textMuted}`}>
+                                                {item.assignees.map(id => getMemberName(id)).join(', ')}
+                                              </span>
+                                            </div>
                                           )}
                                         </div>
-                                        {event.createdBy === user?.uid && (
+                                        {!item.isTask && item.createdBy === user?.uid && (
                                           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                                            <button onClick={() => setShowShareModal(event.id)} className="p-1.5 rounded-lg bg-blue-500/20 text-blue-500 hover:bg-blue-500/30">
+                                            <button onClick={() => setShowShareModal(item.id)} className="p-1.5 rounded-lg bg-blue-500/20 text-blue-500 hover:bg-blue-500/30">
                                               <Share2 className="w-3 h-3" />
                                             </button>
-                                            <button onClick={() => setShowDeleteConfirm(event.id)} className="p-1.5 rounded-lg bg-rose-500/20 text-rose-500 hover:bg-rose-500/30">
+                                            <button onClick={() => setShowDeleteConfirm(item.id)} className="p-1.5 rounded-lg bg-rose-500/20 text-rose-500 hover:bg-rose-500/30">
                                               <Trash2 className="w-3 h-3" />
                                             </button>
                                           </div>
@@ -593,7 +697,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                 </div>
                               ) : (
                                 <p className={`${t.textMuted} text-sm text-center py-8`}>
-                                  {selectedDate ? 'No events' : 'Select a date'}
+                                  {selectedDate ? 'No events or tasks' : 'Select a date'}
                                 </p>
                               )}
                             </div>
@@ -604,17 +708,21 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                 Upcoming
                               </h3>
                               <div className="space-y-2">
-                                {events.filter(e => new Date(e.date) >= new Date()).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).slice(0, 5).map(event => (
-                                  <div key={event.id} className={`flex items-center gap-3 p-2 rounded-lg ${t.cardHover} transition-colors`}>
-                                    <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${eventTypeColors[event.type]}`} />
+                                {[
+                                  ...events.filter(e => new Date(e.date) >= new Date()).map(e => ({ ...e, isTask: false, sortDate: e.date })),
+                                  ...tasks.filter(t => t.dueDate && new Date(t.dueDate) >= new Date()).map(t => ({ id: t.id, title: t.title, date: t.dueDate!, type: 'task' as const, isTask: true, sortDate: t.dueDate! }))
+                                ].sort((a, b) => new Date(a.sortDate).getTime() - new Date(b.sortDate).getTime()).slice(0, 5).map(item => (
+                                  <div key={item.id} className={`flex items-center gap-3 p-2 rounded-lg ${t.cardHover} transition-colors`}>
+                                    <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${eventTypeColors[item.type as keyof typeof eventTypeColors]}`} />
                                     <div className="flex-1 min-w-0">
-                                      <p className={`text-sm font-medium ${t.textSecondary} truncate`}>{event.title}</p>
-                                      <p className={`text-xs ${t.textMuted}`}>{event.date}</p>
+                                      <p className={`text-sm font-medium ${t.textSecondary} truncate`}>{item.title}</p>
+                                      <p className={`text-xs ${t.textMuted}`}>{item.date}</p>
                                     </div>
+                                    {item.isTask && <ListTodo className="w-3 h-3 text-purple-500" />}
                                   </div>
                                 ))}
-                                {events.filter(e => new Date(e.date) >= new Date()).length === 0 && (
-                                  <p className={`${t.textMuted} text-sm text-center py-4`}>No upcoming events</p>
+                                {events.filter(e => new Date(e.date) >= new Date()).length === 0 && tasks.filter(t => t.dueDate && new Date(t.dueDate) >= new Date()).length === 0 && (
+                                  <p className={`${t.textMuted} text-sm text-center py-4`}>Nothing upcoming</p>
                                 )}
                               </div>
                             </div>
@@ -640,7 +748,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                 </h3>
                                 <div className="space-y-3">
                                   {tasks.filter(t => t.status === status).map(task => (
-                                    <TaskCard key={task.id} task={task} priorityColors={priorityColors} theme={theme} t={t} onStatusChange={handleUpdateTaskStatus} onDelete={() => setShowDeleteTaskConfirm(task.id)} />
+                                    <TaskCard key={task.id} task={task} priorityColors={priorityColors} theme={theme} t={t} getMemberName={getMemberName} onStatusChange={handleUpdateTaskStatus} onDelete={() => setShowDeleteTaskConfirm(task.id)} />
                                   ))}
                                   {tasks.filter(t => t.status === status).length === 0 && (
                                     <p className={`${t.textMuted} text-sm text-center py-8`}>No tasks</p>
@@ -727,7 +835,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                 ) : (
                                   <div className={`text-center py-4 ${t.textMuted} text-sm`}>
                                     <p>No users found with that email.</p>
-                                    <p className={`text-xs ${t.textMuted} mt-1`}>Make sure they have signed up and logged in at least once.</p>
+                                    <p className={`text-xs mt-1`}>Make sure they have signed up and logged in at least once.</p>
                                   </div>
                                 )}
                               </div>
@@ -772,23 +880,8 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                 <p className={`${t.text} text-sm font-medium`}>Theme</p>
                                 <p className={`${t.textMuted} text-xs`}>Choose between light and dark mode</p>
                               </div>
-                              <motion.button
-                                onClick={toggleTheme}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-xl ${t.card} border`}
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                              >
-                                {theme === 'light' ? (
-                                  <>
-                                    <Sun className="w-4 h-4 text-amber-500" />
-                                    <span className={`text-sm ${t.text}`}>Light</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Moon className="w-4 h-4 text-blue-400" />
-                                    <span className={`text-sm ${t.text}`}>Dark</span>
-                                  </>
-                                )}
+                              <motion.button onClick={toggleTheme} className={`flex items-center gap-2 px-4 py-2 rounded-xl ${t.card} border`} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                                {theme === 'light' ? <><Sun className="w-4 h-4 text-amber-500" /><span className={`text-sm ${t.text}`}>Light</span></> : <><Moon className="w-4 h-4 text-blue-400" /><span className={`text-sm ${t.text}`}>Dark</span></>}
                               </motion.button>
                             </div>
                           </div>
@@ -845,8 +938,22 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                     </select>
                   </div>
                   <div>
+                    <label className={`block text-sm ${t.textMuted} mb-1`}>Participants</label>
+                    <div className={`p-3 rounded-xl ${t.taskCard} border space-y-2 max-h-32 overflow-y-auto`}>
+                      {selectableMembers.length > 0 ? selectableMembers.map(member => (
+                        <label key={member.id} className={`flex items-center gap-3 p-2 rounded-lg ${t.cardHover} cursor-pointer`}>
+                          <div className={`w-5 h-5 rounded flex items-center justify-center border transition-all ${newEvent.assignees.includes(member.id) ? t.checkboxChecked : t.checkboxBg}`}>
+                            {newEvent.assignees.includes(member.id) && <Check className="w-3 h-3 text-white" />}
+                          </div>
+                          <input type="checkbox" checked={newEvent.assignees.includes(member.id)} onChange={() => toggleAssignee(newEvent.assignees, (a) => setNewEvent({ ...newEvent, assignees: a }), member.id)} className="hidden" />
+                          <span className={`text-sm ${t.text}`}>{member.id === user?.uid ? 'You' : member.displayName || member.email}</span>
+                        </label>
+                      )) : <p className={`text-sm ${t.textMuted} text-center py-2`}>Add team members first</p>}
+                    </div>
+                  </div>
+                  <div>
                     <label className={`block text-sm ${t.textMuted} mb-1`}>Description</label>
-                    <textarea value={newEvent.description} onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })} className={`w-full px-4 py-2.5 ${t.input} border rounded-xl focus:outline-none ${t.inputFocus} resize-none`} rows={3} placeholder="Optional" />
+                    <textarea value={newEvent.description} onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })} className={`w-full px-4 py-2.5 ${t.input} border rounded-xl focus:outline-none ${t.inputFocus} resize-none`} rows={2} placeholder="Optional" />
                   </div>
                 </div>
                 <div className="flex gap-3 mt-6">
@@ -882,6 +989,20 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                         <option value="medium">Medium</option>
                         <option value="high">High</option>
                       </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className={`block text-sm ${t.textMuted} mb-1`}>Assign To</label>
+                    <div className={`p-3 rounded-xl ${t.taskCard} border space-y-2 max-h-32 overflow-y-auto`}>
+                      {selectableMembers.length > 0 ? selectableMembers.map(member => (
+                        <label key={member.id} className={`flex items-center gap-3 p-2 rounded-lg ${t.cardHover} cursor-pointer`}>
+                          <div className={`w-5 h-5 rounded flex items-center justify-center border transition-all ${newTask.assignees.includes(member.id) ? t.checkboxChecked : t.checkboxBg}`}>
+                            {newTask.assignees.includes(member.id) && <Check className="w-3 h-3 text-white" />}
+                          </div>
+                          <input type="checkbox" checked={newTask.assignees.includes(member.id)} onChange={() => toggleAssignee(newTask.assignees, (a) => setNewTask({ ...newTask, assignees: a }), member.id)} className="hidden" />
+                          <span className={`text-sm ${t.text}`}>{member.id === user?.uid ? 'You' : member.displayName || member.email}</span>
+                        </label>
+                      )) : <p className={`text-sm ${t.textMuted} text-center py-2`}>Add team members first</p>}
                     </div>
                   </div>
                 </div>
@@ -979,7 +1100,7 @@ function Modal({ children, onClose, theme, t }: { children: React.ReactNode; onC
     <>
       <motion.div className={`fixed inset-0 ${theme === 'light' ? 'bg-black/30' : 'bg-black/60'} backdrop-blur-sm z-[60]`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} />
       <motion.div className="fixed inset-0 z-[60] flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-        <motion.div className={`${t.modalBg} backdrop-blur-2xl rounded-2xl shadow-2xl p-6 w-full max-w-md border ${t.modalBorder}`} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} onClick={(e) => e.stopPropagation()}>
+        <motion.div className={`${t.modalBg} backdrop-blur-2xl rounded-2xl shadow-2xl p-6 w-full max-w-md border ${t.modalBorder} max-h-[90vh] overflow-y-auto`} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} onClick={(e) => e.stopPropagation()}>
           {children}
         </motion.div>
       </motion.div>
@@ -987,7 +1108,7 @@ function Modal({ children, onClose, theme, t }: { children: React.ReactNode; onC
   );
 }
 
-function TaskCard({ task, priorityColors, theme, t, onStatusChange, onDelete }: { task: Task; priorityColors: Record<string, string>; theme: 'light' | 'dark'; t: typeof themes.light; onStatusChange: (id: string, status: Task['status']) => void; onDelete: () => void }) {
+function TaskCard({ task, priorityColors, theme, t, getMemberName, onStatusChange, onDelete }: { task: Task; priorityColors: Record<string, string>; theme: 'light' | 'dark'; t: typeof themes.light; getMemberName: (id: string) => string; onStatusChange: (id: string, status: Task['status']) => void; onDelete: () => void }) {
   return (
     <motion.div className={`p-3 rounded-xl ${t.taskCard} border group`} layout whileHover={{ scale: 1.02 }}>
       <div className="flex items-start justify-between mb-2">
@@ -997,10 +1118,18 @@ function TaskCard({ task, priorityColors, theme, t, onStatusChange, onDelete }: 
         </button>
       </div>
       {task.description && <p className={`text-xs ${t.textMuted} mb-2`}>{task.description}</p>}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-1">
         <span className={`text-xs px-2 py-0.5 rounded-full border ${priorityColors[task.priority]}`}>{task.priority}</span>
         {task.dueDate && <span className={`text-xs ${t.textMuted}`}>{task.dueDate}</span>}
       </div>
+      {task.assignees && task.assignees.length > 0 && (
+        <div className="flex items-center gap-1 mt-2">
+          <Users className={`w-3 h-3 ${t.textMuted}`} />
+          <span className={`text-xs ${t.textMuted}`}>
+            {task.assignees.map(id => getMemberName(id)).join(', ')}
+          </span>
+        </div>
+      )}
       <div className="mt-3 flex gap-1">
         {task.status !== 'todo' && <button onClick={() => onStatusChange(task.id, 'todo')} className={`flex-1 text-xs py-1.5 rounded-lg ${theme === 'light' ? 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200' : 'bg-gray-500/20 text-gray-400 hover:bg-gray-500/30 border border-gray-500/30'}`}>To Do</button>}
         {task.status !== 'in_progress' && <button onClick={() => onStatusChange(task.id, 'in_progress')} className={`flex-1 text-xs py-1.5 rounded-lg ${theme === 'light' ? 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200' : 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 border border-blue-500/30'}`}>In Progress</button>}
