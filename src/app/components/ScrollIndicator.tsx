@@ -25,13 +25,8 @@ export function ScrollIndicator() {
         }}
         className="relative"
       >
-        {/* Glow effect */}
-        <div className="absolute inset-0 blur-xl bg-[#D4A24A] opacity-60 rounded-full" />
-        
-        {/* Icon */}
-        <div className="relative bg-[#D4A24A] rounded-full p-3 shadow-2xl">
-          <ChevronDown className="w-6 h-6 text-white" strokeWidth={3} />
-        </div>
+        {/* Golden arrow icon */}
+        <ChevronDown className="w-10 h-10 text-[#D4A24A] drop-shadow-lg" strokeWidth={2.5} />
       </motion.div>
     </motion.div>
   );
