@@ -6,7 +6,7 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
-  scroll-padding-top: 100px; /* Offset for fixed navbar */
+  scroll-padding-top: 30px; /* Offset for fixed navbar */
 }
 
 /* Section scroll offset for anchor links */
