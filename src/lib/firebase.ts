@@ -86,6 +86,10 @@ export const signInWithEmail = async (email: string, password: string) => {
   }
   try {
     const result = await signInWithEmailAndPassword(auth, email, password);
+    // Save user to Firestore on every sign in
+    if (result.user && db) {
+      await saveUserToFirestore(result.user);
+    }
     return { user: result.user, error: null };
   } catch (error: any) {
     let errorMessage = 'Failed to sign in';
@@ -197,14 +201,36 @@ const saveUserToFirestore = async (user: User) => {
   }
 };
 
-// Search users by email
+// Search users by email (exact match or partial)
 export const searchUsersByEmail = async (emailQuery: string) => {
-  if (!db) return [];
+  if (!db) {
+    console.log('Firestore not initialized');
+    return [];
+  }
   try {
     const usersRef = collection(db, 'users');
-    const q = query(usersRef, where('email', '>=', emailQuery), where('email', '<=', emailQuery + '\uf8ff'));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // First try exact match
+    const exactQuery = query(usersRef, where('email', '==', emailQuery));
+    const exactSnap = await getDocs(exactQuery);
+    
+    if (exactSnap.docs.length > 0) {
+      console.log('Found exact match:', exactSnap.docs.length);
+      return exactSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
+    
+    // If no exact match, get all users and filter client-side
+    // This is less efficient but works without composite indexes
+    const allUsersSnap = await getDocs(usersRef);
+    const matchedUsers = allUsersSnap.docs
+      .filter(doc => {
+        const email = doc.data().email?.toLowerCase() || '';
+        return email.includes(emailQuery.toLowerCase());
+      })
+      .map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    console.log('Found partial matches:', matchedUsers.length);
+    return matchedUsers;
   } catch (error) {
     console.error('Error searching users:', error);
     return [];

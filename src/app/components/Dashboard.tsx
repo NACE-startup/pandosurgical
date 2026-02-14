@@ -107,6 +107,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
   const [searchEmail, setSearchEmail] = useState('');
   const [searchResults, setSearchResults] = useState<TeamMember[]>([]);
   const [searching, setSearching] = useState(false);
+  const [searchPerformed, setSearchPerformed] = useState(false);
   const [inviting, setInviting] = useState<string | null>(null);
 
   const [shareSearchEmail, setShareSearchEmail] = useState('');
@@ -189,10 +190,19 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
   const handleSearchUsers = async () => {
     if (!searchEmail.trim() || !user) return;
     setSearching(true);
+    setSearchPerformed(false);
     try {
+      console.log('Searching for:', searchEmail.toLowerCase());
       const results = await searchUsersByEmail(searchEmail.toLowerCase());
-      setSearchResults((results as TeamMember[]).filter((r: any) => r.id !== user.uid && !teamMembers.find(m => m.id === r.id)));
-    } catch (error) { console.error('Search error:', error); }
+      console.log('Raw search results:', results);
+      const filtered = (results as TeamMember[]).filter((r: any) => r.id !== user.uid && !teamMembers.find(m => m.id === r.id));
+      console.log('Filtered results:', filtered);
+      setSearchResults(filtered);
+      setSearchPerformed(true);
+    } catch (error) { 
+      console.error('Search error:', error);
+      setSearchPerformed(true);
+    }
     setSearching(false);
   };
 
@@ -603,24 +613,33 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                               </motion.button>
                             </div>
 
-                            {searchResults.length > 0 && (
-                              <div className="mt-4 space-y-2">
-                                {searchResults.map(result => (
-                                  <div key={result.id} className="flex items-center justify-between bg-black/20 rounded-xl p-3 border border-white/5">
-                                    <div className="flex items-center gap-3">
-                                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#D4A24A] to-[#B8883D] flex items-center justify-center text-white font-medium">
-                                        {(result.displayName || result.email).charAt(0).toUpperCase()}
+                            {searchPerformed && (
+                              <div className="mt-4">
+                                {searchResults.length > 0 ? (
+                                  <div className="space-y-2">
+                                    {searchResults.map(result => (
+                                      <div key={result.id} className="flex items-center justify-between bg-black/20 rounded-xl p-3 border border-white/5">
+                                        <div className="flex items-center gap-3">
+                                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#D4A24A] to-[#B8883D] flex items-center justify-center text-white font-medium">
+                                            {(result.displayName || result.email).charAt(0).toUpperCase()}
+                                          </div>
+                                          <div>
+                                            <p className="font-medium text-white text-sm">{result.displayName || 'User'}</p>
+                                            <p className="text-xs text-gray-500">{result.email}</p>
+                                          </div>
+                                        </div>
+                                        <motion.button onClick={() => handleSendInvite(result)} disabled={inviting === result.id} className="px-3 py-1.5 bg-[#D4A24A] text-white rounded-lg text-sm disabled:opacity-50" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                          {inviting === result.id ? 'Sending...' : 'Invite'}
+                                        </motion.button>
                                       </div>
-                                      <div>
-                                        <p className="font-medium text-white text-sm">{result.displayName || 'User'}</p>
-                                        <p className="text-xs text-gray-500">{result.email}</p>
-                                      </div>
-                                    </div>
-                                    <motion.button onClick={() => handleSendInvite(result)} disabled={inviting === result.id} className="px-3 py-1.5 bg-[#D4A24A] text-white rounded-lg text-sm disabled:opacity-50" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                      {inviting === result.id ? 'Sending...' : 'Invite'}
-                                    </motion.button>
+                                    ))}
                                   </div>
-                                ))}
+                                ) : (
+                                  <div className="text-center py-4 text-gray-400 text-sm">
+                                    <p>No users found with that email.</p>
+                                    <p className="text-xs text-gray-500 mt-1">Make sure they have signed up and logged in at least once.</p>
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>
