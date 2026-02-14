@@ -29,7 +29,7 @@ interface Event {
   title: string;
   date: string;
   time: string;
-  type: 'meeting' | 'demo' | 'call' | 'other';
+  type: 'meeting' | 'interview' | 'deadline' | 'other';
   description?: string;
 }
 
@@ -40,8 +40,8 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
   const [showEventModal, setShowEventModal] = useState(false);
   const [events, setEvents] = useState<Event[]>([
     { id: '1', title: 'Team Standup', date: '2026-02-14', time: '09:00', type: 'meeting', description: 'Daily sync' },
-    { id: '2', title: 'Product Demo', date: '2026-02-14', time: '14:00', type: 'demo', description: 'Demo for USC Medical' },
-    { id: '3', title: 'Investor Call', date: '2026-02-16', time: '11:00', type: 'call', description: 'Follow up on Series A' },
+    { id: '2', title: 'Candidate Interview', date: '2026-02-14', time: '14:00', type: 'interview', description: 'Engineering role' },
+    { id: '3', title: 'Grant Submission', date: '2026-02-16', time: '17:00', type: 'deadline', description: 'NIH SBIR deadline' },
   ]);
   const [newEvent, setNewEvent] = useState<Partial<Event>>({
     title: '',
@@ -110,8 +110,8 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
 
   const eventTypeColors = {
     meeting: 'bg-blue-500',
-    demo: 'bg-green-500',
-    call: 'bg-purple-500',
+    interview: 'bg-green-500',
+    deadline: 'bg-red-500',
     other: 'bg-gray-500'
   };
 
@@ -478,8 +478,8 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                           className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D4A24A]"
                         >
                           <option value="meeting">Meeting</option>
-                          <option value="demo">Demo</option>
-                          <option value="call">Call</option>
+                          <option value="interview">Interview</option>
+                          <option value="deadline">Deadline</option>
                           <option value="other">Other</option>
                         </select>
                       </div>
