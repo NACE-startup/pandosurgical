@@ -25,7 +25,9 @@ import {
   Sun,
   Moon,
   Check,
-  ListTodo
+  ListTodo,
+  Lock,
+  Globe
 } from 'lucide-react';
 import { 
   logOut, 
@@ -64,6 +66,7 @@ interface Event {
   createdByEmail: string;
   sharedWith: string[];
   assignees?: string[];
+  visibility: 'private' | 'team';
 }
 
 interface Task {
@@ -75,6 +78,7 @@ interface Task {
   status: 'todo' | 'in_progress' | 'done';
   createdBy: string;
   assignees?: string[];
+  visibility: 'private' | 'team';
 }
 
 interface TeamMember {
@@ -102,6 +106,7 @@ interface CalendarItem {
   status?: 'todo' | 'in_progress' | 'done';
   createdBy: string;
   assignees?: string[];
+  visibility: 'private' | 'team';
 }
 
 // Theme configuration
@@ -182,12 +187,12 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState<string | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
-  const [newEvent, setNewEvent] = useState({ title: '', date: '', time: '', type: 'meeting' as const, description: '', assignees: [] as string[] });
+  const [newEvent, setNewEvent] = useState<{ title: string; date: string; time: string; type: 'meeting' | 'interview' | 'deadline' | 'other'; description: string; assignees: string[]; visibility: 'private' | 'team' }>({ title: '', date: '', time: '', type: 'meeting', description: '', assignees: [], visibility: 'private' });
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showDeleteTaskConfirm, setShowDeleteTaskConfirm] = useState<string | null>(null);
-  const [newTask, setNewTask] = useState({ title: '', description: '', dueDate: '', priority: 'medium' as const, status: 'todo' as const, assignees: [] as string[] });
+  const [newTask, setNewTask] = useState<{ title: string; description: string; dueDate: string; priority: 'low' | 'medium' | 'high'; status: 'todo' | 'in_progress' | 'done'; assignees: string[]; visibility: 'private' | 'team' }>({ title: '', description: '', dueDate: '', priority: 'medium', status: 'todo', assignees: [], visibility: 'private' });
 
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [pendingInvites, setPendingInvites] = useState<Invite[]>([]);
@@ -220,16 +225,25 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
     if (!user) return;
     setLoading(true);
     try {
-      const [eventsData, tasksData, membersData, invitesData] = await Promise.all([
-        getEventsForUser(user.uid),
-        getTasksForUser(user.uid),
+      // First get team members and invites
+      const [membersData, invitesData] = await Promise.all([
         getTeamMembers(user.uid),
         getPendingInvites(user.uid)
       ]);
+      const members = membersData as TeamMember[];
+      setTeamMembers(members);
+      setPendingInvites(invitesData as Invite[]);
+      
+      // Get team member IDs for visibility filtering
+      const teamMemberIds = members.map(m => m.id);
+      
+      // Now get events and tasks with team visibility
+      const [eventsData, tasksData] = await Promise.all([
+        getEventsForUser(user.uid, teamMemberIds),
+        getTasksForUser(user.uid, teamMemberIds)
+      ]);
       setEvents(eventsData as Event[]);
       setTasks(tasksData as Task[]);
-      setTeamMembers(membersData as TeamMember[]);
-      setPendingInvites(invitesData as Invite[]);
     } catch (error) {
       console.error('Error loading data:', error);
     }
@@ -269,7 +283,8 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
         priority: t.priority,
         status: t.status,
         createdBy: t.createdBy,
-        assignees: t.assignees
+        assignees: t.assignees,
+        visibility: t.visibility
       }));
     
     return [...eventItems, ...taskItems];
@@ -289,11 +304,12 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
       createdBy: user.uid,
       createdByEmail: user.email || '',
       sharedWith: [],
-      assignees: newEvent.assignees
+      assignees: newEvent.assignees,
+      visibility: newEvent.visibility
     };
     const eventId = await addEventToDb(eventData);
     if (eventId) setEvents([...events, { id: eventId, ...eventData }]);
-    setNewEvent({ title: '', date: '', time: '', type: 'meeting', description: '', assignees: [] });
+    setNewEvent({ title: '', date: '', time: '', type: 'meeting', description: '', assignees: [], visibility: 'private' });
     setShowEventModal(false);
   };
 
@@ -311,11 +327,12 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
       priority: newTask.priority,
       status: newTask.status,
       createdBy: user.uid,
-      assignees: newTask.assignees
+      assignees: newTask.assignees,
+      visibility: newTask.visibility
     };
     const taskId = await addTaskToDb(taskData);
     if (taskId) setTasks([...tasks, { id: taskId, ...taskData }]);
-    setNewTask({ title: '', description: '', dueDate: '', priority: 'medium', status: 'todo', assignees: [] });
+    setNewTask({ title: '', description: '', dueDate: '', priority: 'medium', status: 'todo', assignees: [], visibility: 'private' });
     setShowTaskModal(false);
   };
 
@@ -663,6 +680,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                           <div className="flex items-center gap-2">
                                             {item.isTask && <ListTodo className="w-3 h-3 text-purple-500" />}
                                             <p className={`font-medium ${t.text} text-sm`}>{item.title}</p>
+                                            {item.visibility === 'team' ? <span title="Visible to team"><Globe className={`w-3 h-3 ${t.textMuted}`} /></span> : <span title="Private"><Lock className={`w-3 h-3 ${t.textMuted}`} /></span>}
                                           </div>
                                           {item.time && (
                                             <p className={`text-xs ${t.textMuted} flex items-center gap-1 mt-1`}>
@@ -938,6 +956,20 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                     </select>
                   </div>
                   <div>
+                    <label className={`block text-sm ${t.textMuted} mb-1`}>Visibility</label>
+                    <div className="flex gap-2">
+                      <button type="button" onClick={() => setNewEvent({ ...newEvent, visibility: 'private' })} className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${newEvent.visibility === 'private' ? 'bg-[#D4A24A]/20 border-[#D4A24A]/50 text-[#D4A24A]' : `${t.taskCard} ${t.textMuted}`}`}>
+                        <Lock className="w-4 h-4" />
+                        <span className="text-sm">Private</span>
+                      </button>
+                      <button type="button" onClick={() => setNewEvent({ ...newEvent, visibility: 'team' })} className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${newEvent.visibility === 'team' ? 'bg-[#D4A24A]/20 border-[#D4A24A]/50 text-[#D4A24A]' : `${t.taskCard} ${t.textMuted}`}`}>
+                        <Globe className="w-4 h-4" />
+                        <span className="text-sm">Team</span>
+                      </button>
+                    </div>
+                    <p className={`text-xs ${t.textMuted} mt-1`}>{newEvent.visibility === 'private' ? 'Only you and participants can see this' : 'All team members can see this'}</p>
+                  </div>
+                  <div>
                     <label className={`block text-sm ${t.textMuted} mb-1`}>Participants</label>
                     <div className={`p-3 rounded-xl ${t.taskCard} border space-y-2 max-h-32 overflow-y-auto`}>
                       {selectableMembers.length > 0 ? selectableMembers.map(member => (
@@ -990,6 +1022,20 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                         <option value="high">High</option>
                       </select>
                     </div>
+                  </div>
+                  <div>
+                    <label className={`block text-sm ${t.textMuted} mb-1`}>Visibility</label>
+                    <div className="flex gap-2">
+                      <button type="button" onClick={() => setNewTask({ ...newTask, visibility: 'private' })} className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${newTask.visibility === 'private' ? 'bg-[#D4A24A]/20 border-[#D4A24A]/50 text-[#D4A24A]' : `${t.taskCard} ${t.textMuted}`}`}>
+                        <Lock className="w-4 h-4" />
+                        <span className="text-sm">Private</span>
+                      </button>
+                      <button type="button" onClick={() => setNewTask({ ...newTask, visibility: 'team' })} className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${newTask.visibility === 'team' ? 'bg-[#D4A24A]/20 border-[#D4A24A]/50 text-[#D4A24A]' : `${t.taskCard} ${t.textMuted}`}`}>
+                        <Globe className="w-4 h-4" />
+                        <span className="text-sm">Team</span>
+                      </button>
+                    </div>
+                    <p className={`text-xs ${t.textMuted} mt-1`}>{newTask.visibility === 'private' ? 'Only you and assignees can see this' : 'All team members can see this'}</p>
                   </div>
                   <div>
                     <label className={`block text-sm ${t.textMuted} mb-1`}>Assign To</label>
@@ -1112,7 +1158,10 @@ function TaskCard({ task, priorityColors, theme, t, getMemberName, onStatusChang
   return (
     <motion.div className={`p-3 rounded-xl ${t.taskCard} border group`} layout whileHover={{ scale: 1.02 }}>
       <div className="flex items-start justify-between mb-2">
-        <p className={`font-medium ${t.text} text-sm`}>{task.title}</p>
+        <div className="flex items-center gap-2">
+          <p className={`font-medium ${t.text} text-sm`}>{task.title}</p>
+          {task.visibility === 'team' ? <span title="Visible to team"><Globe className={`w-3 h-3 ${t.textMuted}`} /></span> : <span title="Private"><Lock className={`w-3 h-3 ${t.textMuted}`} /></span>}
+        </div>
         <button onClick={onDelete} className="p-1 rounded-lg opacity-0 group-hover:opacity-100 bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 transition-all">
           <Trash2 className="w-3 h-3" />
         </button>

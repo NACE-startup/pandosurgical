@@ -263,6 +263,7 @@ export interface FirestoreEvent {
   createdByEmail: string;
   sharedWith: string[]; // Array of user IDs who can view
   assignees?: string[]; // Array of user IDs involved in the event
+  visibility: 'private' | 'team'; // private = only creator, team = all team members
   createdAt?: any;
 }
 
@@ -282,27 +283,40 @@ export const addEvent = async (event: Omit<FirestoreEvent, 'id' | 'createdAt'>) 
   }
 };
 
-// Get events for user (created by them, shared with them, or assigned to them)
-export const getEventsForUser = async (userId: string) => {
+// Get events for user (created by them, shared with them, assigned to them, or team-visible)
+export const getEventsForUser = async (userId: string, teamMemberIds: string[] = []) => {
   if (!db) return [];
   try {
     const eventsRef = collection(db, 'events');
+    const events = new Map();
+    
     // Get events created by user
     const createdQuery = query(eventsRef, where('createdBy', '==', userId));
     const createdSnap = await getDocs(createdQuery);
+    createdSnap.docs.forEach(doc => events.set(doc.id, { id: doc.id, ...doc.data() }));
     
     // Get events shared with user
     const sharedQuery = query(eventsRef, where('sharedWith', 'array-contains', userId));
     const sharedSnap = await getDocs(sharedQuery);
+    sharedSnap.docs.forEach(doc => events.set(doc.id, { id: doc.id, ...doc.data() }));
     
     // Get events where user is an assignee
     const assignedQuery = query(eventsRef, where('assignees', 'array-contains', userId));
     const assignedSnap = await getDocs(assignedQuery);
-    
-    const events = new Map();
-    createdSnap.docs.forEach(doc => events.set(doc.id, { id: doc.id, ...doc.data() }));
-    sharedSnap.docs.forEach(doc => events.set(doc.id, { id: doc.id, ...doc.data() }));
     assignedSnap.docs.forEach(doc => events.set(doc.id, { id: doc.id, ...doc.data() }));
+    
+    // Get team-visible events from team members
+    if (teamMemberIds.length > 0) {
+      const teamVisibleQuery = query(eventsRef, where('visibility', '==', 'team'));
+      const teamVisibleSnap = await getDocs(teamVisibleQuery);
+      teamVisibleSnap.docs.forEach(doc => {
+        const data = doc.data();
+        // Only include if created by a team member
+        if (teamMemberIds.includes(data.createdBy) || data.createdBy === userId) {
+          events.set(doc.id, { id: doc.id, ...data });
+        }
+      });
+    }
     
     return Array.from(events.values());
   } catch (error) {
@@ -346,6 +360,7 @@ export interface FirestoreTask {
   status: 'todo' | 'in_progress' | 'done';
   createdBy: string;
   assignees?: string[]; // Array of user IDs assigned to the task
+  visibility: 'private' | 'team'; // private = only creator & assignees, team = all team members
   createdAt?: any;
 }
 
@@ -365,22 +380,35 @@ export const addTask = async (task: Omit<FirestoreTask, 'id' | 'createdAt'>) => 
   }
 };
 
-// Get tasks for user (created by them or assigned to them)
-export const getTasksForUser = async (userId: string) => {
+// Get tasks for user (created by them, assigned to them, or team-visible)
+export const getTasksForUser = async (userId: string, teamMemberIds: string[] = []) => {
   if (!db) return [];
   try {
     const tasksRef = collection(db, 'tasks');
+    const tasks = new Map();
+    
     // Get tasks created by user
     const createdQuery = query(tasksRef, where('createdBy', '==', userId));
     const createdSnap = await getDocs(createdQuery);
+    createdSnap.docs.forEach(doc => tasks.set(doc.id, { id: doc.id, ...doc.data() }));
     
     // Get tasks assigned to user
     const assignedQuery = query(tasksRef, where('assignees', 'array-contains', userId));
     const assignedSnap = await getDocs(assignedQuery);
-    
-    const tasks = new Map();
-    createdSnap.docs.forEach(doc => tasks.set(doc.id, { id: doc.id, ...doc.data() }));
     assignedSnap.docs.forEach(doc => tasks.set(doc.id, { id: doc.id, ...doc.data() }));
+    
+    // Get team-visible tasks from team members
+    if (teamMemberIds.length > 0) {
+      const teamVisibleQuery = query(tasksRef, where('visibility', '==', 'team'));
+      const teamVisibleSnap = await getDocs(teamVisibleQuery);
+      teamVisibleSnap.docs.forEach(doc => {
+        const data = doc.data();
+        // Only include if created by a team member
+        if (teamMemberIds.includes(data.createdBy) || data.createdBy === userId) {
+          tasks.set(doc.id, { id: doc.id, ...data });
+        }
+      });
+    }
     
     return Array.from(tasks.values());
   } catch (error) {
