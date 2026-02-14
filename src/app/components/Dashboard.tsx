@@ -7,7 +7,6 @@ import {
   Plus, 
   Trash2, 
   Users,
-  FileText,
   Settings,
   LogOut,
   AlertTriangle,
@@ -22,7 +21,9 @@ import {
   Bell,
   Loader2,
   Sparkles,
-  Zap
+  Zap,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { 
   logOut, 
@@ -85,7 +86,71 @@ interface Invite {
   status: string;
 }
 
+// Theme configuration
+const themes = {
+  light: {
+    backdrop: 'bg-white/40',
+    panel: 'bg-white/90',
+    sidebar: 'bg-slate-50/95',
+    sidebarBorder: 'border-slate-200',
+    card: 'bg-white/80 border-slate-200',
+    cardHover: 'hover:bg-slate-50',
+    input: 'bg-white border-slate-200 text-slate-900 placeholder-slate-400',
+    inputFocus: 'focus:border-[#D4A24A] focus:ring-[#D4A24A]/20',
+    text: 'text-slate-900',
+    textSecondary: 'text-slate-600',
+    textMuted: 'text-slate-500',
+    headerBg: 'bg-white/60',
+    headerBorder: 'border-slate-200',
+    navActive: 'bg-[#D4A24A]/10 border-[#D4A24A]/30',
+    navInactive: 'hover:bg-slate-100 border-transparent',
+    navIconBg: 'bg-slate-100',
+    navIconBgActive: 'bg-[#D4A24A]/20',
+    userCard: 'bg-slate-100',
+    statusBorder: 'border-white',
+    modalBg: 'bg-white/95',
+    modalBorder: 'border-slate-200',
+    cancelBtn: 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200',
+    taskCard: 'bg-slate-50 border-slate-200',
+    glowOpacity: '0.1',
+  },
+  dark: {
+    backdrop: 'bg-black/60',
+    panel: 'bg-slate-900/80',
+    sidebar: 'bg-black/40',
+    sidebarBorder: 'border-white/5',
+    card: 'bg-white/5 border-white/10',
+    cardHover: 'hover:bg-white/10',
+    input: 'bg-black/30 border-white/10 text-white placeholder-gray-500',
+    inputFocus: 'focus:border-[#D4A24A]/50 focus:ring-[#D4A24A]/50',
+    text: 'text-white',
+    textSecondary: 'text-gray-300',
+    textMuted: 'text-gray-500',
+    headerBg: 'bg-black/20',
+    headerBorder: 'border-white/5',
+    navActive: 'bg-gradient-to-r from-[#D4A24A]/20 to-[#D4A24A]/5 border-[#D4A24A]/30',
+    navInactive: 'hover:bg-white/5 border-transparent',
+    navIconBg: 'bg-white/5',
+    navIconBgActive: 'bg-[#D4A24A]/20',
+    userCard: 'bg-white/5',
+    statusBorder: 'border-slate-900',
+    modalBg: 'bg-slate-900/95',
+    modalBorder: 'border-white/10',
+    cancelBtn: 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10',
+    taskCard: 'bg-black/20 border-white/5',
+    glowOpacity: '0.2',
+  }
+};
+
 export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('dashboard-theme') as 'light' | 'dark') || 'light';
+    }
+    return 'light';
+  });
+  const t = themes[theme];
+
   const [activeTab, setActiveTab] = useState<'schedule' | 'tasks' | 'team' | 'settings'>('schedule');
   const [loading, setLoading] = useState(true);
   
@@ -116,6 +181,12 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
   useEffect(() => {
     if (isOpen && user) loadAllData();
   }, [isOpen, user]);
+
+  useEffect(() => {
+    localStorage.setItem('dashboard-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
 
   const loadAllData = async () => {
     if (!user) return;
@@ -245,15 +316,21 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
   };
 
   const eventTypeColors = { meeting: 'from-blue-500 to-cyan-400', interview: 'from-emerald-500 to-teal-400', deadline: 'from-rose-500 to-pink-400', other: 'from-slate-500 to-gray-400' };
-  const eventTypeBg = { meeting: 'bg-blue-500/20 border-blue-500/30', interview: 'bg-emerald-500/20 border-emerald-500/30', deadline: 'bg-rose-500/20 border-rose-500/30', other: 'bg-slate-500/20 border-slate-500/30' };
-  const priorityColors = { low: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', medium: 'bg-amber-500/20 text-amber-300 border-amber-500/30', high: 'bg-rose-500/20 text-rose-300 border-rose-500/30' };
+  const eventTypeBgLight = { meeting: 'bg-blue-50 border-blue-200', interview: 'bg-emerald-50 border-emerald-200', deadline: 'bg-rose-50 border-rose-200', other: 'bg-slate-50 border-slate-200' };
+  const eventTypeBgDark = { meeting: 'bg-blue-500/20 border-blue-500/30', interview: 'bg-emerald-500/20 border-emerald-500/30', deadline: 'bg-rose-500/20 border-rose-500/30', other: 'bg-slate-500/20 border-slate-500/30' };
+  const eventTypeBg = theme === 'light' ? eventTypeBgLight : eventTypeBgDark;
+  
+  const priorityColorsLight = { low: 'bg-emerald-100 text-emerald-700 border-emerald-200', medium: 'bg-amber-100 text-amber-700 border-amber-200', high: 'bg-rose-100 text-rose-700 border-rose-200' };
+  const priorityColorsDark = { low: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', medium: 'bg-amber-500/20 text-amber-300 border-amber-500/30', high: 'bg-rose-500/20 text-rose-300 border-rose-500/30' };
+  const priorityColors = theme === 'light' ? priorityColorsLight : priorityColorsDark;
+  
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop with grid pattern */}
+          {/* Backdrop */}
           <motion.div
             className="fixed inset-0 z-50"
             initial={{ opacity: 0 }}
@@ -261,8 +338,8 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
             exit={{ opacity: 0 }}
             onClick={onClose}
           >
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-xl" />
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(212,162,74,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(212,162,74,0.03)_1px,transparent_1px)] bg-[size:50px_50px]" />
+            <div className={`absolute inset-0 ${t.backdrop} backdrop-blur-xl`} />
+            <div className={`absolute inset-0 bg-[linear-gradient(rgba(212,162,74,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(212,162,74,0.03)_1px,transparent_1px)] bg-[size:50px_50px]`} />
           </motion.div>
 
           {/* Dashboard Panel */}
@@ -274,15 +351,15 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
             transition={{ type: 'spring', duration: 0.6, bounce: 0.2 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex w-full bg-slate-900/80 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-2xl border border-white/10 overflow-hidden">
+            <div className={`flex w-full ${t.panel} backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-2xl border ${theme === 'light' ? 'border-slate-200/80' : 'border-white/10'} overflow-hidden`}>
               {/* Ambient glow effects */}
-              <div className="absolute -top-40 -left-40 w-80 h-80 bg-[#D4A24A]/20 rounded-full blur-[100px] pointer-events-none" />
-              <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
+              <div className={`absolute -top-40 -left-40 w-80 h-80 bg-[#D4A24A] rounded-full blur-[100px] pointer-events-none`} style={{ opacity: t.glowOpacity }} />
+              <div className={`absolute -bottom-40 -right-40 w-80 h-80 bg-blue-500 rounded-full blur-[100px] pointer-events-none`} style={{ opacity: theme === 'light' ? '0.05' : '0.1' }} />
 
               {/* Sidebar */}
-              <div className="w-16 sm:w-72 bg-black/40 backdrop-blur-xl flex flex-col border-r border-white/5">
+              <div className={`w-16 sm:w-72 ${t.sidebar} backdrop-blur-xl flex flex-col border-r ${t.sidebarBorder}`}>
                 {/* Logo */}
-                <div className="p-4 sm:p-6 border-b border-white/5">
+                <div className={`p-4 sm:p-6 border-b ${t.sidebarBorder}`}>
                   <div className="flex items-center gap-3">
                     <div className="relative">
                       <div className="absolute inset-0 bg-gradient-to-br from-[#D4A24A] to-[#B8883D] rounded-xl blur-lg opacity-50" />
@@ -291,7 +368,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                       </div>
                     </div>
                     <div className="hidden sm:block">
-                      <span className="text-white font-bold text-lg">Pando</span>
+                      <span className={`${t.text} font-bold text-lg`}>Pando</span>
                       <span className="text-[#D4A24A] font-light text-lg ml-1">Portal</span>
                     </div>
                   </div>
@@ -308,10 +385,8 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                     <motion.button
                       key={item.id}
                       onClick={() => setActiveTab(item.id as any)}
-                      className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all relative group ${
-                        activeTab === item.id
-                          ? 'bg-gradient-to-r from-[#D4A24A]/20 to-[#D4A24A]/5 border border-[#D4A24A]/30'
-                          : 'hover:bg-white/5 border border-transparent'
+                      className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all relative group border ${
+                        activeTab === item.id ? t.navActive : t.navInactive
                       }`}
                       whileHover={{ x: 4 }}
                       whileTap={{ scale: 0.98 }}
@@ -322,12 +397,12 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                           layoutId="activeTab"
                         />
                       )}
-                      <div className={`p-2 rounded-lg ${activeTab === item.id ? 'bg-[#D4A24A]/20' : 'bg-white/5 group-hover:bg-white/10'}`}>
-                        <item.icon className={`w-5 h-5 ${activeTab === item.id ? 'text-[#D4A24A]' : 'text-gray-400 group-hover:text-white'}`} />
+                      <div className={`p-2 rounded-lg ${activeTab === item.id ? t.navIconBgActive : `${t.navIconBg} group-hover:bg-[#D4A24A]/10`}`}>
+                        <item.icon className={`w-5 h-5 ${activeTab === item.id ? 'text-[#D4A24A]' : `${t.textMuted} group-hover:text-[#D4A24A]`}`} />
                       </div>
                       <div className="hidden sm:block flex-1 text-left">
-                        <span className={`block text-sm font-medium ${activeTab === item.id ? 'text-white' : 'text-gray-300'}`}>{item.label}</span>
-                        <span className="block text-xs text-gray-500">{item.desc}</span>
+                        <span className={`block text-sm font-medium ${activeTab === item.id ? t.text : t.textSecondary}`}>{item.label}</span>
+                        <span className={`block text-xs ${t.textMuted}`}>{item.desc}</span>
                       </div>
                       {item.badge && item.badge > 0 && (
                         <span className="absolute right-2 top-1/2 -translate-y-1/2 sm:relative sm:right-0 sm:top-0 sm:translate-y-0 bg-rose-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-medium">
@@ -339,22 +414,22 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                 </nav>
 
                 {/* User Section */}
-                <div className="p-2 sm:p-4 border-t border-white/5">
-                  <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-white/5 mb-2">
+                <div className={`p-2 sm:p-4 border-t ${t.sidebarBorder}`}>
+                  <div className={`flex items-center gap-3 px-3 py-3 rounded-xl ${t.userCard} mb-2`}>
                     <div className="relative">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#D4A24A] to-[#B8883D] flex items-center justify-center text-white font-semibold">
                         {user?.displayName?.charAt(0) || user?.email?.charAt(0) || 'U'}
                       </div>
-                      <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900" />
+                      <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 ${t.statusBorder}`} />
                     </div>
                     <div className="hidden sm:block flex-1 min-w-0">
-                      <p className="text-white text-sm font-medium truncate">{user?.displayName || 'User'}</p>
-                      <p className="text-gray-500 text-xs truncate">{user?.email}</p>
+                      <p className={`${t.text} text-sm font-medium truncate`}>{user?.displayName || 'User'}</p>
+                      <p className={`${t.textMuted} text-xs truncate`}>{user?.email}</p>
                     </div>
                   </div>
                   <motion.button
                     onClick={handleLogout}
-                    className="w-full flex items-center justify-center sm:justify-start gap-3 px-3 py-2 text-gray-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all"
+                    className={`w-full flex items-center justify-center sm:justify-start gap-3 px-3 py-2 ${t.textMuted} hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all`}
                     whileHover={{ x: 4 }}
                   >
                     <LogOut className="w-5 h-5" />
@@ -366,27 +441,42 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
               {/* Main Content */}
               <div className="flex-1 flex flex-col overflow-hidden relative">
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 sm:px-8 py-4 border-b border-white/5 bg-black/20">
+                <div className={`flex items-center justify-between px-4 sm:px-8 py-4 border-b ${t.headerBorder} ${t.headerBg}`}>
                   <div>
-                    <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+                    <h1 className={`text-xl sm:text-2xl font-bold ${t.text} flex items-center gap-2`}>
                       {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
                       <span className="text-xs px-2 py-1 bg-[#D4A24A]/20 text-[#D4A24A] rounded-full font-normal">Live</span>
                     </h1>
-                    <p className="text-gray-500 text-sm">
+                    <p className={`${t.textMuted} text-sm`}>
                       {activeTab === 'schedule' && 'Synced with your team'}
                       {activeTab === 'tasks' && 'Track your progress'}
                       {activeTab === 'team' && 'Manage team members'}
                       {activeTab === 'settings' && 'Configure preferences'}
                     </p>
                   </div>
-                  <motion.button 
-                    onClick={onClose} 
-                    className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <X className="w-5 h-5 text-gray-400" />
-                  </motion.button>
+                  <div className="flex items-center gap-2">
+                    {/* Theme Toggle */}
+                    <motion.button 
+                      onClick={toggleTheme}
+                      className={`p-2 rounded-xl ${t.card} border transition-all`}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {theme === 'light' ? (
+                        <Moon className={`w-5 h-5 ${t.textMuted}`} />
+                      ) : (
+                        <Sun className="w-5 h-5 text-amber-400" />
+                      )}
+                    </motion.button>
+                    <motion.button 
+                      onClick={onClose} 
+                      className={`p-2 rounded-xl ${t.card} border transition-all`}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <X className={`w-5 h-5 ${t.textMuted}`} />
+                    </motion.button>
+                  </div>
                 </div>
 
                 <div className="flex-1 overflow-auto p-4 sm:p-6">
@@ -394,7 +484,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                     <div className="flex items-center justify-center h-64">
                       <div className="text-center">
                         <Loader2 className="w-10 h-10 animate-spin text-[#D4A24A] mx-auto mb-4" />
-                        <p className="text-gray-500">Loading your data...</p>
+                        <p className={t.textMuted}>Loading your data...</p>
                       </div>
                     </div>
                   ) : (
@@ -403,25 +493,25 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                       {activeTab === 'schedule' && (
                         <div className="grid lg:grid-cols-3 gap-6">
                           {/* Calendar */}
-                          <div className="lg:col-span-2 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-4 sm:p-6">
+                          <div className={`lg:col-span-2 ${t.card} backdrop-blur-xl rounded-2xl border p-4 sm:p-6`}>
                             <div className="flex items-center justify-between mb-6">
-                              <h2 className="text-lg font-semibold text-white">
+                              <h2 className={`text-lg font-semibold ${t.text}`}>
                                 {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
                               </h2>
                               <div className="flex items-center gap-2">
-                                <motion.button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                  <ChevronLeft className="w-4 h-4 text-gray-400" />
+                                <motion.button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))} className={`p-2 rounded-lg ${t.card} border`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                  <ChevronLeft className={`w-4 h-4 ${t.textMuted}`} />
                                 </motion.button>
                                 <motion.button onClick={() => setCurrentMonth(new Date())} className="px-3 py-1.5 text-sm text-[#D4A24A] hover:bg-[#D4A24A]/10 rounded-lg border border-[#D4A24A]/30" whileHover={{ scale: 1.02 }}>Today</motion.button>
-                                <motion.button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                                <motion.button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))} className={`p-2 rounded-lg ${t.card} border`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                  <ChevronRight className={`w-4 h-4 ${t.textMuted}`} />
                                 </motion.button>
                               </div>
                             </div>
 
                             <div className="grid grid-cols-7 gap-1">
                               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                                <div key={day} className="text-center text-xs font-medium text-gray-500 py-2">{day}</div>
+                                <div key={day} className={`text-center text-xs font-medium ${t.textMuted} py-2`}>{day}</div>
                               ))}
                               {getDaysInMonth(currentMonth).map((day, index) => {
                                 const isToday = day && formatDate(day) === formatDate(new Date());
@@ -436,7 +526,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                       !day ? 'invisible' :
                                       isSelected ? 'bg-gradient-to-br from-[#D4A24A] to-[#B8883D] text-white shadow-lg shadow-[#D4A24A]/30' :
                                       isToday ? 'bg-[#D4A24A]/20 text-[#D4A24A] border border-[#D4A24A]/30' :
-                                      'hover:bg-white/10 text-gray-300 border border-transparent hover:border-white/10'
+                                      `${t.cardHover} ${t.textSecondary} border border-transparent hover:border-slate-200`
                                     }`}
                                     whileHover={day ? { scale: 1.1 } : {}}
                                     whileTap={day ? { scale: 0.95 } : {}}
@@ -467,8 +557,8 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                               New Event
                             </motion.button>
 
-                            <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-4">
-                              <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                            <div className={`${t.card} backdrop-blur-xl rounded-2xl border p-4`}>
+                              <h3 className={`font-semibold ${t.text} mb-4 flex items-center gap-2`}>
                                 <Calendar className="w-4 h-4 text-[#D4A24A]" />
                                 {selectedDate ? selectedDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : 'Select a date'}
                               </h3>
@@ -479,8 +569,8 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                     <motion.div key={event.id} className={`p-3 rounded-xl border ${eventTypeBg[event.type]} group`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                                       <div className="flex items-start justify-between">
                                         <div>
-                                          <p className="font-medium text-white text-sm">{event.title}</p>
-                                          <p className="text-xs text-gray-400 flex items-center gap-1 mt-1">
+                                          <p className={`font-medium ${t.text} text-sm`}>{event.title}</p>
+                                          <p className={`text-xs ${t.textMuted} flex items-center gap-1 mt-1`}>
                                             <Clock className="w-3 h-3" />{event.time}
                                           </p>
                                           {event.createdBy !== user?.uid && (
@@ -489,10 +579,10 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                         </div>
                                         {event.createdBy === user?.uid && (
                                           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                                            <button onClick={() => setShowShareModal(event.id)} className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30">
+                                            <button onClick={() => setShowShareModal(event.id)} className="p-1.5 rounded-lg bg-blue-500/20 text-blue-500 hover:bg-blue-500/30">
                                               <Share2 className="w-3 h-3" />
                                             </button>
-                                            <button onClick={() => setShowDeleteConfirm(event.id)} className="p-1.5 rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500/30">
+                                            <button onClick={() => setShowDeleteConfirm(event.id)} className="p-1.5 rounded-lg bg-rose-500/20 text-rose-500 hover:bg-rose-500/30">
                                               <Trash2 className="w-3 h-3" />
                                             </button>
                                           </div>
@@ -502,29 +592,29 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                   ))}
                                 </div>
                               ) : (
-                                <p className="text-gray-500 text-sm text-center py-8">
+                                <p className={`${t.textMuted} text-sm text-center py-8`}>
                                   {selectedDate ? 'No events' : 'Select a date'}
                                 </p>
                               )}
                             </div>
 
-                            <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-4">
-                              <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                            <div className={`${t.card} backdrop-blur-xl rounded-2xl border p-4`}>
+                              <h3 className={`font-semibold ${t.text} mb-4 flex items-center gap-2`}>
                                 <Zap className="w-4 h-4 text-[#D4A24A]" />
                                 Upcoming
                               </h3>
                               <div className="space-y-2">
                                 {events.filter(e => new Date(e.date) >= new Date()).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).slice(0, 5).map(event => (
-                                  <div key={event.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
+                                  <div key={event.id} className={`flex items-center gap-3 p-2 rounded-lg ${t.cardHover} transition-colors`}>
                                     <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${eventTypeColors[event.type]}`} />
                                     <div className="flex-1 min-w-0">
-                                      <p className="text-sm font-medium text-gray-200 truncate">{event.title}</p>
-                                      <p className="text-xs text-gray-500">{event.date}</p>
+                                      <p className={`text-sm font-medium ${t.textSecondary} truncate`}>{event.title}</p>
+                                      <p className={`text-xs ${t.textMuted}`}>{event.date}</p>
                                     </div>
                                   </div>
                                 ))}
                                 {events.filter(e => new Date(e.date) >= new Date()).length === 0 && (
-                                  <p className="text-gray-500 text-sm text-center py-4">No upcoming events</p>
+                                  <p className={`${t.textMuted} text-sm text-center py-4`}>No upcoming events</p>
                                 )}
                               </div>
                             </div>
@@ -542,18 +632,18 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
 
                           <div className="grid md:grid-cols-3 gap-6">
                             {(['todo', 'in_progress', 'done'] as const).map(status => (
-                              <div key={status} className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-4">
-                                <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-                                  <div className={`w-3 h-3 rounded-full ${status === 'todo' ? 'bg-gray-500' : status === 'in_progress' ? 'bg-blue-500' : 'bg-emerald-500'}`} />
+                              <div key={status} className={`${t.card} backdrop-blur-xl rounded-2xl border p-4`}>
+                                <h3 className={`font-semibold ${t.text} mb-4 flex items-center gap-2`}>
+                                  <div className={`w-3 h-3 rounded-full ${status === 'todo' ? 'bg-gray-400' : status === 'in_progress' ? 'bg-blue-500' : 'bg-emerald-500'}`} />
                                   {status === 'todo' ? 'To Do' : status === 'in_progress' ? 'In Progress' : 'Done'}
-                                  <span className="text-gray-500 text-sm font-normal">({tasks.filter(t => t.status === status).length})</span>
+                                  <span className={`${t.textMuted} text-sm font-normal`}>({tasks.filter(t => t.status === status).length})</span>
                                 </h3>
                                 <div className="space-y-3">
                                   {tasks.filter(t => t.status === status).map(task => (
-                                    <TaskCard key={task.id} task={task} priorityColors={priorityColors} onStatusChange={handleUpdateTaskStatus} onDelete={() => setShowDeleteTaskConfirm(task.id)} />
+                                    <TaskCard key={task.id} task={task} priorityColors={priorityColors} theme={theme} t={t} onStatusChange={handleUpdateTaskStatus} onDelete={() => setShowDeleteTaskConfirm(task.id)} />
                                   ))}
                                   {tasks.filter(t => t.status === status).length === 0 && (
-                                    <p className="text-gray-500 text-sm text-center py-8">No tasks</p>
+                                    <p className={`${t.textMuted} text-sm text-center py-8`}>No tasks</p>
                                   )}
                                 </div>
                               </div>
@@ -566,28 +656,28 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                       {activeTab === 'team' && (
                         <div className="space-y-6">
                           {pendingInvites.length > 0 && (
-                            <div className="bg-[#D4A24A]/10 backdrop-blur-xl rounded-2xl border border-[#D4A24A]/30 p-4">
-                              <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                            <div className={`bg-[#D4A24A]/10 backdrop-blur-xl rounded-2xl border border-[#D4A24A]/30 p-4`}>
+                              <h3 className={`font-semibold ${t.text} mb-4 flex items-center gap-2`}>
                                 <Bell className="w-5 h-5 text-[#D4A24A]" />
                                 Pending Invitations
                               </h3>
                               <div className="space-y-3">
                                 {pendingInvites.map(invite => (
-                                  <div key={invite.id} className="flex items-center justify-between bg-black/20 rounded-xl p-3 border border-white/5">
+                                  <div key={invite.id} className={`flex items-center justify-between ${t.taskCard} rounded-xl p-3 border`}>
                                     <div className="flex items-center gap-3">
                                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#D4A24A] to-[#B8883D] flex items-center justify-center text-white font-medium">
                                         {invite.inviterEmail.charAt(0).toUpperCase()}
                                       </div>
                                       <div>
-                                        <p className="font-medium text-white text-sm">{invite.inviterEmail}</p>
-                                        <p className="text-xs text-gray-500">Wants to add you</p>
+                                        <p className={`font-medium ${t.text} text-sm`}>{invite.inviterEmail}</p>
+                                        <p className={`text-xs ${t.textMuted}`}>Wants to add you</p>
                                       </div>
                                     </div>
                                     <div className="flex gap-2">
-                                      <motion.button onClick={() => handleRespondToInvite(invite.id, 'accepted')} className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border border-emerald-500/30" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                      <motion.button onClick={() => handleRespondToInvite(invite.id, 'accepted')} className="p-2 rounded-lg bg-emerald-500/20 text-emerald-500 hover:bg-emerald-500/30 border border-emerald-500/30" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                         <CheckCircle className="w-4 h-4" />
                                       </motion.button>
-                                      <motion.button onClick={() => handleRespondToInvite(invite.id, 'rejected')} className="p-2 rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 border border-rose-500/30" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                      <motion.button onClick={() => handleRespondToInvite(invite.id, 'rejected')} className="p-2 rounded-lg bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 border border-rose-500/30" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                         <XCircle className="w-4 h-4" />
                                       </motion.button>
                                     </div>
@@ -597,16 +687,16 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                             </div>
                           )}
 
-                          <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-                            <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                          <div className={`${t.card} backdrop-blur-xl rounded-2xl border p-6`}>
+                            <h3 className={`font-semibold ${t.text} mb-4 flex items-center gap-2`}>
                               <UserPlus className="w-5 h-5 text-[#D4A24A]" />
                               Find & Invite
                             </h3>
-                            <p className="text-gray-500 text-sm mb-4">Search for users by email to add them to your team.</p>
+                            <p className={`${t.textMuted} text-sm mb-4`}>Search for users by email to add them to your team.</p>
                             <div className="flex gap-3">
                               <div className="flex-1 relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                                <input type="email" value={searchEmail} onChange={(e) => setSearchEmail(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSearchUsers()} placeholder="Search by email..." className="w-full pl-10 pr-4 py-2.5 bg-black/30 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#D4A24A]/50 focus:ring-1 focus:ring-[#D4A24A]/50" />
+                                <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${t.textMuted}`} />
+                                <input type="email" value={searchEmail} onChange={(e) => setSearchEmail(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSearchUsers()} placeholder="Search by email..." className={`w-full pl-10 pr-4 py-2.5 ${t.input} border rounded-xl focus:outline-none ${t.inputFocus} focus:ring-1`} />
                               </div>
                               <motion.button onClick={handleSearchUsers} disabled={searching || !searchEmail.trim()} className="px-4 py-2 bg-[#D4A24A] text-white rounded-xl disabled:opacity-50" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                                 {searching ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
@@ -618,14 +708,14 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                 {searchResults.length > 0 ? (
                                   <div className="space-y-2">
                                     {searchResults.map(result => (
-                                      <div key={result.id} className="flex items-center justify-between bg-black/20 rounded-xl p-3 border border-white/5">
+                                      <div key={result.id} className={`flex items-center justify-between ${t.taskCard} rounded-xl p-3 border`}>
                                         <div className="flex items-center gap-3">
                                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#D4A24A] to-[#B8883D] flex items-center justify-center text-white font-medium">
                                             {(result.displayName || result.email).charAt(0).toUpperCase()}
                                           </div>
                                           <div>
-                                            <p className="font-medium text-white text-sm">{result.displayName || 'User'}</p>
-                                            <p className="text-xs text-gray-500">{result.email}</p>
+                                            <p className={`font-medium ${t.text} text-sm`}>{result.displayName || 'User'}</p>
+                                            <p className={`text-xs ${t.textMuted}`}>{result.email}</p>
                                           </div>
                                         </div>
                                         <motion.button onClick={() => handleSendInvite(result)} disabled={inviting === result.id} className="px-3 py-1.5 bg-[#D4A24A] text-white rounded-lg text-sm disabled:opacity-50" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -635,38 +725,38 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                     ))}
                                   </div>
                                 ) : (
-                                  <div className="text-center py-4 text-gray-400 text-sm">
+                                  <div className={`text-center py-4 ${t.textMuted} text-sm`}>
                                     <p>No users found with that email.</p>
-                                    <p className="text-xs text-gray-500 mt-1">Make sure they have signed up and logged in at least once.</p>
+                                    <p className={`text-xs ${t.textMuted} mt-1`}>Make sure they have signed up and logged in at least once.</p>
                                   </div>
                                 )}
                               </div>
                             )}
                           </div>
 
-                          <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-                            <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                          <div className={`${t.card} backdrop-blur-xl rounded-2xl border p-6`}>
+                            <h3 className={`font-semibold ${t.text} mb-4 flex items-center gap-2`}>
                               <Users className="w-5 h-5 text-[#D4A24A]" />
                               Your Team
-                              <span className="text-gray-500 text-sm font-normal">({teamMembers.length})</span>
+                              <span className={`${t.textMuted} text-sm font-normal`}>({teamMembers.length})</span>
                             </h3>
                             
                             {teamMembers.length > 0 ? (
                               <div className="grid sm:grid-cols-2 gap-3">
                                 {teamMembers.map(member => (
-                                  <div key={member.id} className="flex items-center gap-3 bg-black/20 rounded-xl p-3 border border-white/5">
+                                  <div key={member.id} className={`flex items-center gap-3 ${t.taskCard} rounded-xl p-3 border`}>
                                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#D4A24A] to-[#B8883D] flex items-center justify-center text-white font-medium">
                                       {(member.displayName || member.email).charAt(0).toUpperCase()}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                      <p className="font-medium text-white text-sm truncate">{member.displayName || 'User'}</p>
-                                      <p className="text-xs text-gray-500 truncate">{member.email}</p>
+                                      <p className={`font-medium ${t.text} text-sm truncate`}>{member.displayName || 'User'}</p>
+                                      <p className={`text-xs ${t.textMuted} truncate`}>{member.email}</p>
                                     </div>
                                   </div>
                                 ))}
                               </div>
                             ) : (
-                              <p className="text-gray-500 text-center py-8">No team members yet. Search and invite users above!</p>
+                              <p className={`${t.textMuted} text-center py-8`}>No team members yet. Search and invite users above!</p>
                             )}
                           </div>
                         </div>
@@ -675,16 +765,44 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                       {/* SETTINGS TAB */}
                       {activeTab === 'settings' && (
                         <div className="max-w-2xl space-y-6">
-                          <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-                            <h3 className="font-semibold text-white mb-4">Account</h3>
+                          <div className={`${t.card} backdrop-blur-xl rounded-2xl border p-6`}>
+                            <h3 className={`font-semibold ${t.text} mb-4`}>Appearance</h3>
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className={`${t.text} text-sm font-medium`}>Theme</p>
+                                <p className={`${t.textMuted} text-xs`}>Choose between light and dark mode</p>
+                              </div>
+                              <motion.button
+                                onClick={toggleTheme}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-xl ${t.card} border`}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                              >
+                                {theme === 'light' ? (
+                                  <>
+                                    <Sun className="w-4 h-4 text-amber-500" />
+                                    <span className={`text-sm ${t.text}`}>Light</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Moon className="w-4 h-4 text-blue-400" />
+                                    <span className={`text-sm ${t.text}`}>Dark</span>
+                                  </>
+                                )}
+                              </motion.button>
+                            </div>
+                          </div>
+
+                          <div className={`${t.card} backdrop-blur-xl rounded-2xl border p-6`}>
+                            <h3 className={`font-semibold ${t.text} mb-4`}>Account</h3>
                             <div className="space-y-4">
                               <div>
-                                <label className="block text-sm text-gray-400 mb-1">Display Name</label>
-                                <input type="text" value={user?.displayName || ''} disabled className="w-full px-4 py-2.5 bg-black/30 border border-white/10 rounded-xl text-gray-400" />
+                                <label className={`block text-sm ${t.textMuted} mb-1`}>Display Name</label>
+                                <input type="text" value={user?.displayName || ''} disabled className={`w-full px-4 py-2.5 ${t.input} border rounded-xl`} />
                               </div>
                               <div>
-                                <label className="block text-sm text-gray-400 mb-1">Email</label>
-                                <input type="email" value={user?.email || ''} disabled className="w-full px-4 py-2.5 bg-black/30 border border-white/10 rounded-xl text-gray-400" />
+                                <label className={`block text-sm ${t.textMuted} mb-1`}>Email</label>
+                                <input type="email" value={user?.email || ''} disabled className={`w-full px-4 py-2.5 ${t.input} border rounded-xl`} />
                               </div>
                             </div>
                           </div>
@@ -700,26 +818,26 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
           {/* Modals */}
           <AnimatePresence>
             {showEventModal && (
-              <Modal onClose={() => setShowEventModal(false)}>
-                <h3 className="text-xl font-bold text-white mb-4">New Event</h3>
+              <Modal theme={theme} t={t} onClose={() => setShowEventModal(false)}>
+                <h3 className={`text-xl font-bold ${t.text} mb-4`}>New Event</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Title</label>
-                    <input type="text" value={newEvent.title} onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })} className="w-full px-4 py-2.5 bg-black/30 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#D4A24A]/50" placeholder="Event title" />
+                    <label className={`block text-sm ${t.textMuted} mb-1`}>Title</label>
+                    <input type="text" value={newEvent.title} onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })} className={`w-full px-4 py-2.5 ${t.input} border rounded-xl focus:outline-none ${t.inputFocus}`} placeholder="Event title" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm text-gray-400 mb-1">Date</label>
-                      <input type="date" value={newEvent.date} onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })} className="w-full px-4 py-2.5 bg-black/30 border border-white/10 rounded-xl text-white focus:outline-none focus:border-[#D4A24A]/50" />
+                      <label className={`block text-sm ${t.textMuted} mb-1`}>Date</label>
+                      <input type="date" value={newEvent.date} onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })} className={`w-full px-4 py-2.5 ${t.input} border rounded-xl focus:outline-none ${t.inputFocus}`} />
                     </div>
                     <div>
-                      <label className="block text-sm text-gray-400 mb-1">Time</label>
-                      <input type="time" value={newEvent.time} onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })} className="w-full px-4 py-2.5 bg-black/30 border border-white/10 rounded-xl text-white focus:outline-none focus:border-[#D4A24A]/50" />
+                      <label className={`block text-sm ${t.textMuted} mb-1`}>Time</label>
+                      <input type="time" value={newEvent.time} onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })} className={`w-full px-4 py-2.5 ${t.input} border rounded-xl focus:outline-none ${t.inputFocus}`} />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Type</label>
-                    <select value={newEvent.type} onChange={(e) => setNewEvent({ ...newEvent, type: e.target.value as any })} className="w-full px-4 py-2.5 bg-black/30 border border-white/10 rounded-xl text-white focus:outline-none focus:border-[#D4A24A]/50">
+                    <label className={`block text-sm ${t.textMuted} mb-1`}>Type</label>
+                    <select value={newEvent.type} onChange={(e) => setNewEvent({ ...newEvent, type: e.target.value as any })} className={`w-full px-4 py-2.5 ${t.input} border rounded-xl focus:outline-none ${t.inputFocus}`}>
                       <option value="meeting">Meeting</option>
                       <option value="interview">Interview</option>
                       <option value="deadline">Deadline</option>
@@ -727,12 +845,12 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Description</label>
-                    <textarea value={newEvent.description} onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })} className="w-full px-4 py-2.5 bg-black/30 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#D4A24A]/50 resize-none" rows={3} placeholder="Optional" />
+                    <label className={`block text-sm ${t.textMuted} mb-1`}>Description</label>
+                    <textarea value={newEvent.description} onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })} className={`w-full px-4 py-2.5 ${t.input} border rounded-xl focus:outline-none ${t.inputFocus} resize-none`} rows={3} placeholder="Optional" />
                   </div>
                 </div>
                 <div className="flex gap-3 mt-6">
-                  <button onClick={() => setShowEventModal(false)} className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-gray-400 hover:bg-white/10">Cancel</button>
+                  <button onClick={() => setShowEventModal(false)} className={`flex-1 py-2.5 ${t.cancelBtn} border rounded-xl`}>Cancel</button>
                   <motion.button onClick={handleAddEvent} className="flex-1 py-2.5 bg-gradient-to-r from-[#D4A24A] to-[#B8883D] text-white rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Create Event</motion.button>
                 </div>
               </Modal>
@@ -741,25 +859,25 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
 
           <AnimatePresence>
             {showTaskModal && (
-              <Modal onClose={() => setShowTaskModal(false)}>
-                <h3 className="text-xl font-bold text-white mb-4">New Task</h3>
+              <Modal theme={theme} t={t} onClose={() => setShowTaskModal(false)}>
+                <h3 className={`text-xl font-bold ${t.text} mb-4`}>New Task</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Title</label>
-                    <input type="text" value={newTask.title} onChange={(e) => setNewTask({ ...newTask, title: e.target.value })} className="w-full px-4 py-2.5 bg-black/30 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#D4A24A]/50" placeholder="Task title" />
+                    <label className={`block text-sm ${t.textMuted} mb-1`}>Title</label>
+                    <input type="text" value={newTask.title} onChange={(e) => setNewTask({ ...newTask, title: e.target.value })} className={`w-full px-4 py-2.5 ${t.input} border rounded-xl focus:outline-none ${t.inputFocus}`} placeholder="Task title" />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Description</label>
-                    <textarea value={newTask.description} onChange={(e) => setNewTask({ ...newTask, description: e.target.value })} className="w-full px-4 py-2.5 bg-black/30 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#D4A24A]/50 resize-none" rows={2} placeholder="Optional" />
+                    <label className={`block text-sm ${t.textMuted} mb-1`}>Description</label>
+                    <textarea value={newTask.description} onChange={(e) => setNewTask({ ...newTask, description: e.target.value })} className={`w-full px-4 py-2.5 ${t.input} border rounded-xl focus:outline-none ${t.inputFocus} resize-none`} rows={2} placeholder="Optional" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm text-gray-400 mb-1">Due Date</label>
-                      <input type="date" value={newTask.dueDate} onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })} className="w-full px-4 py-2.5 bg-black/30 border border-white/10 rounded-xl text-white focus:outline-none focus:border-[#D4A24A]/50" />
+                      <label className={`block text-sm ${t.textMuted} mb-1`}>Due Date</label>
+                      <input type="date" value={newTask.dueDate} onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })} className={`w-full px-4 py-2.5 ${t.input} border rounded-xl focus:outline-none ${t.inputFocus}`} />
                     </div>
                     <div>
-                      <label className="block text-sm text-gray-400 mb-1">Priority</label>
-                      <select value={newTask.priority} onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as any })} className="w-full px-4 py-2.5 bg-black/30 border border-white/10 rounded-xl text-white focus:outline-none focus:border-[#D4A24A]/50">
+                      <label className={`block text-sm ${t.textMuted} mb-1`}>Priority</label>
+                      <select value={newTask.priority} onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as any })} className={`w-full px-4 py-2.5 ${t.input} border rounded-xl focus:outline-none ${t.inputFocus}`}>
                         <option value="low">Low</option>
                         <option value="medium">Medium</option>
                         <option value="high">High</option>
@@ -768,7 +886,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                   </div>
                 </div>
                 <div className="flex gap-3 mt-6">
-                  <button onClick={() => setShowTaskModal(false)} className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-gray-400 hover:bg-white/10">Cancel</button>
+                  <button onClick={() => setShowTaskModal(false)} className={`flex-1 py-2.5 ${t.cancelBtn} border rounded-xl`}>Cancel</button>
                   <motion.button onClick={handleAddTask} className="flex-1 py-2.5 bg-gradient-to-r from-[#D4A24A] to-[#B8883D] text-white rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Create Task</motion.button>
                 </div>
               </Modal>
@@ -777,15 +895,15 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
 
           <AnimatePresence>
             {showDeleteConfirm && (
-              <Modal onClose={() => setShowDeleteConfirm(null)}>
+              <Modal theme={theme} t={t} onClose={() => setShowDeleteConfirm(null)}>
                 <div className="text-center">
                   <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-rose-500/20 border border-rose-500/30 flex items-center justify-center">
-                    <AlertTriangle className="w-8 h-8 text-rose-400" />
+                    <AlertTriangle className="w-8 h-8 text-rose-500" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2">Delete Event?</h3>
-                  <p className="text-gray-400 mb-6">This will remove the event for everyone.</p>
+                  <h3 className={`text-xl font-bold ${t.text} mb-2`}>Delete Event?</h3>
+                  <p className={`${t.textMuted} mb-6`}>This will remove the event for everyone.</p>
                   <div className="flex gap-3">
-                    <button onClick={() => setShowDeleteConfirm(null)} className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-gray-400 hover:bg-white/10">Cancel</button>
+                    <button onClick={() => setShowDeleteConfirm(null)} className={`flex-1 py-2.5 ${t.cancelBtn} border rounded-xl`}>Cancel</button>
                     <motion.button onClick={() => handleDeleteEvent(showDeleteConfirm)} className="flex-1 py-2.5 bg-rose-500 text-white rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Delete</motion.button>
                   </div>
                 </div>
@@ -795,15 +913,15 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
 
           <AnimatePresence>
             {showDeleteTaskConfirm && (
-              <Modal onClose={() => setShowDeleteTaskConfirm(null)}>
+              <Modal theme={theme} t={t} onClose={() => setShowDeleteTaskConfirm(null)}>
                 <div className="text-center">
                   <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-rose-500/20 border border-rose-500/30 flex items-center justify-center">
-                    <AlertTriangle className="w-8 h-8 text-rose-400" />
+                    <AlertTriangle className="w-8 h-8 text-rose-500" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2">Delete Task?</h3>
-                  <p className="text-gray-400 mb-6">This cannot be undone.</p>
+                  <h3 className={`text-xl font-bold ${t.text} mb-2`}>Delete Task?</h3>
+                  <p className={`${t.textMuted} mb-6`}>This cannot be undone.</p>
                   <div className="flex gap-3">
-                    <button onClick={() => setShowDeleteTaskConfirm(null)} className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-gray-400 hover:bg-white/10">Cancel</button>
+                    <button onClick={() => setShowDeleteTaskConfirm(null)} className={`flex-1 py-2.5 ${t.cancelBtn} border rounded-xl`}>Cancel</button>
                     <motion.button onClick={() => handleDeleteTask(showDeleteTaskConfirm)} className="flex-1 py-2.5 bg-rose-500 text-white rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Delete</motion.button>
                   </div>
                 </div>
@@ -813,14 +931,14 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
 
           <AnimatePresence>
             {showShareModal && (
-              <Modal onClose={() => { setShowShareModal(null); setShareSearchResults([]); setShareSearchEmail(''); }}>
-                <h3 className="text-xl font-bold text-white mb-4">Share Event</h3>
-                <p className="text-gray-400 text-sm mb-4">Search for users to share this event with.</p>
+              <Modal theme={theme} t={t} onClose={() => { setShowShareModal(null); setShareSearchResults([]); setShareSearchEmail(''); }}>
+                <h3 className={`text-xl font-bold ${t.text} mb-4`}>Share Event</h3>
+                <p className={`${t.textMuted} text-sm mb-4`}>Search for users to share this event with.</p>
                 
                 <div className="flex gap-3 mb-4">
                   <div className="flex-1 relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                    <input type="email" value={shareSearchEmail} onChange={(e) => setShareSearchEmail(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleShareSearch()} placeholder="Search by email..." className="w-full pl-10 pr-4 py-2.5 bg-black/30 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#D4A24A]/50" />
+                    <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${t.textMuted}`} />
+                    <input type="email" value={shareSearchEmail} onChange={(e) => setShareSearchEmail(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleShareSearch()} placeholder="Search by email..." className={`w-full pl-10 pr-4 py-2.5 ${t.input} border rounded-xl focus:outline-none ${t.inputFocus}`} />
                   </div>
                   <button onClick={handleShareSearch} className="px-4 py-2 bg-[#D4A24A] text-white rounded-xl">
                     <Search className="w-5 h-5" />
@@ -833,10 +951,10 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                       const event = events.find(e => e.id === showShareModal);
                       const isShared = event?.sharedWith?.includes(result.id);
                       return (
-                        <div key={result.id} className="flex items-center justify-between bg-black/20 rounded-xl p-3 border border-white/5">
-                          <span className="text-sm text-gray-300">{result.email}</span>
+                        <div key={result.id} className={`flex items-center justify-between ${t.taskCard} rounded-xl p-3 border`}>
+                          <span className={`text-sm ${t.textSecondary}`}>{result.email}</span>
                           {isShared ? (
-                            <button onClick={() => handleRemoveShare(showShareModal, result.id)} className="px-3 py-1 bg-rose-500/20 text-rose-400 rounded-lg text-sm border border-rose-500/30">Remove</button>
+                            <button onClick={() => handleRemoveShare(showShareModal, result.id)} className="px-3 py-1 bg-rose-500/20 text-rose-500 rounded-lg text-sm border border-rose-500/30">Remove</button>
                           ) : (
                             <button onClick={() => handleShareWithUser(showShareModal, result.id)} className="px-3 py-1 bg-[#D4A24A] text-white rounded-lg text-sm">Share</button>
                           )}
@@ -846,7 +964,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                   </div>
                 )}
 
-                <button onClick={() => { setShowShareModal(null); setShareSearchResults([]); setShareSearchEmail(''); }} className="w-full py-2.5 bg-white/5 border border-white/10 rounded-xl text-gray-400 hover:bg-white/10">Done</button>
+                <button onClick={() => { setShowShareModal(null); setShareSearchResults([]); setShareSearchEmail(''); }} className={`w-full py-2.5 ${t.cancelBtn} border rounded-xl`}>Done</button>
               </Modal>
             )}
           </AnimatePresence>
@@ -856,12 +974,12 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
   );
 }
 
-function Modal({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+function Modal({ children, onClose, theme, t }: { children: React.ReactNode; onClose: () => void; theme: 'light' | 'dark'; t: typeof themes.light }) {
   return (
     <>
-      <motion.div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} />
+      <motion.div className={`fixed inset-0 ${theme === 'light' ? 'bg-black/30' : 'bg-black/60'} backdrop-blur-sm z-[60]`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} />
       <motion.div className="fixed inset-0 z-[60] flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-        <motion.div className="bg-slate-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl p-6 w-full max-w-md border border-white/10" initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} onClick={(e) => e.stopPropagation()}>
+        <motion.div className={`${t.modalBg} backdrop-blur-2xl rounded-2xl shadow-2xl p-6 w-full max-w-md border ${t.modalBorder}`} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} onClick={(e) => e.stopPropagation()}>
           {children}
         </motion.div>
       </motion.div>
@@ -869,24 +987,24 @@ function Modal({ children, onClose }: { children: React.ReactNode; onClose: () =
   );
 }
 
-function TaskCard({ task, priorityColors, onStatusChange, onDelete }: { task: Task; priorityColors: Record<string, string>; onStatusChange: (id: string, status: Task['status']) => void; onDelete: () => void }) {
+function TaskCard({ task, priorityColors, theme, t, onStatusChange, onDelete }: { task: Task; priorityColors: Record<string, string>; theme: 'light' | 'dark'; t: typeof themes.light; onStatusChange: (id: string, status: Task['status']) => void; onDelete: () => void }) {
   return (
-    <motion.div className="p-3 rounded-xl bg-black/20 border border-white/5 group" layout whileHover={{ scale: 1.02 }}>
+    <motion.div className={`p-3 rounded-xl ${t.taskCard} border group`} layout whileHover={{ scale: 1.02 }}>
       <div className="flex items-start justify-between mb-2">
-        <p className="font-medium text-white text-sm">{task.title}</p>
-        <button onClick={onDelete} className="p-1 rounded-lg opacity-0 group-hover:opacity-100 bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 transition-all">
+        <p className={`font-medium ${t.text} text-sm`}>{task.title}</p>
+        <button onClick={onDelete} className="p-1 rounded-lg opacity-0 group-hover:opacity-100 bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 transition-all">
           <Trash2 className="w-3 h-3" />
         </button>
       </div>
-      {task.description && <p className="text-xs text-gray-500 mb-2">{task.description}</p>}
+      {task.description && <p className={`text-xs ${t.textMuted} mb-2`}>{task.description}</p>}
       <div className="flex items-center justify-between">
         <span className={`text-xs px-2 py-0.5 rounded-full border ${priorityColors[task.priority]}`}>{task.priority}</span>
-        {task.dueDate && <span className="text-xs text-gray-500">{task.dueDate}</span>}
+        {task.dueDate && <span className={`text-xs ${t.textMuted}`}>{task.dueDate}</span>}
       </div>
       <div className="mt-3 flex gap-1">
-        {task.status !== 'todo' && <button onClick={() => onStatusChange(task.id, 'todo')} className="flex-1 text-xs py-1.5 rounded-lg bg-gray-500/20 text-gray-400 hover:bg-gray-500/30 border border-gray-500/30">To Do</button>}
-        {task.status !== 'in_progress' && <button onClick={() => onStatusChange(task.id, 'in_progress')} className="flex-1 text-xs py-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 border border-blue-500/30">In Progress</button>}
-        {task.status !== 'done' && <button onClick={() => onStatusChange(task.id, 'done')} className="flex-1 text-xs py-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border border-emerald-500/30">Done</button>}
+        {task.status !== 'todo' && <button onClick={() => onStatusChange(task.id, 'todo')} className={`flex-1 text-xs py-1.5 rounded-lg ${theme === 'light' ? 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200' : 'bg-gray-500/20 text-gray-400 hover:bg-gray-500/30 border border-gray-500/30'}`}>To Do</button>}
+        {task.status !== 'in_progress' && <button onClick={() => onStatusChange(task.id, 'in_progress')} className={`flex-1 text-xs py-1.5 rounded-lg ${theme === 'light' ? 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200' : 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 border border-blue-500/30'}`}>In Progress</button>}
+        {task.status !== 'done' && <button onClick={() => onStatusChange(task.id, 'done')} className={`flex-1 text-xs py-1.5 rounded-lg ${theme === 'light' ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200' : 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border border-emerald-500/30'}`}>Done</button>}
       </div>
     </motion.div>
   );
