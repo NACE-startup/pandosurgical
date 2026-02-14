@@ -294,7 +294,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
   const getItemCountForDate = (date: Date) => getCalendarItemsForDate(date).length;
 
   const handleAddEvent = async () => {
-    if (!user || !newEvent.title || !newEvent.date || !newEvent.time) return;
+    if (!user || !newEvent.title || !newEvent.date) return;
     const eventData: Omit<FirestoreEvent, 'id' | 'createdAt'> = {
       title: newEvent.title,
       date: newEvent.date,
@@ -682,10 +682,12 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                             <p className={`font-medium ${t.text} text-sm`}>{item.title}</p>
                                             {item.visibility === 'team' ? <span title="Visible to team"><Globe className={`w-3 h-3 ${t.textMuted}`} /></span> : <span title="Private"><Lock className={`w-3 h-3 ${t.textMuted}`} /></span>}
                                           </div>
-                                          {item.time && (
+                                          {item.time ? (
                                             <p className={`text-xs ${t.textMuted} flex items-center gap-1 mt-1`}>
                                               <Clock className="w-3 h-3" />{item.time}
                                             </p>
+                                          ) : !item.isTask && (
+                                            <p className={`text-xs ${t.textMuted} mt-1`}>All day</p>
                                           )}
                                           {item.isTask && item.priority && (
                                             <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full border ${priorityColors[item.priority]}`}>{item.priority}</span>
@@ -942,7 +944,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                       <input type="date" value={newEvent.date} onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })} className={`w-full px-4 py-2.5 ${t.input} border rounded-xl focus:outline-none ${t.inputFocus}`} />
                     </div>
                     <div>
-                      <label className={`block text-sm ${t.textMuted} mb-1`}>Time</label>
+                      <label className={`block text-sm ${t.textMuted} mb-1`}>Time <span className="text-xs opacity-60">(optional)</span></label>
                       <input type="time" value={newEvent.time} onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })} className={`w-full px-4 py-2.5 ${t.input} border rounded-xl focus:outline-none ${t.inputFocus}`} />
                     </div>
                   </div>
