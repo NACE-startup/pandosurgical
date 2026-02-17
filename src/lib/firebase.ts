@@ -497,33 +497,59 @@ export const sendTeamInvite = async (inviterId: string, inviterEmail: string, in
   }
 };
 
-// Get team members (accepted invites)
+// Get team members (accepted invites) - includes teammates of teammates (full team network)
 export const getTeamMembers = async (userId: string) => {
   if (!db) return [];
   try {
     const invitesRef = collection(db, 'teamInvites');
     
-    // Get invites sent by user
-    const sentQuery = query(invitesRef, where('inviterId', '==', userId), where('status', '==', 'accepted'));
-    const sentSnap = await getDocs(sentQuery);
+    // Get ALL accepted invites to build the full team network
+    const acceptedQuery = query(invitesRef, where('status', '==', 'accepted'));
+    const acceptedSnap = await getDocs(acceptedQuery);
     
-    // Get invites received by user
-    const receivedQuery = query(invitesRef, where('inviteeId', '==', userId), where('status', '==', 'accepted'));
-    const receivedSnap = await getDocs(receivedQuery);
+    // Build a graph of connections
+    const connections = new Map<string, Set<string>>();
+    acceptedSnap.docs.forEach(doc => {
+      const data = doc.data();
+      const inviterId = data.inviterId;
+      const inviteeId = data.inviteeId;
+      
+      // Add bidirectional connections
+      if (!connections.has(inviterId)) connections.set(inviterId, new Set());
+      if (!connections.has(inviteeId)) connections.set(inviteeId, new Set());
+      connections.get(inviterId)!.add(inviteeId);
+      connections.get(inviteeId)!.add(inviterId);
+    });
     
-    const memberIds = new Set<string>();
-    sentSnap.docs.forEach(doc => memberIds.add(doc.data().inviteeId));
-    receivedSnap.docs.forEach(doc => memberIds.add(doc.data().inviterId));
+    // BFS to find all connected team members starting from current user
+    const visited = new Set<string>();
+    const queue = [userId];
+    visited.add(userId);
+    
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      const neighbors = connections.get(current) || new Set();
+      for (const neighbor of neighbors) {
+        if (!visited.has(neighbor)) {
+          visited.add(neighbor);
+          queue.push(neighbor);
+        }
+      }
+    }
+    
+    // Remove the current user from the team members list
+    visited.delete(userId);
     
     // Get user details for each member
     const members = [];
-    for (const memberId of memberIds) {
+    for (const memberId of visited) {
       const userDoc = await getDoc(doc(db, 'users', memberId));
       if (userDoc.exists()) {
         members.push({ id: userDoc.id, ...userDoc.data() });
       }
     }
     
+    console.log(`Found ${members.length} team members for user ${userId}`);
     return members;
   } catch (error) {
     console.error('Error getting team members:', error);
@@ -531,14 +557,16 @@ export const getTeamMembers = async (userId: string) => {
   }
 };
 
-// Get pending invites for user
+// Get pending invites for user (invites they need to respond to)
 export const getPendingInvites = async (userId: string) => {
   if (!db) return [];
   try {
     const invitesRef = collection(db, 'teamInvites');
     const q = query(invitesRef, where('inviteeId', '==', userId), where('status', '==', 'pending'));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const invites = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    console.log(`Found ${invites.length} pending invites for user ${userId}`);
+    return invites;
   } catch (error) {
     console.error('Error getting invites:', error);
     return [];
