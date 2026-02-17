@@ -343,14 +343,24 @@ export const getEventsForUser = async (userId: string, teamMemberIds: string[] =
 
 // Update event
 export const updateEvent = async (eventId: string, updates: Partial<FirestoreEvent>) => {
-  if (!db) return false;
+  if (!db) {
+    console.error('Firestore not initialized - cannot update event');
+    return false;
+  }
   try {
     console.log('Updating event:', eventId, updates);
-    await updateDoc(doc(db, 'events', eventId), updates);
+    const eventRef = doc(db, 'events', eventId);
+    await updateDoc(eventRef, updates);
     console.log('Event updated successfully');
     return true;
   } catch (error: any) {
     console.error('Error updating event:', error);
+    console.error('Error code:', error.code);
+    console.error('Error message:', error.message);
+    // Common error: permission-denied means Firestore rules need to be updated
+    if (error.code === 'permission-denied') {
+      console.error('PERMISSION DENIED: Update your Firestore Security Rules to allow updates');
+    }
     return false;
   }
 };
