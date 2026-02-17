@@ -47,3 +47,43 @@ input, select, textarea {
     padding-right: env(safe-area-inset-right);
   }
 }
+
+/* Performance optimizations for mobile */
+@media (max-width: 768px) {
+  /* Reduce blur intensity on mobile for better performance */
+  .blur-3xl {
+    --tw-blur: blur(32px) !important;
+  }
+  .blur-2xl {
+    --tw-blur: blur(24px) !important;
+  }
+  
+  /* Hardware acceleration for animated elements */
+  [data-animated] {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+  }
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Optimize images for smooth loading */
+img {
+  content-visibility: auto;
+}
+
+/* GPU acceleration for transforms */
+.transform {
+  will-change: transform;
+  backface-visibility: hidden;
+}

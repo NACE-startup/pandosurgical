@@ -1,36 +1,44 @@
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
+import { useEffect, useState } from 'react';
 
 export function Hero() {
+  const prefersReducedMotion = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  
+  // Disable heavy animations on mobile or when reduced motion is preferred
+  const shouldAnimate = !prefersReducedMotion && !isMobile;
+  
   return (
     <section id="home" className="min-h-screen pt-16 sm:pt-20 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-gray-50 to-amber-50/30 -z-10" />
       
-      {/* Animated glass-morphic background elements - scaled for mobile */}
-      <motion.div
-        className="absolute top-20 left-4 sm:left-10 w-48 sm:w-72 h-48 sm:h-72 bg-gradient-to-br from-[#D4A24A]/20 to-amber-300/10 rounded-full blur-3xl"
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.4, 0.6, 0.4],
-        }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+      {/* Background elements - static on mobile, animated on desktop */}
+      <div
+        className="absolute top-20 left-4 sm:left-10 w-48 sm:w-72 h-48 sm:h-72 bg-gradient-to-br from-[#D4A24A]/20 to-amber-300/10 rounded-full blur-2xl sm:blur-3xl opacity-50"
+        style={{ transform: 'translateZ(0)' }}
       />
-      <motion.div
-        className="absolute bottom-20 right-4 sm:right-10 w-64 sm:w-96 h-64 sm:h-96 bg-gradient-to-br from-blue-200/20 to-[#D4A24A]/10 rounded-full blur-3xl"
-        animate={{
-          scale: [1, 1.3, 1],
-          opacity: [0.3, 0.5, 0.3],
-        }}
-        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+      <div
+        className="absolute bottom-20 right-4 sm:right-10 w-64 sm:w-96 h-64 sm:h-96 bg-gradient-to-br from-blue-200/20 to-[#D4A24A]/10 rounded-full blur-2xl sm:blur-3xl opacity-40"
+        style={{ transform: 'translateZ(0)' }}
       />
-      <motion.div
-        className="absolute top-1/2 left-1/4 sm:left-1/3 w-40 sm:w-64 h-40 sm:h-64 bg-gradient-to-br from-[#D4A24A]/15 to-transparent rounded-full blur-2xl"
-        animate={{
-          x: [0, 50, 0],
-          y: [0, -30, 0],
-          opacity: [0.3, 0.5, 0.3],
-        }}
-        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-      />
+      {shouldAnimate && (
+        <motion.div
+          className="absolute top-1/2 left-1/4 sm:left-1/3 w-40 sm:w-64 h-40 sm:h-64 bg-gradient-to-br from-[#D4A24A]/15 to-transparent rounded-full blur-2xl"
+          animate={{
+            x: [0, 50, 0],
+            y: [0, -30, 0],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20 relative flex items-center justify-center min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-5rem)]">
         <div className="text-center">
