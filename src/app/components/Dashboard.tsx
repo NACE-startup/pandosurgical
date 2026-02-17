@@ -965,25 +965,40 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                             <h3 className={`font-semibold ${t.text} mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base`}>
                               <Users className="w-4 h-4 sm:w-5 sm:h-5 text-[#D4A24A]" />
                               Your Team
-                              <span className={`${t.textMuted} text-xs sm:text-sm font-normal`}>({teamMembers.length})</span>
+                              <span className={`${t.textMuted} text-xs sm:text-sm font-normal`}>({teamMembers.length + 1})</span>
                             </h3>
                             
-                            {teamMembers.length > 0 ? (
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                                {teamMembers.map(member => (
-                                  <div key={member.id} className={`flex items-center gap-2 sm:gap-3 ${t.taskCard} rounded-lg sm:rounded-xl p-2.5 sm:p-3 border`}>
-                                    <div className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full bg-gradient-to-br from-[#D4A24A] to-[#B8883D] flex items-center justify-center text-white text-sm sm:text-base font-medium">
-                                      {(member.displayName || member.email).charAt(0).toUpperCase()}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                      <p className={`font-medium ${t.text} text-xs sm:text-sm truncate`}>{member.displayName || 'User'}</p>
-                                      <p className={`text-[10px] sm:text-xs ${t.textMuted} truncate`}>{member.email}</p>
-                                    </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                              {/* Current user - always shown first */}
+                              {user && (
+                                <div className={`flex items-center gap-2 sm:gap-3 ${t.taskCard} rounded-lg sm:rounded-xl p-2.5 sm:p-3 border border-[#D4A24A]/30 bg-[#D4A24A]/5`}>
+                                  <div className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full bg-gradient-to-br from-[#D4A24A] to-[#B8883D] flex items-center justify-center text-white text-sm sm:text-base font-medium ring-2 ring-[#D4A24A]/50">
+                                    {(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
                                   </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <p className={`${t.textMuted} text-center py-6 sm:py-8 text-xs sm:text-sm`}>No team members yet. Search and invite users above!</p>
+                                  <div className="flex-1 min-w-0">
+                                    <p className={`font-medium ${t.text} text-xs sm:text-sm truncate flex items-center gap-1`}>
+                                      {user.displayName || 'User'}
+                                      <span className="text-[#D4A24A] text-[10px] sm:text-xs">(You)</span>
+                                    </p>
+                                    <p className={`text-[10px] sm:text-xs ${t.textMuted} truncate`}>{user.email}</p>
+                                  </div>
+                                </div>
+                              )}
+                              {/* Other team members */}
+                              {teamMembers.map(member => (
+                                <div key={member.id} className={`flex items-center gap-2 sm:gap-3 ${t.taskCard} rounded-lg sm:rounded-xl p-2.5 sm:p-3 border`}>
+                                  <div className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full bg-gradient-to-br from-[#D4A24A] to-[#B8883D] flex items-center justify-center text-white text-sm sm:text-base font-medium">
+                                    {(member.displayName || member.email).charAt(0).toUpperCase()}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className={`font-medium ${t.text} text-xs sm:text-sm truncate`}>{member.displayName || 'User'}</p>
+                                    <p className={`text-[10px] sm:text-xs ${t.textMuted} truncate`}>{member.email}</p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            {teamMembers.length === 0 && (
+                              <p className={`${t.textMuted} text-center py-4 sm:py-6 text-xs sm:text-sm mt-2`}>Invite teammates using the search above!</p>
                             )}
                           </div>
                         </div>
