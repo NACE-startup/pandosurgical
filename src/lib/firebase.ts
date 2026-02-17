@@ -264,6 +264,10 @@ export interface FirestoreEvent {
   sharedWith: string[]; // Array of user IDs who can view
   assignees?: string[]; // Array of user IDs involved in the event
   visibility: 'private' | 'team'; // private = only creator, team = all team members
+  isRecurring?: boolean;
+  recurringDays?: number[]; // 0 = Sunday, 1 = Monday, etc.
+  recurringEndDate?: string; // When recurring events should stop
+  recurringGroupId?: string; // Links recurring events together
   createdAt?: any;
 }
 
@@ -334,6 +338,20 @@ export const getEventsForUser = async (userId: string, teamMemberIds: string[] =
   } catch (error) {
     console.error('Error getting events:', error);
     return [];
+  }
+};
+
+// Update event
+export const updateEvent = async (eventId: string, updates: Partial<FirestoreEvent>) => {
+  if (!db) return false;
+  try {
+    console.log('Updating event:', eventId, updates);
+    await updateDoc(doc(db, 'events', eventId), updates);
+    console.log('Event updated successfully');
+    return true;
+  } catch (error: any) {
+    console.error('Error updating event:', error);
+    return false;
   }
 };
 

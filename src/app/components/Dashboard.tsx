@@ -28,7 +28,9 @@ import {
   ListTodo,
   Lock,
   Globe,
-  Menu
+  Menu,
+  Edit3,
+  Repeat
 } from 'lucide-react';
 import { 
   logOut, 
@@ -38,6 +40,7 @@ import {
   getEventsForUser,
   deleteEvent as deleteEventFromDb,
   updateEventSharing,
+  updateEvent as updateEventInDb,
   addTask as addTaskToDb,
   getTasksForUser,
   updateTask as updateTaskInDb,
@@ -68,6 +71,10 @@ interface Event {
   sharedWith: string[];
   assignees?: string[];
   visibility: 'private' | 'team';
+  isRecurring?: boolean;
+  recurringDays?: number[];
+  recurringEndDate?: string;
+  recurringGroupId?: string;
 }
 
 interface Task {
@@ -189,12 +196,14 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState<string | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
-  const [newEvent, setNewEvent] = useState<{ title: string; date: string; time: string; type: 'meeting' | 'interview' | 'deadline' | 'other'; description: string; assignees: string[]; visibility: 'private' | 'team' }>({ title: '', date: '', time: '', type: 'meeting', description: '', assignees: [], visibility: 'private' });
+  const [newEvent, setNewEvent] = useState<{ title: string; date: string; time: string; type: 'meeting' | 'interview' | 'deadline' | 'other'; description: string; assignees: string[]; visibility: 'private' | 'team'; isRecurring: boolean; recurringDays: number[]; recurringEndDate: string }>({ title: '', date: '', time: '', type: 'meeting', description: '', assignees: [], visibility: 'private', isRecurring: false, recurringDays: [], recurringEndDate: '' });
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showDeleteTaskConfirm, setShowDeleteTaskConfirm] = useState<string | null>(null);
   const [newTask, setNewTask] = useState<{ title: string; description: string; dueDate: string; priority: 'low' | 'medium' | 'high'; status: 'todo' | 'in_progress' | 'done'; assignees: string[]; visibility: 'private' | 'team' }>({ title: '', description: '', dueDate: '', priority: 'medium', status: 'todo', assignees: [], visibility: 'private' });
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [pendingInvites, setPendingInvites] = useState<Invite[]>([]);
@@ -297,28 +306,106 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
 
   const handleAddEvent = async () => {
     if (!user || !newEvent.title || !newEvent.date) return;
-    const eventData: Omit<FirestoreEvent, 'id' | 'createdAt'> = {
-      title: newEvent.title,
-      date: newEvent.date,
-      time: newEvent.time,
-      type: newEvent.type,
-      description: newEvent.description,
-      createdBy: user.uid,
-      createdByEmail: user.email || '',
-      sharedWith: [],
-      assignees: newEvent.assignees,
-      visibility: newEvent.visibility
-    };
-    const eventId = await addEventToDb(eventData);
-    if (eventId) {
-      setEvents([...events, { id: eventId, ...eventData }]);
-      console.log('Event added successfully:', eventId);
+    
+    const recurringGroupId = newEvent.isRecurring ? `recurring_${Date.now()}` : undefined;
+    
+    // If recurring, create events for each selected day
+    if (newEvent.isRecurring && newEvent.recurringDays.length > 0 && newEvent.recurringEndDate) {
+      const startDate = new Date(newEvent.date);
+      const endDate = new Date(newEvent.recurringEndDate);
+      const createdEvents: Event[] = [];
+      
+      // Iterate through each week until end date
+      const currentDate = new Date(startDate);
+      while (currentDate <= endDate) {
+        for (const dayOfWeek of newEvent.recurringDays) {
+          const eventDate = new Date(currentDate);
+          // Find the next occurrence of this day of week
+          const diff = dayOfWeek - eventDate.getDay();
+          if (diff >= 0) {
+            eventDate.setDate(eventDate.getDate() + diff);
+          } else {
+            eventDate.setDate(eventDate.getDate() + 7 + diff);
+          }
+          
+          if (eventDate >= startDate && eventDate <= endDate) {
+            const dateStr = eventDate.toISOString().split('T')[0];
+            const eventData: Omit<FirestoreEvent, 'id' | 'createdAt'> = {
+              title: newEvent.title,
+              date: dateStr,
+              time: newEvent.time,
+              type: newEvent.type,
+              description: newEvent.description,
+              createdBy: user.uid,
+              createdByEmail: user.email || '',
+              sharedWith: [],
+              assignees: newEvent.assignees,
+              visibility: newEvent.visibility,
+              isRecurring: true,
+              recurringDays: newEvent.recurringDays,
+              recurringEndDate: newEvent.recurringEndDate,
+              recurringGroupId
+            };
+            const eventId = await addEventToDb(eventData);
+            if (eventId) {
+              createdEvents.push({ id: eventId, ...eventData });
+            }
+          }
+        }
+        currentDate.setDate(currentDate.getDate() + 7);
+      }
+      
+      if (createdEvents.length > 0) {
+        setEvents([...events, ...createdEvents]);
+        console.log(`Created ${createdEvents.length} recurring events`);
+      }
     } else {
-      console.error('Failed to save event to database');
-      alert('Failed to save event. Please check your connection and try again.');
+      // Single event
+      const eventData: Omit<FirestoreEvent, 'id' | 'createdAt'> = {
+        title: newEvent.title,
+        date: newEvent.date,
+        time: newEvent.time,
+        type: newEvent.type,
+        description: newEvent.description,
+        createdBy: user.uid,
+        createdByEmail: user.email || '',
+        sharedWith: [],
+        assignees: newEvent.assignees,
+        visibility: newEvent.visibility
+      };
+      const eventId = await addEventToDb(eventData);
+      if (eventId) {
+        setEvents([...events, { id: eventId, ...eventData }]);
+        console.log('Event added successfully:', eventId);
+      } else {
+        console.error('Failed to save event to database');
+        alert('Failed to save event. Please check your connection and try again.');
+      }
     }
-    setNewEvent({ title: '', date: '', time: '', type: 'meeting', description: '', assignees: [], visibility: 'private' });
+    
+    setNewEvent({ title: '', date: '', time: '', type: 'meeting', description: '', assignees: [], visibility: 'private', isRecurring: false, recurringDays: [], recurringEndDate: '' });
     setShowEventModal(false);
+  };
+
+  const handleEditEvent = async () => {
+    if (!editingEvent) return;
+    const updates: Partial<FirestoreEvent> = {
+      title: editingEvent.title,
+      date: editingEvent.date,
+      time: editingEvent.time,
+      type: editingEvent.type,
+      description: editingEvent.description,
+      assignees: editingEvent.assignees,
+      visibility: editingEvent.visibility
+    };
+    const success = await updateEventInDb(editingEvent.id, updates);
+    if (success) {
+      setEvents(events.map(e => e.id === editingEvent.id ? { ...e, ...updates } : e));
+      console.log('Event updated successfully');
+    } else {
+      alert('Failed to update event. Please try again.');
+    }
+    setEditingEvent(null);
   };
 
   const handleDeleteEvent = async (id: string) => {
@@ -348,6 +435,27 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
     }
     setNewTask({ title: '', description: '', dueDate: '', priority: 'medium', status: 'todo', assignees: [], visibility: 'private' });
     setShowTaskModal(false);
+  };
+
+  const handleEditTask = async () => {
+    if (!editingTask) return;
+    const updates: Partial<FirestoreTask> = {
+      title: editingTask.title,
+      description: editingTask.description,
+      dueDate: editingTask.dueDate,
+      priority: editingTask.priority,
+      status: editingTask.status,
+      assignees: editingTask.assignees,
+      visibility: editingTask.visibility
+    };
+    const success = await updateTaskInDb(editingTask.id, updates);
+    if (success) {
+      setTasks(tasks.map(t => t.id === editingTask.id ? { ...t, ...updates } : t));
+      console.log('Task updated successfully');
+    } else {
+      alert('Failed to update task. Please try again.');
+    }
+    setEditingTask(null);
   };
 
   const handleUpdateTaskStatus = async (taskId: string, status: Task['status']) => {
@@ -758,8 +866,14 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                             </div>
                                           )}
                                         </div>
-                                        {!item.isTask && item.createdBy === user?.uid && (
+                                        {!item.isTask && (
                                           <div className="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all flex-shrink-0">
+                                            <button onClick={() => {
+                                              const event = events.find(e => e.id === item.id);
+                                              if (event) setEditingEvent(event);
+                                            }} className="p-1 sm:p-1.5 rounded-lg bg-amber-500/20 text-amber-500 hover:bg-amber-500/30">
+                                              <Edit3 className="w-3 h-3" />
+                                            </button>
                                             <button onClick={() => setShowShareModal(item.id)} className="p-1 sm:p-1.5 rounded-lg bg-blue-500/20 text-blue-500 hover:bg-blue-500/30">
                                               <Share2 className="w-3 h-3" />
                                             </button>
@@ -846,7 +960,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                 </h3>
                                 <div className="space-y-2 sm:space-y-3 max-h-[60vh] overflow-y-auto">
                                   {tasks.filter(t => t.status === status).map(task => (
-                                    <TaskCard key={task.id} task={task} priorityColors={priorityColors} theme={theme} t={t} getMemberName={getMemberName} onStatusChange={handleUpdateTaskStatus} onDelete={() => setShowDeleteTaskConfirm(task.id)} />
+                                    <TaskCard key={task.id} task={task} priorityColors={priorityColors} theme={theme} t={t} getMemberName={getMemberName} onStatusChange={handleUpdateTaskStatus} onDelete={() => setShowDeleteTaskConfirm(task.id)} onEdit={() => setEditingTask(task)} />
                                   ))}
                                   {tasks.filter(t => t.status === status).length === 0 && (
                                     <p className={`${t.textMuted} text-xs sm:text-sm text-center py-6 sm:py-8`}>No tasks</p>
@@ -867,7 +981,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                 </h3>
                                 <div className="space-y-2">
                                   {tasks.filter(t => t.status === status).map(task => (
-                                    <TaskCard key={task.id} task={task} priorityColors={priorityColors} theme={theme} t={t} getMemberName={getMemberName} onStatusChange={handleUpdateTaskStatus} onDelete={() => setShowDeleteTaskConfirm(task.id)} />
+                                    <TaskCard key={task.id} task={task} priorityColors={priorityColors} theme={theme} t={t} getMemberName={getMemberName} onStatusChange={handleUpdateTaskStatus} onDelete={() => setShowDeleteTaskConfirm(task.id)} onEdit={() => setEditingTask(task)} />
                                   ))}
                                   {tasks.filter(t => t.status === status).length === 0 && (
                                     <p className={`${t.textMuted} text-xs text-center py-4`}>No tasks</p>
@@ -1054,7 +1168,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                   </div>
                   <div className="grid grid-cols-2 gap-2 sm:gap-4">
                     <div>
-                      <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Date</label>
+                      <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>{newEvent.isRecurring ? 'Start Date' : 'Date'}</label>
                       <input type="date" value={newEvent.date} onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })} className={`w-full px-2 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} />
                     </div>
                     <div>
@@ -1070,6 +1184,48 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                       <option value="deadline">Deadline</option>
                       <option value="other">Other</option>
                     </select>
+                  </div>
+                  {/* Recurring Event Options */}
+                  <div>
+                    <label className={`flex items-center gap-2 cursor-pointer`}>
+                      <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded flex items-center justify-center border transition-all ${newEvent.isRecurring ? t.checkboxChecked : t.checkboxBg}`}>
+                        {newEvent.isRecurring && <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />}
+                      </div>
+                      <input type="checkbox" checked={newEvent.isRecurring} onChange={(e) => setNewEvent({ ...newEvent, isRecurring: e.target.checked })} className="hidden" />
+                      <span className={`text-xs sm:text-sm ${t.text} flex items-center gap-1`}>
+                        <Repeat className="w-3.5 h-3.5" />
+                        Recurring Weekly
+                      </span>
+                    </label>
+                    {newEvent.isRecurring && (
+                      <div className="mt-2 space-y-2">
+                        <div className="flex flex-wrap gap-1.5">
+                          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, idx) => (
+                            <button
+                              key={day}
+                              type="button"
+                              onClick={() => {
+                                const days = newEvent.recurringDays.includes(idx)
+                                  ? newEvent.recurringDays.filter(d => d !== idx)
+                                  : [...newEvent.recurringDays, idx];
+                                setNewEvent({ ...newEvent, recurringDays: days });
+                              }}
+                              className={`px-2 py-1 text-[10px] sm:text-xs rounded-lg border transition-all ${
+                                newEvent.recurringDays.includes(idx)
+                                  ? 'bg-[#D4A24A] border-[#D4A24A] text-white'
+                                  : `${t.taskCard} ${t.textMuted}`
+                              }`}
+                            >
+                              {day}
+                            </button>
+                          ))}
+                        </div>
+                        <div>
+                          <label className={`block text-[10px] sm:text-xs ${t.textMuted} mb-1`}>End Date</label>
+                          <input type="date" value={newEvent.recurringEndDate} onChange={(e) => setNewEvent({ ...newEvent, recurringEndDate: e.target.value })} className={`w-full px-2 sm:px-4 py-1.5 sm:py-2 text-sm ${t.input} border rounded-lg focus:outline-none ${t.inputFocus}`} />
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div>
                     <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Visibility</label>
@@ -1107,6 +1263,79 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                 <div className="flex gap-2 sm:gap-3 mt-4 sm:mt-6">
                   <button onClick={() => setShowEventModal(false)} className={`flex-1 py-2 sm:py-2.5 text-sm ${t.cancelBtn} border rounded-lg sm:rounded-xl`}>Cancel</button>
                   <motion.button onClick={handleAddEvent} className="flex-1 py-2 sm:py-2.5 text-sm bg-gradient-to-r from-[#D4A24A] to-[#B8883D] text-white rounded-lg sm:rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Create Event</motion.button>
+                </div>
+              </Modal>
+            )}
+          </AnimatePresence>
+
+          {/* Edit Event Modal */}
+          <AnimatePresence>
+            {editingEvent && (
+              <Modal theme={theme} t={t} onClose={() => setEditingEvent(null)}>
+                <h3 className={`text-lg sm:text-xl font-bold ${t.text} mb-3 sm:mb-4`}>Edit Event</h3>
+                <div className="space-y-3 sm:space-y-4">
+                  <div>
+                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Title</label>
+                    <input type="text" value={editingEvent.title} onChange={(e) => setEditingEvent({ ...editingEvent, title: e.target.value })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} placeholder="Event title" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                    <div>
+                      <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Date</label>
+                      <input type="date" value={editingEvent.date} onChange={(e) => setEditingEvent({ ...editingEvent, date: e.target.value })} className={`w-full px-2 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} />
+                    </div>
+                    <div>
+                      <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Time</label>
+                      <input type="time" value={editingEvent.time} onChange={(e) => setEditingEvent({ ...editingEvent, time: e.target.value })} className={`w-full px-2 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} />
+                    </div>
+                  </div>
+                  <div>
+                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Type</label>
+                    <select value={editingEvent.type} onChange={(e) => setEditingEvent({ ...editingEvent, type: e.target.value as any })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`}>
+                      <option value="meeting">Meeting</option>
+                      <option value="interview">Interview</option>
+                      <option value="deadline">Deadline</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Visibility</label>
+                    <div className="flex gap-2">
+                      <button type="button" onClick={() => setEditingEvent({ ...editingEvent, visibility: 'private' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${editingEvent.visibility === 'private' ? 'bg-[#D4A24A]/20 border-[#D4A24A]/50 text-[#D4A24A]' : `${t.taskCard} ${t.textMuted}`}`}>
+                        <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        <span className="text-xs sm:text-sm">Private</span>
+                      </button>
+                      <button type="button" onClick={() => setEditingEvent({ ...editingEvent, visibility: 'team' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${editingEvent.visibility === 'team' ? 'bg-[#D4A24A]/20 border-[#D4A24A]/50 text-[#D4A24A]' : `${t.taskCard} ${t.textMuted}`}`}>
+                        <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        <span className="text-xs sm:text-sm">Team</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Participants</label>
+                    <div className={`p-2 sm:p-3 rounded-lg sm:rounded-xl ${t.taskCard} border space-y-1.5 sm:space-y-2 max-h-28 sm:max-h-32 overflow-y-auto`}>
+                      {selectableMembers.length > 0 ? selectableMembers.map(member => (
+                        <label key={member.id} className={`flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 rounded-lg ${t.cardHover} cursor-pointer`}>
+                          <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded flex items-center justify-center border transition-all ${(editingEvent.assignees || []).includes(member.id) ? t.checkboxChecked : t.checkboxBg}`}>
+                            {(editingEvent.assignees || []).includes(member.id) && <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />}
+                          </div>
+                          <input type="checkbox" checked={(editingEvent.assignees || []).includes(member.id)} onChange={() => {
+                            const assignees = editingEvent.assignees || [];
+                            const newAssignees = assignees.includes(member.id) ? assignees.filter(id => id !== member.id) : [...assignees, member.id];
+                            setEditingEvent({ ...editingEvent, assignees: newAssignees });
+                          }} className="hidden" />
+                          <span className={`text-xs sm:text-sm ${t.text} truncate`}>{member.id === user?.uid ? 'You' : member.displayName || member.email}</span>
+                        </label>
+                      )) : <p className={`text-xs sm:text-sm ${t.textMuted} text-center py-2`}>Add team members first</p>}
+                    </div>
+                  </div>
+                  <div>
+                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Description</label>
+                    <textarea value={editingEvent.description || ''} onChange={(e) => setEditingEvent({ ...editingEvent, description: e.target.value })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus} resize-none`} rows={2} placeholder="Optional" />
+                  </div>
+                </div>
+                <div className="flex gap-2 sm:gap-3 mt-4 sm:mt-6">
+                  <button onClick={() => setEditingEvent(null)} className={`flex-1 py-2 sm:py-2.5 text-sm ${t.cancelBtn} border rounded-lg sm:rounded-xl`}>Cancel</button>
+                  <motion.button onClick={handleEditEvent} className="flex-1 py-2 sm:py-2.5 text-sm bg-gradient-to-r from-[#D4A24A] to-[#B8883D] text-white rounded-lg sm:rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Save Changes</motion.button>
                 </div>
               </Modal>
             )}
@@ -1171,6 +1400,82 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                 <div className="flex gap-2 sm:gap-3 mt-4 sm:mt-6">
                   <button onClick={() => setShowTaskModal(false)} className={`flex-1 py-2 sm:py-2.5 text-sm ${t.cancelBtn} border rounded-lg sm:rounded-xl`}>Cancel</button>
                   <motion.button onClick={handleAddTask} className="flex-1 py-2 sm:py-2.5 text-sm bg-gradient-to-r from-[#D4A24A] to-[#B8883D] text-white rounded-lg sm:rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Create Task</motion.button>
+                </div>
+              </Modal>
+            )}
+          </AnimatePresence>
+
+          {/* Edit Task Modal */}
+          <AnimatePresence>
+            {editingTask && (
+              <Modal theme={theme} t={t} onClose={() => setEditingTask(null)}>
+                <h3 className={`text-lg sm:text-xl font-bold ${t.text} mb-3 sm:mb-4`}>Edit Task</h3>
+                <div className="space-y-3 sm:space-y-4">
+                  <div>
+                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Title</label>
+                    <input type="text" value={editingTask.title} onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} placeholder="Task title" />
+                  </div>
+                  <div>
+                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Description</label>
+                    <textarea value={editingTask.description || ''} onChange={(e) => setEditingTask({ ...editingTask, description: e.target.value })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus} resize-none`} rows={2} placeholder="Optional" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                    <div>
+                      <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Due Date</label>
+                      <input type="date" value={editingTask.dueDate || ''} onChange={(e) => setEditingTask({ ...editingTask, dueDate: e.target.value })} className={`w-full px-2 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} />
+                    </div>
+                    <div>
+                      <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Priority</label>
+                      <select value={editingTask.priority} onChange={(e) => setEditingTask({ ...editingTask, priority: e.target.value as any })} className={`w-full px-2 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`}>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Status</label>
+                    <select value={editingTask.status} onChange={(e) => setEditingTask({ ...editingTask, status: e.target.value as any })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`}>
+                      <option value="todo">To Do</option>
+                      <option value="in_progress">In Progress</option>
+                      <option value="done">Done</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Visibility</label>
+                    <div className="flex gap-2">
+                      <button type="button" onClick={() => setEditingTask({ ...editingTask, visibility: 'private' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${editingTask.visibility === 'private' ? 'bg-[#D4A24A]/20 border-[#D4A24A]/50 text-[#D4A24A]' : `${t.taskCard} ${t.textMuted}`}`}>
+                        <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        <span className="text-xs sm:text-sm">Private</span>
+                      </button>
+                      <button type="button" onClick={() => setEditingTask({ ...editingTask, visibility: 'team' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${editingTask.visibility === 'team' ? 'bg-[#D4A24A]/20 border-[#D4A24A]/50 text-[#D4A24A]' : `${t.taskCard} ${t.textMuted}`}`}>
+                        <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        <span className="text-xs sm:text-sm">Team</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Assign To</label>
+                    <div className={`p-2 sm:p-3 rounded-lg sm:rounded-xl ${t.taskCard} border space-y-1.5 sm:space-y-2 max-h-28 sm:max-h-32 overflow-y-auto`}>
+                      {selectableMembers.length > 0 ? selectableMembers.map(member => (
+                        <label key={member.id} className={`flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 rounded-lg ${t.cardHover} cursor-pointer`}>
+                          <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded flex items-center justify-center border transition-all ${(editingTask.assignees || []).includes(member.id) ? t.checkboxChecked : t.checkboxBg}`}>
+                            {(editingTask.assignees || []).includes(member.id) && <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />}
+                          </div>
+                          <input type="checkbox" checked={(editingTask.assignees || []).includes(member.id)} onChange={() => {
+                            const assignees = editingTask.assignees || [];
+                            const newAssignees = assignees.includes(member.id) ? assignees.filter(id => id !== member.id) : [...assignees, member.id];
+                            setEditingTask({ ...editingTask, assignees: newAssignees });
+                          }} className="hidden" />
+                          <span className={`text-xs sm:text-sm ${t.text} truncate`}>{member.id === user?.uid ? 'You' : member.displayName || member.email}</span>
+                        </label>
+                      )) : <p className={`text-xs sm:text-sm ${t.textMuted} text-center py-2`}>Add team members first</p>}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-2 sm:gap-3 mt-4 sm:mt-6">
+                  <button onClick={() => setEditingTask(null)} className={`flex-1 py-2 sm:py-2.5 text-sm ${t.cancelBtn} border rounded-lg sm:rounded-xl`}>Cancel</button>
+                  <motion.button onClick={handleEditTask} className="flex-1 py-2 sm:py-2.5 text-sm bg-gradient-to-r from-[#D4A24A] to-[#B8883D] text-white rounded-lg sm:rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Save Changes</motion.button>
                 </div>
               </Modal>
             )}
@@ -1276,7 +1581,7 @@ function Modal({ children, onClose, theme, t }: { children: React.ReactNode; onC
   );
 }
 
-function TaskCard({ task, priorityColors, theme, t, getMemberName, onStatusChange, onDelete }: { task: Task; priorityColors: Record<string, string>; theme: 'light' | 'dark'; t: typeof themes.light; getMemberName: (id: string) => string; onStatusChange: (id: string, status: Task['status']) => void; onDelete: () => void }) {
+function TaskCard({ task, priorityColors, theme, t, getMemberName, onStatusChange, onDelete, onEdit }: { task: Task; priorityColors: Record<string, string>; theme: 'light' | 'dark'; t: typeof themes.light; getMemberName: (id: string) => string; onStatusChange: (id: string, status: Task['status']) => void; onDelete: () => void; onEdit: () => void }) {
   return (
     <motion.div className={`p-2.5 sm:p-3 rounded-lg sm:rounded-xl ${t.taskCard} border group`} layout whileHover={{ scale: 1.02 }}>
       <div className="flex items-start justify-between gap-2 mb-1.5 sm:mb-2">
@@ -1284,9 +1589,14 @@ function TaskCard({ task, priorityColors, theme, t, getMemberName, onStatusChang
           <p className={`font-medium ${t.text} text-xs sm:text-sm truncate`}>{task.title}</p>
           {task.visibility === 'team' ? <Globe className={`w-3 h-3 ${t.textMuted} flex-shrink-0`} /> : <Lock className={`w-3 h-3 ${t.textMuted} flex-shrink-0`} />}
         </div>
-        <button onClick={onDelete} className="p-1 rounded-lg opacity-100 sm:opacity-0 group-hover:opacity-100 bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 transition-all flex-shrink-0">
-          <Trash2 className="w-3 h-3" />
-        </button>
+        <div className="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all flex-shrink-0">
+          <button onClick={onEdit} className="p-1 rounded-lg bg-amber-500/20 text-amber-500 hover:bg-amber-500/30">
+            <Edit3 className="w-3 h-3" />
+          </button>
+          <button onClick={onDelete} className="p-1 rounded-lg bg-rose-500/20 text-rose-500 hover:bg-rose-500/30">
+            <Trash2 className="w-3 h-3" />
+          </button>
+        </div>
       </div>
       {task.description && <p className={`text-[10px] sm:text-xs ${t.textMuted} mb-1.5 sm:mb-2 line-clamp-2`}>{task.description}</p>}
       <div className="flex items-center justify-between flex-wrap gap-1">
