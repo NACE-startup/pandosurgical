@@ -11,8 +11,8 @@ export function Product() {
     'Compatible with existing laparoscopic systems',
     'One-handed rotation for enhanced control',
     'Compact and lightweight frame',
-    'Intuitive operation requires minimal training',
-    'Reduces surgeon fatigue during procedures',
+    'Simple user interface',
+    'Designed to help reduce surgeon fatigue during procedures',
   ];
 
   return (
@@ -77,10 +77,8 @@ export function Product() {
               {/* Glass-morphic description box */}
               <div className="bg-white/70 rounded-xl sm:rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 border border-white/60 shadow-lg">
                 <p className="text-gray-700 text-base sm:text-lg leading-relaxed">
-                  The LapRotator is an innovative attachment for laparoscopes that enables
-                  surgeons to rotate the scope with one hand, providing enhanced control and
-                  flexibility during procedures. This simple yet powerful device seamlessly
-                  integrates with your existing laparoscopic systems.
+                The LapRotator is an attachment for laparoscopes that enables single-handed 
+                rotation, providing enhanced control and flexibility during procedures. 
                 </p>
               </div>
             </div>

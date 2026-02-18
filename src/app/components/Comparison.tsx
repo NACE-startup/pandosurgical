@@ -76,7 +76,7 @@ export function Comparison() {
               {/* Recommended badge */}
               <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10">
                 <div className="bg-gradient-to-r from-[#D4A24A] to-[#B8883D] text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm shadow-lg">
-                  Recommended
+                   LapRotator
                 </div>
               </div>
               
