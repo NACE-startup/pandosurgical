@@ -18,7 +18,7 @@ export function Team() {
       image: aidenImage,
       linkedin: 'https://www.linkedin.com/in/aidenpan/',
       description:
-        'Aiden is a biomedical engineering student at USC with a passion for entrepreneurship and medical devices. His drive to innovate in the surgical technology space led to the creation of the LapRotator, combining his technical knowledge with an entrepreneurial vision to solve real challenges in laparoscopic surgery.',
+        'USC Biomedical Engineering',
     },
     {
       name: 'Noah Pearson',
@@ -26,7 +26,7 @@ export function Team() {
       image: noahImage,
       linkedin: 'https://www.linkedin.com/in/noah-r-pearson/',
       description:
-        'Noah holds a PhD in mechanical engineering and serves as a biomechanics professor. With deep experience in laparoscopic systems from his tenure as COO of Bloom Surgical, Noah brings invaluable expertise in surgical device development and biomechanical design to Pando Surgical.',
+        'PhD Mechanical Engineering',
     },
     {
       name: 'Toshi Nagai',
@@ -34,7 +34,7 @@ export function Team() {
       image: toshiImage,
       linkedin: 'https://www.linkedin.com/in/toshio-nagai2029/',
       description:
-        'Toshi is a biomedical engineering student at USC with an interest in diagnostic device development and biomedical research. He aims to launch a biotech startup focused on designing and manufacturing affordable medical devices to reduce healthcare disparities and improve access to care universally.',
+        'USC Biomedical Engineering',
     },
     {
       name: 'Derek Hua',
@@ -42,7 +42,7 @@ export function Team() {
       image: derekImage,
       linkedin: 'https://www.linkedin.com/in/derekhuausc/',
       description:
-        'Derek Hua is a Biomedical Engineering and Pre-Medicine student at the University of Southern California focused on the intersection of engineering and surgical technique. His experience is rooted in clinical research and the hands-on development of medical devices, with a specific specialization in endoscopic devices and biomaterials. Derek brings this technical expertise to Pando Surgical with a persistent drive to improve patient outcomes and save lives through smarter engineering.',
+        'USC Biomedical Engineering and Pre-Medicine',
     },
     {
       name: 'Sean Lee',
@@ -50,7 +50,7 @@ export function Team() {
       image: seanImage,
       linkedin: 'https://www.linkedin.com/in/sean-long-siang-lee-9bbab8373/',
       description:
-        'Sean is a biomedical engineering student at USC. His passion for biomaterials and nanotechnology confirmed his career path in a biotech/pharmaceutical startup. He aims to improve healthcare safety, efficiency, and accessibility. In his free time, Sean enjoys fencing, cooking, and playing his violin.',
+        'USC Biomedical Engineering',
     },
   ];
 
