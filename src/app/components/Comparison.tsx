@@ -102,13 +102,7 @@ export function Comparison() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ ...animationConfig, delay: 0.3 }}
         >
-          {/* Glass-morphic text container */}
-          <div className="bg-white/70 rounded-xl sm:rounded-2xl p-6 sm:p-8 border border-white/60 shadow-lg">
-            <p className="text-base sm:text-xl text-gray-700">
-              Experience the difference with one-handed control. The LapRotator V1 provides
-              superior ergonomics and precision, reducing strain and improving surgical outcomes.
-            </p>
-          </div>
+          
         </motion.div>
       </div>
     </section>
