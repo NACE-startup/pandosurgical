@@ -11,10 +11,10 @@ export function Team() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-50px' });
 
-  const teamMembers = [
+  const founders = [
     {
       name: 'Aiden Pan',
-      role: 'CEO',
+      role: 'CEO & Co-Founder',
       image: aidenImage,
       linkedin: 'https://www.linkedin.com/in/aidenpan/',
       description:
@@ -22,12 +22,15 @@ export function Team() {
     },
     {
       name: 'Noah Pearson',
-      role: 'CTO',
+      role: 'CTO & Co-Founder',
       image: noahImage,
       linkedin: 'https://www.linkedin.com/in/noah-r-pearson/',
       description:
         'PhD Mechanical Engineering',
     },
+  ];
+
+  const teamMembers = [
     {
       name: 'Toshi Nagai',
       role: 'COO',
@@ -54,6 +57,70 @@ export function Team() {
     },
   ];
 
+  const TeamCard = ({ member, index, baseDelay = 0 }: { member: typeof founders[0]; index: number; baseDelay?: number }) => (
+    <motion.a
+      href={member.linkedin}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`View ${member.name}'s LinkedIn profile`}
+      className="relative group cursor-pointer"
+      initial={{ opacity: 0, y: 50 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.8, delay: baseDelay + index * 0.1 }}
+    >
+      <motion.div 
+        className="bg-white/80 rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-6 border border-white/60 hover:shadow-2xl transition-all h-full"
+        whileHover={{ y: -10 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="absolute -inset-1 bg-gradient-to-br from-[#D4A24A]/20 via-amber-300/10 to-[#D4A24A]/20 rounded-2xl sm:rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
+        
+        <div className="flex flex-col items-center text-center">
+          <motion.div
+            className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden mb-3 sm:mb-4 shadow-lg bg-white"
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="absolute -inset-1 bg-gradient-to-br from-[#D4A24A] via-amber-300 to-[#D4A24A] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-md" style={{ zIndex: -1 }} />
+            <div className="absolute inset-0 rounded-full border-4 border-white z-10 pointer-events-none" />
+            
+            {member.image ? (
+              <img
+                src={member.image}
+                alt={`${member.name}, ${member.role} at Pando Surgical`}
+                className="w-full h-full object-cover relative"
+                loading="lazy"
+                style={
+                  member.name === 'Derek Hua' 
+                    ? { transform: 'scale(2.2) translateY(10%)' } 
+                    : member.name === 'Sean Lee'
+                    ? { transform: 'scale(1.0) translateY(-2%) translateX(+2)', objectPosition: 'center' }
+                    : member.name === 'Toshi Nagai'
+                    ? { transform: 'scale(1.4)' }
+                    : undefined
+                }
+              />
+            ) : (
+              <ImageWithFallback
+                src={(member as any).imageUrl!}
+                alt={member.name}
+                className="w-full h-full object-cover relative"
+              />
+            )}
+          </motion.div>
+          
+          <h3 className="text-xl sm:text-2xl mb-1 sm:mb-2 bg-gradient-to-r from-[#1E293B] to-[#334155] bg-clip-text text-transparent">{member.name}</h3>
+          <div className="relative mb-3 sm:mb-4">
+            <p className="text-sm sm:text-lg text-[#D4A24A] px-3 sm:px-4 py-1 rounded-full bg-[#D4A24A]/10 border border-[#D4A24A]/20">
+              {member.role}
+            </p>
+          </div>
+          <p className="text-gray-700 leading-relaxed text-xs sm:text-sm">{member.description}</p>
+        </div>
+      </motion.div>
+    </motion.a>
+  );
+
   return (
     <section id="our-team" className="py-12 sm:py-16 bg-gradient-to-b from-amber-50/20 via-slate-50 to-white relative overflow-hidden" ref={ref}>
       {/* Background glass effects */}
@@ -71,73 +138,33 @@ export function Team() {
           <div className="w-20 sm:w-24 h-1 bg-gradient-to-r from-[#D4A24A] to-[#B8883D] mx-auto rounded-full shadow-lg shadow-[#D4A24A]/30" />
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        {/* Founders Section */}
+        <motion.h3
+          className="text-xl sm:text-2xl text-center mb-6 text-gray-600 font-medium"
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.1 }}
+        >
+          Co-Founders
+        </motion.h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-2xl mx-auto mb-10 sm:mb-14">
+          {founders.map((member, index) => (
+            <TeamCard key={member.name} member={member} index={index} baseDelay={0.2} />
+          ))}
+        </div>
+
+        {/* Team Section */}
+        <motion.h3
+          className="text-xl sm:text-2xl text-center mb-6 text-gray-600 font-medium"
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          Team
+        </motion.h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
           {teamMembers.map((member, index) => (
-            <motion.a
-              key={member.name}
-              href={member.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`View ${member.name}'s LinkedIn profile`}
-              className="relative group cursor-pointer"
-              initial={{ opacity: 0, y: 50 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.2 + index * 0.1 }}
-            >
-              {/* Glass-morphic team card */}
-              <motion.div 
-                className="bg-white/80 rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-6 border border-white/60 hover:shadow-2xl transition-all h-full"
-                whileHover={{ y: -10 }}
-                transition={{ duration: 0.3 }}
-              >
-                {/* Golden glow on hover */}
-                <div className="absolute -inset-1 bg-gradient-to-br from-[#D4A24A]/20 via-amber-300/10 to-[#D4A24A]/20 rounded-2xl sm:rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
-                
-                <div className="flex flex-col items-center text-center">
-                  <motion.div
-                    className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden mb-3 sm:mb-4 shadow-lg bg-white"
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {/* Golden ring around avatar */}
-                    <div className="absolute -inset-1 bg-gradient-to-br from-[#D4A24A] via-amber-300 to-[#D4A24A] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-md" style={{ zIndex: -1 }} />
-                    <div className="absolute inset-0 rounded-full border-4 border-white z-10 pointer-events-none" />
-                    
-                    {member.image ? (
-                      <img
-                        src={member.image}
-                        alt={`${member.name}, ${member.role} at Pando Surgical`}
-                        className="w-full h-full object-cover relative"
-                        loading="lazy"
-                        style={
-                          member.name === 'Derek Hua' 
-                            ? { transform: 'scale(2.2) translateY(10%)' } 
-                            : member.name === 'Sean Lee'
-                            ? { transform: 'scale(1.0) translateY(-2%) translateX(+2)', objectPosition: 'center' }
-                            : member.name === 'Toshi Nagai'
-                            ? { transform: 'scale(1.4)' }
-                            : undefined
-                        }
-                      />
-                    ) : (
-                      <ImageWithFallback
-                        src={member.imageUrl!}
-                        alt={member.name}
-                        className="w-full h-full object-cover relative"
-                      />
-                    )}
-                  </motion.div>
-                  
-                  <h3 className="text-xl sm:text-2xl mb-1 sm:mb-2 bg-gradient-to-r from-[#1E293B] to-[#334155] bg-clip-text text-transparent">{member.name}</h3>
-                  <div className="relative mb-3 sm:mb-4">
-                    <p className="text-sm sm:text-lg text-[#D4A24A] px-3 sm:px-4 py-1 rounded-full bg-[#D4A24A]/10 border border-[#D4A24A]/20">
-                      {member.role}
-                    </p>
-                  </div>
-                  <p className="text-gray-700 leading-relaxed text-xs sm:text-sm">{member.description}</p>
-                </div>
-              </motion.div>
-            </motion.a>
+            <TeamCard key={member.name} member={member} index={index} baseDelay={0.5} />
           ))}
         </div>
       </div>
