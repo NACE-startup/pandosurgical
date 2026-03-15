@@ -68,22 +68,22 @@ export function Team() {
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.8, delay: baseDelay + index * 0.1 }}
     >
-      <motion.div 
-        className="bg-white/80 rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-6 border border-white/60 hover:shadow-2xl transition-all h-full"
+      <motion.div
+        className="bg-white/80 rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-6 border border-gray-200/40 hover:shadow-2xl transition-all h-full"
         whileHover={{ y: -10 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="absolute -inset-1 bg-gradient-to-br from-[#D4A24A]/20 via-amber-300/10 to-[#D4A24A]/20 rounded-2xl sm:rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
-        
+        <div className="absolute -inset-1 bg-gradient-to-br from-[#2563EB]/15 via-blue-300/10 to-[#2563EB]/15 rounded-2xl sm:rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
+
         <div className="flex flex-col items-center text-center">
           <motion.div
             className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden mb-3 sm:mb-4 shadow-lg bg-white"
             whileHover={{ scale: 1.1, rotate: 5 }}
             transition={{ duration: 0.3 }}
           >
-            <div className="absolute -inset-1 bg-gradient-to-br from-[#D4A24A] via-amber-300 to-[#D4A24A] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-md" style={{ zIndex: -1 }} />
+            <div className="absolute -inset-1 bg-gradient-to-br from-[#2563EB] via-blue-400 to-[#2563EB] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-md" style={{ zIndex: -1 }} />
             <div className="absolute inset-0 rounded-full border-4 border-white z-10 pointer-events-none" />
-            
+
             {member.image ? (
               <img
                 src={member.image}
@@ -91,8 +91,8 @@ export function Team() {
                 className="w-full h-full object-cover relative"
                 loading="lazy"
                 style={
-                  member.name === 'Derek Hua' 
-                    ? { transform: 'scale(2.2) translateY(10%)' } 
+                  member.name === 'Derek Hua'
+                    ? { transform: 'scale(2.2) translateY(10%)' }
                     : member.name === 'Sean Lee'
                     ? { transform: 'scale(1.0) translateY(-2%) translateX(+2)', objectPosition: 'center' }
                     : member.name === 'Toshi Nagai'
@@ -108,10 +108,10 @@ export function Team() {
               />
             )}
           </motion.div>
-          
-          <h3 className="text-xl sm:text-2xl mb-1 sm:mb-2 bg-gradient-to-r from-[#1E293B] to-[#334155] bg-clip-text text-transparent">{member.name}</h3>
+
+          <h3 className="text-xl sm:text-2xl mb-1 sm:mb-2 bg-gradient-to-r from-[#0A192F] to-[#1B3A5C] bg-clip-text text-transparent">{member.name}</h3>
           <div className="relative mb-3 sm:mb-4">
-            <p className="text-sm sm:text-lg text-[#D4A24A] px-3 sm:px-4 py-1 rounded-full bg-[#D4A24A]/10 border border-[#D4A24A]/20">
+            <p className="text-sm sm:text-lg text-[#2563EB] px-3 sm:px-4 py-1 rounded-full bg-[#2563EB]/10 border border-[#2563EB]/20">
               {member.role}
             </p>
           </div>
@@ -122,11 +122,10 @@ export function Team() {
   );
 
   return (
-    <section id="our-team" className="py-12 sm:py-16 bg-gradient-to-b from-amber-50/20 via-slate-50 to-white relative overflow-hidden" ref={ref}>
-      {/* Background glass effects */}
-      <div className="absolute top-1/3 right-0 w-64 sm:w-96 h-64 sm:h-96 bg-gradient-to-bl from-[#D4A24A]/10 to-transparent rounded-full blur-3xl" />
+    <section id="our-team" className="py-12 sm:py-16 bg-gradient-to-b from-blue-50/20 via-slate-50 to-white relative overflow-hidden" ref={ref}>
+      <div className="absolute top-1/3 right-0 w-64 sm:w-96 h-64 sm:h-96 bg-gradient-to-bl from-[#2563EB]/8 to-transparent rounded-full blur-3xl" />
       <div className="absolute bottom-1/3 left-0 w-56 sm:w-80 h-56 sm:h-80 bg-gradient-to-tr from-blue-100/30 to-transparent rounded-full blur-3xl" />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative">
         <motion.div
           className="text-center mb-8 sm:mb-12"
@@ -134,11 +133,10 @@ export function Team() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-4 bg-gradient-to-r from-[#1E293B] to-[#D4A24A] bg-clip-text text-transparent">Our Team</h2>
-          <div className="w-20 sm:w-24 h-1 bg-gradient-to-r from-[#D4A24A] to-[#B8883D] mx-auto rounded-full shadow-lg shadow-[#D4A24A]/30" />
+          <h2 className="text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-4 bg-gradient-to-r from-[#0A192F] to-[#1B3A5C] bg-clip-text text-transparent">Our Team</h2>
+          <div className="w-20 sm:w-24 h-1 bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] mx-auto rounded-full shadow-lg shadow-[#2563EB]/30" />
         </motion.div>
 
-        {/* Founders Section */}
         <motion.h3
           className="text-xl sm:text-2xl text-center mb-6 text-gray-600 font-medium"
           initial={{ opacity: 0, y: 20 }}
@@ -153,7 +151,6 @@ export function Team() {
           ))}
         </div>
 
-        {/* Team Section */}
         <motion.h3
           className="text-xl sm:text-2xl text-center mb-6 text-gray-600 font-medium"
           initial={{ opacity: 0, y: 20 }}

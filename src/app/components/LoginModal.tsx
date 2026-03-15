@@ -155,7 +155,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
               {/* Glass-morphic container */}
               <div className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-white/60 overflow-hidden">
                 {/* Golden glow effect */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-[#D4A24A]/30 via-amber-300/20 to-[#D4A24A]/30 rounded-2xl sm:rounded-3xl blur-xl -z-10" />
+                <div className="absolute -inset-1 bg-gradient-to-r from-[#2563EB]/30 via-blue-300/15 to-[#2563EB]/30 rounded-2xl sm:rounded-3xl blur-xl -z-10" />
 
                 {/* Header */}
                 <div className="relative bg-gradient-to-r from-[#1E293B] to-[#334155] px-6 py-8 text-center">
@@ -170,7 +170,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
                   {/* Logo/Icon */}
                   <motion.div
-                    className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-[#D4A24A] to-[#B8883D] flex items-center justify-center shadow-lg shadow-[#D4A24A]/30"
+                    className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center shadow-lg shadow-[#2563EB]/30"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: 'spring', delay: 0.1 }}
@@ -259,7 +259,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                             onChange={handleChange}
                             required={mode === 'signup'}
                             placeholder="John Doe"
-                            className="w-full pl-10 pr-4 py-3 bg-white/70 border border-gray-200/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D4A24A] focus:border-transparent transition-all text-base"
+                            className="w-full pl-10 pr-4 py-3 bg-white/70 border border-gray-200/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-all text-base"
                           />
                         </div>
                       </motion.div>
@@ -280,7 +280,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                         onChange={handleChange}
                         required
                         placeholder="you@example.com"
-                        className="w-full pl-10 pr-4 py-3 bg-white/70 border border-gray-200/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D4A24A] focus:border-transparent transition-all text-base"
+                        className="w-full pl-10 pr-4 py-3 bg-white/70 border border-gray-200/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-all text-base"
                       />
                     </div>
                   </div>
@@ -300,7 +300,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                           onChange={handleChange}
                           required
                           placeholder="••••••••"
-                          className="w-full pl-10 pr-12 py-3 bg-white/70 border border-gray-200/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D4A24A] focus:border-transparent transition-all text-base"
+                          className="w-full pl-10 pr-12 py-3 bg-white/70 border border-gray-200/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-all text-base"
                         />
                         <button
                           type="button"
@@ -339,7 +339,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                             onChange={handleChange}
                             required={mode === 'signup'}
                             placeholder="••••••••"
-                            className="w-full pl-10 pr-4 py-3 bg-white/70 border border-gray-200/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D4A24A] focus:border-transparent transition-all text-base"
+                            className="w-full pl-10 pr-4 py-3 bg-white/70 border border-gray-200/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-all text-base"
                           />
                         </div>
                       </motion.div>
@@ -352,7 +352,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                       <button
                         type="button"
                         onClick={() => switchMode('forgot')}
-                        className="text-sm text-[#D4A24A] hover:text-[#B8883D] transition-colors"
+                        className="text-sm text-[#2563EB] hover:text-[#1D4ED8] transition-colors"
                       >
                         Forgot password?
                       </button>
@@ -387,7 +387,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                   <motion.button
                     type="submit"
                     disabled={isLoading}
-                    className={`relative w-full bg-gradient-to-r from-[#D4A24A] to-[#B8883D] text-white py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg overflow-hidden group ${
+                    className={`relative w-full bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] text-white py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg overflow-hidden group ${
                       isLoading ? 'opacity-80 cursor-not-allowed' : ''
                     }`}
                     whileHover={!isLoading ? { scale: 1.02, y: -1 } : {}}
@@ -422,7 +422,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                       <button
                         type="button"
                         onClick={() => switchMode('login')}
-                        className="text-sm text-[#D4A24A] hover:text-[#B8883D] transition-colors"
+                        className="text-sm text-[#2563EB] hover:text-[#1D4ED8] transition-colors"
                       >
                         Back to Sign In
                       </button>
@@ -432,7 +432,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                         <button
                           type="button"
                           onClick={() => switchMode(mode === 'login' ? 'signup' : 'login')}
-                          className="text-[#D4A24A] hover:text-[#B8883D] font-medium transition-colors"
+                          className="text-[#2563EB] hover:text-[#1D4ED8] font-medium transition-colors"
                         >
                           {mode === 'login' ? 'Sign Up' : 'Sign In'}
                         </button>

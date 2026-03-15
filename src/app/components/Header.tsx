@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, User as UserIcon } from 'lucide-react';
 import logoImage from '@/assets/0c6f0bb1f894e59d5c97c02e2b86e66e1b5d65e8.png';
 import { LoginModal } from './LoginModal';
 import { Dashboard } from './Dashboard';
@@ -13,11 +13,9 @@ export function Header() {
   const [dashboardOpen, setDashboardOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
-  // Listen to auth state changes
   useEffect(() => {
     const unsubscribe = onAuthChange((currentUser) => {
       setUser(currentUser);
-      // If user just logged in and login modal is open, close it and open dashboard
       if (currentUser && loginModalOpen) {
         setLoginModalOpen(false);
         setDashboardOpen(true);
@@ -34,7 +32,6 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu on resize to desktop
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768) {
@@ -45,7 +42,6 @@ export function Header() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Prevent body scroll when mobile menu, login modal, or dashboard is open
   useEffect(() => {
     if (mobileMenuOpen || loginModalOpen || dashboardOpen) {
       document.body.style.overflow = 'hidden';
@@ -67,21 +63,27 @@ export function Header() {
 
   const handleLogoClick = () => {
     if (user) {
-      // User is logged in, open dashboard
       setDashboardOpen(true);
     } else {
-      // User not logged in, open login modal
       setLoginModalOpen(true);
     }
   };
 
-  const navItems = ['Home', 'LapRotator', 'Our Team', 'Contact'];
+  const navItems = [
+    { label: 'Our Product', id: 'our-product' },
+    { label: 'Surgeons', id: 'surgeons' },
+    { label: 'Our Team', id: 'our-team' },
+    { label: 'Mission', id: 'mission' },
+    { label: 'Contact', id: 'contact' },
+  ];
 
   return (
     <>
     <motion.header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? 'bg-white/70 backdrop-blur-xl shadow-lg border-b border-white/20' : 'bg-white/50 backdrop-blur-md'
+        scrolled
+          ? 'bg-white/80 backdrop-blur-xl shadow-lg border-b border-gray-200/30'
+          : 'bg-white/50 backdrop-blur-md'
       }`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
@@ -90,26 +92,17 @@ export function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
         <motion.div
             className="flex items-center gap-2 sm:gap-3 cursor-pointer"
-            onClick={handleLogoClick}
+            onClick={() => scrollToSection('home')}
           whileHover={{ scale: 1.05 }}
           transition={{ duration: 0.2 }}
-            role="button"
-            aria-label={user ? "Open dashboard" : "Open login"}
         >
-          {/* Glass-morphic logo container with actual logo */}
           <div className="relative">
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-lg border border-white/60 p-1 sm:p-1.5">
-                <img src={logoImage} alt="Pando Surgical logo" className="w-full h-full object-contain" />
+                <img src={logoImage} alt="Pando logo" className="w-full h-full object-contain" />
             </div>
-            {/* Golden glow */}
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#D4A24A]/40 to-transparent blur-md -z-10 opacity-70" />
-              {/* Logged in indicator */}
-              {user && (
-                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
-              )}
           </div>
-            <span className="text-lg sm:text-xl tracking-tight bg-gradient-to-r from-[#1E293B] to-[#334155] bg-clip-text text-transparent">
-            Pando Surgical
+            <span className="text-lg sm:text-xl tracking-tight font-medium text-[#0A192F]">
+            Pando
           </span>
         </motion.div>
 
@@ -117,33 +110,52 @@ export function Header() {
           <nav className="hidden md:flex items-center gap-6 lg:gap-8" aria-label="Main navigation">
             {navItems.map((item, index) => (
             <motion.button
-              key={item}
-              onClick={() => scrollToSection(item.toLowerCase().replace(' ', '-'))}
-                className="text-gray-700 hover:text-gray-900 transition-colors relative group text-sm lg:text-base"
+              key={item.label}
+              onClick={() => scrollToSection(item.id)}
+                className="text-gray-700 hover:text-[#0A192F] transition-colors relative group text-sm lg:text-base"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
             >
-              {item}
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[#D4A24A] to-[#B8883D] group-hover:w-full transition-all duration-300" />
+              {item.label}
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#2563EB] group-hover:w-full transition-all duration-300" />
             </motion.button>
           ))}
         </nav>
 
-          {/* Mobile Menu Button */}
+          {/* Right side: login circle + mobile menu */}
+          <div className="flex items-center gap-3">
+            <motion.button
+              onClick={handleLogoClick}
+              className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-[#0A192F] text-white hover:bg-[#1B3A5C] transition-colors duration-300"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              aria-label={user ? "Open dashboard" : "Open login"}
+            >
+              {user ? (
+                <>
+                  <span className="text-sm font-medium">{user.displayName?.charAt(0) || user.email?.charAt(0) || '?'}</span>
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+                </>
+              ) : (
+                <UserIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              )}
+            </motion.button>
+
           <motion.button
-            className="md:hidden p-2 rounded-lg bg-white/50 backdrop-blur-sm border border-white/60 shadow-sm"
+              className="md:hidden p-2 rounded-lg bg-gray-100 text-gray-700 transition-colors duration-300"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             whileTap={{ scale: 0.95 }}
             aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
             aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? (
-              <X className="w-5 h-5 text-gray-700" />
+              <X className="w-5 h-5" />
             ) : (
-              <Menu className="w-5 h-5 text-gray-700" />
+              <Menu className="w-5 h-5" />
             )}
           </motion.button>
+          </div>
       </div>
     </motion.header>
 
@@ -151,7 +163,6 @@ export function Header() {
       <AnimatePresence>
         {mobileMenuOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
               initial={{ opacity: 0 }}
@@ -159,10 +170,9 @@ export function Header() {
               exit={{ opacity: 0 }}
               onClick={() => setMobileMenuOpen(false)}
             />
-            
-            {/* Menu Panel */}
+
             <motion.div
-              className="fixed top-[60px] left-0 right-0 bg-white/95 backdrop-blur-xl z-40 md:hidden border-b border-white/20 shadow-xl"
+              className="fixed top-[60px] left-0 right-0 bg-white/95 backdrop-blur-xl z-40 md:hidden border-b border-gray-200/30 shadow-xl"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
@@ -171,14 +181,14 @@ export function Header() {
               <nav className="flex flex-col p-4" aria-label="Mobile navigation">
                 {navItems.map((item, index) => (
                   <motion.button
-                    key={item}
-                    onClick={() => scrollToSection(item.toLowerCase().replace(' ', '-'))}
-                    className="text-gray-700 hover:text-gray-900 hover:bg-[#D4A24A]/10 transition-all py-4 px-4 text-left text-lg rounded-xl"
+                    key={item.label}
+                    onClick={() => scrollToSection(item.id)}
+                    className="text-gray-700 hover:text-[#0A192F] hover:bg-[#2563EB]/10 transition-all py-4 px-4 text-left text-lg rounded-xl"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.2, delay: index * 0.05 }}
                   >
-                    {item}
+                    {item.label}
                   </motion.button>
                 ))}
               </nav>
@@ -187,13 +197,11 @@ export function Header() {
         )}
       </AnimatePresence>
 
-      {/* Login Modal */}
-      <LoginModal 
-        isOpen={loginModalOpen} 
-        onClose={() => setLoginModalOpen(false)} 
+      <LoginModal
+        isOpen={loginModalOpen}
+        onClose={() => setLoginModalOpen(false)}
       />
 
-      {/* Dashboard */}
       <Dashboard
         isOpen={dashboardOpen}
         onClose={() => setDashboardOpen(false)}

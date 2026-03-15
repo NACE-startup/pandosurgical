@@ -5,6 +5,7 @@ import { Hero } from './components/Hero';
 import { Product } from './components/Product';
 import { Comparison } from './components/Comparison';
 import { Team } from './components/Team';
+import { Mission } from './components/Mission';
 import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
 import { LoadingScreen } from './components/LoadingScreen';
@@ -79,6 +80,15 @@ export default function App() {
           viewport={{ once: false, amount: 0.2, margin: "100px" }}
         >
           <Team />
+        </motion.div>
+
+        <motion.div
+          variants={sectionVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: false, amount: 0.2, margin: "100px" }}
+        >
+          <Mission />
         </motion.div>
         
         <motion.div

@@ -3,11 +3,9 @@ import { ChevronDown } from 'lucide-react';
 
 export function ScrollIndicator() {
   const { scrollY } = useScroll();
-  
-  // Fade out as user scrolls down (0-300px range)
-  // Fade in when scrolled back to top
+
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
-  
+
   return (
     <motion.div
       className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 pointer-events-none"
@@ -25,8 +23,7 @@ export function ScrollIndicator() {
         }}
         className="relative"
       >
-        {/* Golden arrow icon */}
-        <ChevronDown className="w-10 h-10 text-[#D4A24A] drop-shadow-lg" strokeWidth={2.5} />
+        <ChevronDown className="w-10 h-10 text-[#2563EB] drop-shadow-lg" strokeWidth={2.5} />
       </motion.div>
     </motion.div>
   );
