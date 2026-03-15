@@ -17,14 +17,6 @@ export default function App() {
     setIsLoading(false);
   };
 
-  if (isLoading) {
-    return (
-      <AnimatePresence>
-        <LoadingScreen onLoadingComplete={handleLoadingComplete} />
-      </AnimatePresence>
-    );
-  }
-
   const sectionVariants = {
     hidden: { opacity: 0, y: 30 },
     visible: { 
@@ -36,13 +28,21 @@ export default function App() {
 
   return (
     <div className="relative">
-      <Header />
-      
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
+      <AnimatePresence>
+        {isLoading && (
+          <LoadingScreen onLoadingComplete={handleLoadingComplete} />
+        )}
+      </AnimatePresence>
+
+      {!isLoading && (
+        <>
+          <Header />
+          
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
         <motion.div 
           className="relative"
           variants={sectionVariants}
@@ -99,6 +99,8 @@ export default function App() {
           <Footer />
         </motion.div>
       </motion.div>
+        </>
+      )}
     </div>
   );
 }
