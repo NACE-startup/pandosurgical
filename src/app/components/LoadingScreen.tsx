@@ -24,7 +24,6 @@ function useIsPortrait() {
 export function LoadingScreen({ onLoadingComplete }: LoadingScreenProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hasEnded = useRef(false);
-  const [bgColor, setBgColor] = useState('#000000');
   const isPortrait = useIsPortrait();
 
   const videoSrc = isPortrait ? '/intro-mobile.mp4' : '/intro.mp4';
@@ -35,47 +34,15 @@ export function LoadingScreen({ onLoadingComplete }: LoadingScreenProps) {
     onLoadingComplete();
   }, [onLoadingComplete]);
 
-  const sampleEdgeColor = useCallback(() => {
-    const video = videoRef.current;
-    if (!video || video.videoWidth === 0) return;
-
-    try {
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      ctx.drawImage(video, 0, 0);
-
-      const corners = [
-        ctx.getImageData(0, 0, 1, 1).data,
-        ctx.getImageData(video.videoWidth - 1, 0, 1, 1).data,
-        ctx.getImageData(0, video.videoHeight - 1, 1, 1).data,
-        ctx.getImageData(video.videoWidth - 1, video.videoHeight - 1, 1, 1).data,
-      ];
-
-      const r = Math.round(corners.reduce((s, c) => s + c[0], 0) / 4);
-      const g = Math.round(corners.reduce((s, c) => s + c[1], 0) / 4);
-      const b = Math.round(corners.reduce((s, c) => s + c[2], 0) / 4);
-
-      setBgColor(`rgb(${r},${g},${b})`);
-    } catch {
-      // CORS or other error — keep default black
-    }
-  }, []);
-
   const handleCanPlay = useCallback(() => {
-    sampleEdgeColor();
     videoRef.current?.play().catch(() => {
       handleVideoEnd();
     });
-  }, [handleVideoEnd, sampleEdgeColor]);
+  }, [handleVideoEnd]);
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ backgroundColor: bgColor }}
+      className="fixed inset-0 z-50 bg-black"
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
@@ -83,7 +50,7 @@ export function LoadingScreen({ onLoadingComplete }: LoadingScreenProps) {
       <video
         ref={videoRef}
         key={videoSrc}
-        className="max-h-full max-w-full object-contain"
+        className="h-full w-full object-cover"
         src={videoSrc}
         muted
         playsInline
