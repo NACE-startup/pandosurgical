@@ -56,8 +56,9 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png" />
     <link rel="manifest" href="/manifest.json" />
     
-    <!-- Preload intro video for instant playback -->
-    <link rel="preload" href="/intro.mp4" as="video" type="video/mp4" />
+    <!-- Preload the right intro video based on orientation -->
+    <link rel="preload" href="/intro.mp4" as="video" type="video/mp4" media="(orientation: landscape)" />
+    <link rel="preload" href="/intro-mobile.mp4" as="video" type="video/mp4" media="(orientation: portrait)" />
 
     <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

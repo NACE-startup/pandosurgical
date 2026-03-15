@@ -1,14 +1,33 @@
 import { motion } from 'motion/react';
-import { useRef, useCallback, useState } from 'react';
+import { useRef, useCallback, useState, useMemo } from 'react';
 
 interface LoadingScreenProps {
   onLoadingComplete: () => void;
+}
+
+function useIsPortrait() {
+  const mql = typeof window !== 'undefined'
+    ? window.matchMedia('(orientation: portrait)')
+    : null;
+  const [portrait, setPortrait] = useState(mql?.matches ?? false);
+
+  useMemo(() => {
+    if (!mql) return;
+    const handler = (e: MediaQueryListEvent) => setPortrait(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, [mql]);
+
+  return portrait;
 }
 
 export function LoadingScreen({ onLoadingComplete }: LoadingScreenProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hasEnded = useRef(false);
   const [bgColor, setBgColor] = useState('#000000');
+  const isPortrait = useIsPortrait();
+
+  const videoSrc = isPortrait ? '/intro-mobile.mp4' : '/intro.mp4';
 
   const handleVideoEnd = useCallback(() => {
     if (hasEnded.current) return;
@@ -63,8 +82,9 @@ export function LoadingScreen({ onLoadingComplete }: LoadingScreenProps) {
     >
       <video
         ref={videoRef}
+        key={videoSrc}
         className="max-h-full max-w-full object-contain"
-        src="/intro.mp4"
+        src={videoSrc}
         muted
         playsInline
         autoPlay
