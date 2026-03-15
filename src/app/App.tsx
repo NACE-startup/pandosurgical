@@ -10,6 +10,7 @@ import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
 import { LoadingScreen } from './components/LoadingScreen';
 import { ScrollIndicator } from './components/ScrollIndicator';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -111,6 +112,7 @@ export default function App() {
       </motion.div>
         </>
       )}
+      <SpeedInsights />
     </div>
   );
 }
