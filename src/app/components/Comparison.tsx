@@ -30,7 +30,7 @@ export function Comparison() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={animationConfig}
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-4 text-[#0C2340] font-bold">See the Difference</h2>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-4 text-[#0C2340] font-bold">LapRotator - See the Difference</h2>
             <div className="w-20 sm:w-24 h-1 bg-[#2A8C8F] mx-auto rounded-full" />
           </motion.div>
 

@@ -62,7 +62,7 @@ export default function App() {
           whileInView="visible"
           viewport={{ once: false, amount: 0.2, margin: "100px" }}
         >
-          <Product />
+          <Comparison />
         </motion.div>
         
         <motion.div
@@ -71,7 +71,7 @@ export default function App() {
           whileInView="visible"
           viewport={{ once: false, amount: 0.2, margin: "100px" }}
         >
-          <Comparison />
+          <Product />
         </motion.div>
         
         <motion.div
