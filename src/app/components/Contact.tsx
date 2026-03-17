@@ -100,11 +100,7 @@ export function Contact() {
   };
 
   return (
-    <section id="contact" className="py-12 sm:py-20 bg-gradient-to-b from-slate-50 via-white to-blue-50/20 relative overflow-hidden" ref={ref}>
-      {/* Background glass effects */}
-      <div className="absolute top-0 right-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-gradient-to-br from-[#2563EB]/10 to-transparent rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-1/4 w-56 sm:w-80 h-56 sm:h-80 bg-gradient-to-tl from-blue-100/30 to-transparent rounded-full blur-3xl" />
-      
+    <section id="contact" className="py-12 sm:py-20 bg-[#E8ECF1] relative overflow-hidden" ref={ref}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 relative">
         <motion.div
           className="text-center mb-8 sm:mb-12"
@@ -112,8 +108,8 @@ export function Contact() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-4 bg-gradient-to-r from-[#0A192F] to-[#2563EB] bg-clip-text text-transparent">Contact Us</h2>
-          <div className="w-20 sm:w-24 h-1 bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] mx-auto rounded-full shadow-lg shadow-[#2563EB]/30" />
+          <h2 className="text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-4 text-[#0C2340] font-bold">Contact Us</h2>
+          <div className="w-20 sm:w-24 h-1 bg-[#2A8C8F] mx-auto rounded-full" />
         </motion.div>
 
         <motion.div
@@ -122,10 +118,7 @@ export function Contact() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          {/* Glass-morphic form container */}
-          <div className="bg-white/60 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-6 md:p-8 border border-white/60">
-            {/* Golden border glow on hover */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-[#2563EB]/20 via-blue-300/10 to-[#2563EB]/20 rounded-2xl sm:rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
+          <div className="bg-white rounded-sm shadow-md border-l-4 border-[#2A8C8F] p-4 sm:p-6 md:p-8">
             
             {/* Success State - Full replacement of form */}
             {status === 'success' ? (
@@ -165,7 +158,7 @@ export function Contact() {
                 
                 <motion.button
                   onClick={() => setStatus('idle')}
-                  className="relative px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] text-white rounded-xl shadow-xl overflow-hidden group text-sm sm:text-base"
+                  className="relative px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-[#2A8C8F] to-[#1E7275] text-white rounded-sm shadow-xl overflow-hidden group text-sm sm:text-base"
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -192,7 +185,7 @@ export function Contact() {
                       value={formData.fullName}
                       onChange={handleChange}
                       required
-                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-all shadow-sm text-base"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-[#E8ECF1] border border-gray-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-[#2A8C8F] focus:border-transparent transition-all text-base"
                     />
                   </div>
 
@@ -206,7 +199,7 @@ export function Contact() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-all shadow-sm text-base"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-[#E8ECF1] border border-gray-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-[#2A8C8F] focus:border-transparent transition-all text-base"
                     />
                   </div>
                 </div>
@@ -220,7 +213,7 @@ export function Contact() {
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-all shadow-sm text-base"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-[#E8ECF1] border border-gray-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-[#2A8C8F] focus:border-transparent transition-all text-base"
                     />
                   </div>
 
@@ -231,7 +224,7 @@ export function Contact() {
                       name="company"
                       value={formData.company}
                       onChange={handleChange}
-                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-all shadow-sm text-base"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-[#E8ECF1] border border-gray-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-[#2A8C8F] focus:border-transparent transition-all text-base"
                     />
                   </div>
                 </div>
@@ -245,8 +238,8 @@ export function Contact() {
                     value={formData.inquiryType}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-all shadow-sm text-base appearance-none"
-                    style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%232563EB' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-[#E8ECF1] border border-gray-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-[#2A8C8F] focus:border-transparent transition-all text-base appearance-none"
+                    style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%232A8C8F' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
                   >
                     <option value="">Select an option</option>
                     <option value="product">Product Information</option>
@@ -267,7 +260,7 @@ export function Contact() {
                     onChange={handleChange}
                     required
                     rows={4}
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-all resize-none shadow-sm text-base"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-[#E8ECF1] border border-gray-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-[#2A8C8F] focus:border-transparent transition-all resize-none text-base"
                   />
                 </div>
 
@@ -276,7 +269,7 @@ export function Contact() {
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-2 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm sm:text-base"
+                    className="flex items-center gap-2 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-sm text-red-700 text-sm sm:text-base"
                   >
                     <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
                     <span>{errorMessage}</span>
@@ -286,7 +279,7 @@ export function Contact() {
                 <motion.button
                   type="submit"
                   disabled={status === 'sending'}
-                  className={`relative w-full bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] text-white py-3 sm:py-4 rounded-xl flex items-center justify-center gap-2 shadow-xl overflow-hidden group text-sm sm:text-base ${
+                  className={`relative w-full bg-[#2A8C8F] hover:bg-[#1E7275] text-white py-3 sm:py-4 rounded-sm flex items-center justify-center gap-2 shadow-md overflow-hidden group text-sm sm:text-base transition-colors ${
                     status === 'sending' ? 'opacity-80 cursor-not-allowed' : ''
                   }`}
                   whileHover={status !== 'sending' ? { scale: 1.02, y: -2 } : {}}
@@ -313,7 +306,7 @@ export function Contact() {
                     transition={{ duration: 0.6 }}
                   />
                   {/* Golden glow */}
-                  <div className="absolute inset-0 bg-[#2563EB] blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300 -z-10" />
+                  <div className="absolute inset-0 bg-[#2A8C8F] blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300 -z-10" />
                 </motion.button>
               </form>
             )}

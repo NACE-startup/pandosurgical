@@ -29,7 +29,7 @@ export default function App() {
   };
 
   return (
-    <div className="relative">
+    <div className="relative bg-[#E8ECF1]">
       <AnimatePresence>
         {isLoading && (
           <LoadingScreen onLoadingComplete={handleLoadingComplete} />

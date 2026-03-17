@@ -127,16 +127,16 @@ const themes = {
     card: 'bg-white/80 border-slate-200',
     cardHover: 'hover:bg-slate-50',
     input: 'bg-white border-slate-200 text-slate-900 placeholder-slate-400',
-    inputFocus: 'focus:border-[#2563EB] focus:ring-[#2563EB]/20',
+    inputFocus: 'focus:border-[#2A8C8F] focus:ring-[#2A8C8F]/20',
     text: 'text-slate-900',
     textSecondary: 'text-slate-600',
     textMuted: 'text-slate-500',
     headerBg: 'bg-white/60',
     headerBorder: 'border-slate-200',
-    navActive: 'bg-[#2563EB]/10 border-[#2563EB]/30',
+    navActive: 'bg-[#2A8C8F]/10 border-[#2A8C8F]/30',
     navInactive: 'hover:bg-slate-100 border-transparent',
     navIconBg: 'bg-slate-100',
-    navIconBgActive: 'bg-[#2563EB]/20',
+    navIconBgActive: 'bg-[#2A8C8F]/20',
     userCard: 'bg-slate-100',
     statusBorder: 'border-white',
     modalBg: 'bg-white/95',
@@ -145,7 +145,7 @@ const themes = {
     taskCard: 'bg-slate-50 border-slate-200',
     glowOpacity: '0.1',
     checkboxBg: 'bg-slate-100 border-slate-300',
-    checkboxChecked: 'bg-[#2563EB] border-[#2563EB]',
+    checkboxChecked: 'bg-[#2A8C8F] border-[#2A8C8F]',
   },
   dark: {
     backdrop: 'bg-black/60',
@@ -155,16 +155,16 @@ const themes = {
     card: 'bg-white/5 border-white/10',
     cardHover: 'hover:bg-white/10',
     input: 'bg-black/30 border-white/10 text-white placeholder-gray-400',
-    inputFocus: 'focus:border-[#2563EB]/50 focus:ring-[#2563EB]/50',
+    inputFocus: 'focus:border-[#2A8C8F]/50 focus:ring-[#2A8C8F]/50',
     text: 'text-white',
     textSecondary: 'text-gray-200',
     textMuted: 'text-gray-300',
     headerBg: 'bg-black/20',
     headerBorder: 'border-white/10',
-    navActive: 'bg-gradient-to-r from-[#2563EB]/20 to-[#2563EB]/5 border-[#2563EB]/30',
+    navActive: 'bg-gradient-to-r from-[#2A8C8F]/20 to-[#2A8C8F]/5 border-[#2A8C8F]/30',
     navInactive: 'hover:bg-white/5 border-transparent',
     navIconBg: 'bg-white/10',
-    navIconBgActive: 'bg-[#2563EB]/20',
+    navIconBgActive: 'bg-[#2A8C8F]/20',
     userCard: 'bg-white/10',
     statusBorder: 'border-slate-900',
     modalBg: 'bg-slate-900/95',
@@ -173,7 +173,7 @@ const themes = {
     taskCard: 'bg-black/30 border-white/10',
     glowOpacity: '0.2',
     checkboxBg: 'bg-white/10 border-white/30',
-    checkboxChecked: 'bg-[#2563EB] border-[#2563EB]',
+    checkboxChecked: 'bg-[#2A8C8F] border-[#2A8C8F]',
   }
 };
 
@@ -573,7 +573,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
           >
             <div className={`flex w-full ${t.panel} backdrop-blur-2xl sm:rounded-2xl md:rounded-3xl shadow-2xl border ${theme === 'light' ? 'border-slate-200/80' : 'border-white/10'} overflow-hidden`}>
               {/* Ambient glow effects */}
-              <div className={`absolute -top-40 -left-40 w-80 h-80 bg-[#2563EB] rounded-full blur-[100px] pointer-events-none hidden sm:block`} style={{ opacity: t.glowOpacity }} />
+              <div className={`absolute -top-40 -left-40 w-80 h-80 bg-[#2A8C8F] rounded-full blur-[100px] pointer-events-none hidden sm:block`} style={{ opacity: t.glowOpacity }} />
               <div className={`absolute -bottom-40 -right-40 w-80 h-80 bg-blue-500 rounded-full blur-[100px] pointer-events-none hidden sm:block`} style={{ opacity: theme === 'light' ? '0.05' : '0.1' }} />
 
               {/* Mobile Sidebar Overlay */}
@@ -604,14 +604,14 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div className="relative">
-                        <div className="absolute inset-0 bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] rounded-xl blur-lg opacity-50" />
-                        <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center shadow-lg">
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#2A8C8F] to-[#1E7275] rounded-xl blur-lg opacity-50" />
+                        <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[#2A8C8F] to-[#1E7275] flex items-center justify-center shadow-lg">
                           <Sparkles className="w-5 h-5 text-white" />
                         </div>
                       </div>
                       <div>
                         <span className={`${t.text} font-bold text-lg`}>Pando</span>
-                        <span className="text-[#2563EB] font-light text-lg ml-1">Portal</span>
+                        <span className="text-[#2A8C8F] font-light text-lg ml-1">Portal</span>
                       </div>
                     </div>
                     <button 
@@ -642,12 +642,12 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                     >
                       {activeTab === item.id && (
                         <motion.div
-                          className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-[#2563EB] to-[#1D4ED8] rounded-full"
+                          className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-[#2A8C8F] to-[#1E7275] rounded-full"
                           layoutId="activeTab"
                         />
                       )}
-                      <div className={`p-2 rounded-lg ${activeTab === item.id ? t.navIconBgActive : `${t.navIconBg} group-hover:bg-[#2563EB]/10`}`}>
-                        <item.icon className={`w-5 h-5 ${activeTab === item.id ? 'text-[#2563EB]' : `${t.textMuted} group-hover:text-[#2563EB]`}`} />
+                      <div className={`p-2 rounded-lg ${activeTab === item.id ? t.navIconBgActive : `${t.navIconBg} group-hover:bg-[#2A8C8F]/10`}`}>
+                        <item.icon className={`w-5 h-5 ${activeTab === item.id ? 'text-[#2A8C8F]' : `${t.textMuted} group-hover:text-[#2A8C8F]`}`} />
                       </div>
                       <div className="flex-1 text-left">
                         <span className={`block text-sm font-medium ${activeTab === item.id ? t.text : t.textSecondary}`}>{item.label}</span>
@@ -666,7 +666,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                 <div className={`p-3 md:p-3 lg:p-4 border-t ${t.sidebarBorder}`}>
                   <div className={`flex items-center gap-3 px-3 py-3 rounded-xl ${t.userCard} mb-2`}>
                     <div className="relative flex-shrink-0">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center text-white font-semibold">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#2A8C8F] to-[#1E7275] flex items-center justify-center text-white font-semibold">
                         {user?.displayName?.charAt(0) || user?.email?.charAt(0) || 'U'}
                       </div>
                       <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 ${t.statusBorder}`} />
@@ -704,7 +704,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                     <div>
                       <h1 className={`text-lg sm:text-xl md:text-2xl font-bold ${t.text} flex items-center gap-2`}>
                         {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-                        <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 bg-[#2563EB]/20 text-[#2563EB] rounded-full font-normal">Live</span>
+                        <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 bg-[#2A8C8F]/20 text-[#2A8C8F] rounded-full font-normal">Live</span>
                       </h1>
                       <p className={`${t.textMuted} text-xs sm:text-sm hidden sm:block`}>
                         {activeTab === 'schedule' && 'Events & task deadlines'}
@@ -738,7 +738,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                   {loading ? (
                     <div className="flex items-center justify-center h-64">
                       <div className="text-center">
-                        <Loader2 className="w-10 h-10 animate-spin text-[#2563EB] mx-auto mb-4" />
+                        <Loader2 className="w-10 h-10 animate-spin text-[#2A8C8F] mx-auto mb-4" />
                         <p className={t.textMuted}>Loading your data...</p>
                       </div>
                     </div>
@@ -757,7 +757,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                 <motion.button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))} className={`p-1.5 sm:p-2 rounded-lg ${t.card} border`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                   <ChevronLeft className={`w-4 h-4 ${t.textMuted}`} />
                                 </motion.button>
-                                <motion.button onClick={() => setCurrentMonth(new Date())} className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm text-[#2563EB] hover:bg-[#2563EB]/10 rounded-lg border border-[#2563EB]/30" whileHover={{ scale: 1.02 }}>Today</motion.button>
+                                <motion.button onClick={() => setCurrentMonth(new Date())} className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm text-[#2A8C8F] hover:bg-[#2A8C8F]/10 rounded-lg border border-[#2A8C8F]/30" whileHover={{ scale: 1.02 }}>Today</motion.button>
                                 <motion.button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))} className={`p-1.5 sm:p-2 rounded-lg ${t.card} border`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                   <ChevronRight className={`w-4 h-4 ${t.textMuted}`} />
                                 </motion.button>
@@ -782,8 +782,8 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                     onClick={() => day && setSelectedDate(day)}
                                     className={`aspect-square p-0.5 sm:p-1 rounded-lg sm:rounded-xl text-xs sm:text-sm relative transition-all ${
                                       !day ? 'invisible' :
-                                      isSelected ? 'bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] text-white shadow-lg shadow-[#2563EB]/30' :
-                                      isToday ? 'bg-[#2563EB]/20 text-[#2563EB] border border-[#2563EB]/30' :
+                                      isSelected ? 'bg-gradient-to-br from-[#2A8C8F] to-[#1E7275] text-white shadow-lg shadow-[#2A8C8F]/30' :
+                                      isToday ? 'bg-[#2A8C8F]/20 text-[#2A8C8F] border border-[#2A8C8F]/30' :
                                       `${t.cardHover} ${t.textSecondary} border border-transparent hover:border-slate-200`
                                     }`}
                                     whileHover={day ? { scale: 1.1 } : {}}
@@ -822,7 +822,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                           <div className="space-y-3 sm:space-y-4">
                             <motion.button
                               onClick={() => { setShowEventModal(true); if (selectedDate) setNewEvent(prev => ({ ...prev, date: formatDate(selectedDate) })); }}
-                              className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] text-white rounded-xl font-medium shadow-lg shadow-[#2563EB]/30 border border-[#2563EB]/50 text-sm sm:text-base"
+                              className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 bg-gradient-to-r from-[#2A8C8F] to-[#1E7275] text-white rounded-xl font-medium shadow-lg shadow-[#2A8C8F]/30 border border-[#2A8C8F]/50 text-sm sm:text-base"
                               whileHover={{ scale: 1.02, y: -2 }}
                               whileTap={{ scale: 0.98 }}
                             >
@@ -832,7 +832,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
 
                             <div className={`${t.card} backdrop-blur-xl rounded-xl sm:rounded-2xl border p-3 sm:p-4`}>
                               <h3 className={`font-semibold ${t.text} mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base`}>
-                                <Calendar className="w-4 h-4 text-[#2563EB]" />
+                                <Calendar className="w-4 h-4 text-[#2A8C8F]" />
                                 {selectedDate ? selectedDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : 'Select a date'}
                               </h3>
                               
@@ -895,7 +895,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
 
                             <div className={`${t.card} backdrop-blur-xl rounded-xl sm:rounded-2xl border p-3 sm:p-4`}>
                               <h3 className={`font-semibold ${t.text} mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base`}>
-                                <Zap className="w-4 h-4 text-[#2563EB]" />
+                                <Zap className="w-4 h-4 text-[#2A8C8F]" />
                                 Upcoming
                               </h3>
                               <div className="space-y-1.5 sm:space-y-2 max-h-40 sm:max-h-48 overflow-y-auto">
@@ -924,7 +924,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                       {/* TASKS TAB */}
                       {activeTab === 'tasks' && (
                         <div className="space-y-4 sm:space-y-6">
-                          <motion.button onClick={() => setShowTaskModal(true)} className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] text-white rounded-xl font-medium shadow-lg shadow-[#2563EB]/30 border border-[#2563EB]/50 text-sm sm:text-base" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                          <motion.button onClick={() => setShowTaskModal(true)} className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-[#2A8C8F] to-[#1E7275] text-white rounded-xl font-medium shadow-lg shadow-[#2A8C8F]/30 border border-[#2A8C8F]/50 text-sm sm:text-base" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                             <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                             New Task
                           </motion.button>
@@ -997,16 +997,16 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                       {activeTab === 'team' && (
                         <div className="space-y-4 sm:space-y-6">
                           {pendingInvites.length > 0 && (
-                            <div className={`bg-[#2563EB]/10 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-[#2563EB]/30 p-3 sm:p-4`}>
+                            <div className={`bg-[#2A8C8F]/10 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-[#2A8C8F]/30 p-3 sm:p-4`}>
                               <h3 className={`font-semibold ${t.text} mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base`}>
-                                <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-[#2563EB]" />
+                                <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-[#2A8C8F]" />
                                 Pending Invitations
                               </h3>
                               <div className="space-y-2 sm:space-y-3">
                                 {pendingInvites.map(invite => (
                                   <div key={invite.id} className={`flex items-center justify-between gap-2 ${t.taskCard} rounded-lg sm:rounded-xl p-2.5 sm:p-3 border`}>
                                     <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                                      <div className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center text-white text-sm sm:text-base font-medium">
+                                      <div className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full bg-gradient-to-br from-[#2A8C8F] to-[#1E7275] flex items-center justify-center text-white text-sm sm:text-base font-medium">
                                         {invite.inviterEmail.charAt(0).toUpperCase()}
                                       </div>
                                       <div className="min-w-0 flex-1">
@@ -1030,7 +1030,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
 
                           <div className={`${t.card} backdrop-blur-xl rounded-xl sm:rounded-2xl border p-3 sm:p-4 md:p-6`}>
                             <h3 className={`font-semibold ${t.text} mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base`}>
-                              <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 text-[#2563EB]" />
+                              <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 text-[#2A8C8F]" />
                               Find & Invite
                             </h3>
                             <p className={`${t.textMuted} text-xs sm:text-sm mb-3 sm:mb-4`}>Search for users by email to add them to your team.</p>
@@ -1039,7 +1039,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                 <Mail className={`absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 ${t.textMuted}`} />
                                 <input type="email" value={searchEmail} onChange={(e) => setSearchEmail(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSearchUsers()} placeholder="Search by email..." className={`w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus} focus:ring-1`} />
                               </div>
-                              <motion.button onClick={handleSearchUsers} disabled={searching || !searchEmail.trim()} className="px-3 sm:px-4 py-2 bg-[#2563EB] text-white rounded-lg sm:rounded-xl disabled:opacity-50" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                              <motion.button onClick={handleSearchUsers} disabled={searching || !searchEmail.trim()} className="px-3 sm:px-4 py-2 bg-[#2A8C8F] text-white rounded-lg sm:rounded-xl disabled:opacity-50" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                                 {searching ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Search className="w-4 h-4 sm:w-5 sm:h-5" />}
                               </motion.button>
                             </div>
@@ -1051,7 +1051,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                     {searchResults.map(result => (
                                       <div key={result.id} className={`flex items-center justify-between gap-2 ${t.taskCard} rounded-lg sm:rounded-xl p-2.5 sm:p-3 border`}>
                                         <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                                          <div className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center text-white text-sm sm:text-base font-medium">
+                                          <div className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full bg-gradient-to-br from-[#2A8C8F] to-[#1E7275] flex items-center justify-center text-white text-sm sm:text-base font-medium">
                                             {(result.displayName || result.email).charAt(0).toUpperCase()}
                                           </div>
                                           <div className="min-w-0 flex-1">
@@ -1059,7 +1059,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                             <p className={`text-[10px] sm:text-xs ${t.textMuted} truncate`}>{result.email}</p>
                                           </div>
                                         </div>
-                                        <motion.button onClick={() => handleSendInvite(result)} disabled={inviting === result.id} className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-[#2563EB] text-white rounded-lg text-xs sm:text-sm disabled:opacity-50 flex-shrink-0" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                        <motion.button onClick={() => handleSendInvite(result)} disabled={inviting === result.id} className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-[#2A8C8F] text-white rounded-lg text-xs sm:text-sm disabled:opacity-50 flex-shrink-0" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                           {inviting === result.id ? 'Sending...' : 'Invite'}
                                         </motion.button>
                                       </div>
@@ -1077,7 +1077,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
 
                           <div className={`${t.card} backdrop-blur-xl rounded-xl sm:rounded-2xl border p-3 sm:p-4 md:p-6`}>
                             <h3 className={`font-semibold ${t.text} mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base`}>
-                              <Users className="w-4 h-4 sm:w-5 sm:h-5 text-[#2563EB]" />
+                              <Users className="w-4 h-4 sm:w-5 sm:h-5 text-[#2A8C8F]" />
                               Your Team
                               <span className={`${t.textMuted} text-xs sm:text-sm font-normal`}>({teamMembers.length + 1})</span>
                             </h3>
@@ -1085,14 +1085,14 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                               {/* Current user - always shown first */}
                               {user && (
-                                <div className={`flex items-center gap-2 sm:gap-3 ${t.taskCard} rounded-lg sm:rounded-xl p-2.5 sm:p-3 border border-[#2563EB]/30 bg-[#2563EB]/5`}>
-                                  <div className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center text-white text-sm sm:text-base font-medium ring-2 ring-[#2563EB]/50">
+                                <div className={`flex items-center gap-2 sm:gap-3 ${t.taskCard} rounded-lg sm:rounded-xl p-2.5 sm:p-3 border border-[#2A8C8F]/30 bg-[#2A8C8F]/5`}>
+                                  <div className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full bg-gradient-to-br from-[#2A8C8F] to-[#1E7275] flex items-center justify-center text-white text-sm sm:text-base font-medium ring-2 ring-[#2A8C8F]/50">
                                     {(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
                                   </div>
                                   <div className="flex-1 min-w-0">
                                     <p className={`font-medium ${t.text} text-xs sm:text-sm truncate flex items-center gap-1`}>
                                       {user.displayName || 'User'}
-                                      <span className="text-[#2563EB] text-[10px] sm:text-xs">(You)</span>
+                                      <span className="text-[#2A8C8F] text-[10px] sm:text-xs">(You)</span>
                                     </p>
                                     <p className={`text-[10px] sm:text-xs ${t.textMuted} truncate`}>{user.email}</p>
                                   </div>
@@ -1101,7 +1101,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                               {/* Other team members */}
                               {teamMembers.map(member => (
                                 <div key={member.id} className={`flex items-center gap-2 sm:gap-3 ${t.taskCard} rounded-lg sm:rounded-xl p-2.5 sm:p-3 border`}>
-                                  <div className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center text-white text-sm sm:text-base font-medium">
+                                  <div className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full bg-gradient-to-br from-[#2A8C8F] to-[#1E7275] flex items-center justify-center text-white text-sm sm:text-base font-medium">
                                     {(member.displayName || member.email).charAt(0).toUpperCase()}
                                   </div>
                                   <div className="flex-1 min-w-0">
@@ -1212,7 +1212,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                               }}
                               className={`px-2 py-1 text-[10px] sm:text-xs rounded-lg border transition-all ${
                                 newEvent.recurringDays.includes(idx)
-                                  ? 'bg-[#2563EB] border-[#2563EB] text-white'
+                                  ? 'bg-[#2A8C8F] border-[#2A8C8F] text-white'
                                   : `${t.taskCard} ${t.textMuted}`
                               }`}
                             >
@@ -1230,11 +1230,11 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                   <div>
                     <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Visibility</label>
                     <div className="flex gap-2">
-                      <button type="button" onClick={() => setNewEvent({ ...newEvent, visibility: 'private' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${newEvent.visibility === 'private' ? 'bg-[#2563EB]/20 border-[#2563EB]/50 text-[#2563EB]' : `${t.taskCard} ${t.textMuted}`}`}>
+                      <button type="button" onClick={() => setNewEvent({ ...newEvent, visibility: 'private' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${newEvent.visibility === 'private' ? 'bg-[#2A8C8F]/20 border-[#2A8C8F]/50 text-[#2A8C8F]' : `${t.taskCard} ${t.textMuted}`}`}>
                         <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         <span className="text-xs sm:text-sm">Private</span>
                       </button>
-                      <button type="button" onClick={() => setNewEvent({ ...newEvent, visibility: 'team' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${newEvent.visibility === 'team' ? 'bg-[#2563EB]/20 border-[#2563EB]/50 text-[#2563EB]' : `${t.taskCard} ${t.textMuted}`}`}>
+                      <button type="button" onClick={() => setNewEvent({ ...newEvent, visibility: 'team' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${newEvent.visibility === 'team' ? 'bg-[#2A8C8F]/20 border-[#2A8C8F]/50 text-[#2A8C8F]' : `${t.taskCard} ${t.textMuted}`}`}>
                         <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         <span className="text-xs sm:text-sm">Team</span>
                       </button>
@@ -1262,7 +1262,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                 </div>
                 <div className="flex gap-2 sm:gap-3 mt-4 sm:mt-6">
                   <button onClick={() => setShowEventModal(false)} className={`flex-1 py-2 sm:py-2.5 text-sm ${t.cancelBtn} border rounded-lg sm:rounded-xl`}>Cancel</button>
-                  <motion.button onClick={handleAddEvent} className="flex-1 py-2 sm:py-2.5 text-sm bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] text-white rounded-lg sm:rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Create Event</motion.button>
+                  <motion.button onClick={handleAddEvent} className="flex-1 py-2 sm:py-2.5 text-sm bg-gradient-to-r from-[#2A8C8F] to-[#1E7275] text-white rounded-lg sm:rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Create Event</motion.button>
                 </div>
               </Modal>
             )}
@@ -1300,11 +1300,11 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                   <div>
                     <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Visibility</label>
                     <div className="flex gap-2">
-                      <button type="button" onClick={() => setEditingEvent({ ...editingEvent, visibility: 'private' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${editingEvent.visibility === 'private' ? 'bg-[#2563EB]/20 border-[#2563EB]/50 text-[#2563EB]' : `${t.taskCard} ${t.textMuted}`}`}>
+                      <button type="button" onClick={() => setEditingEvent({ ...editingEvent, visibility: 'private' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${editingEvent.visibility === 'private' ? 'bg-[#2A8C8F]/20 border-[#2A8C8F]/50 text-[#2A8C8F]' : `${t.taskCard} ${t.textMuted}`}`}>
                         <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         <span className="text-xs sm:text-sm">Private</span>
                       </button>
-                      <button type="button" onClick={() => setEditingEvent({ ...editingEvent, visibility: 'team' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${editingEvent.visibility === 'team' ? 'bg-[#2563EB]/20 border-[#2563EB]/50 text-[#2563EB]' : `${t.taskCard} ${t.textMuted}`}`}>
+                      <button type="button" onClick={() => setEditingEvent({ ...editingEvent, visibility: 'team' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${editingEvent.visibility === 'team' ? 'bg-[#2A8C8F]/20 border-[#2A8C8F]/50 text-[#2A8C8F]' : `${t.taskCard} ${t.textMuted}`}`}>
                         <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         <span className="text-xs sm:text-sm">Team</span>
                       </button>
@@ -1335,7 +1335,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                 </div>
                 <div className="flex gap-2 sm:gap-3 mt-4 sm:mt-6">
                   <button onClick={() => setEditingEvent(null)} className={`flex-1 py-2 sm:py-2.5 text-sm ${t.cancelBtn} border rounded-lg sm:rounded-xl`}>Cancel</button>
-                  <motion.button onClick={handleEditEvent} className="flex-1 py-2 sm:py-2.5 text-sm bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] text-white rounded-lg sm:rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Save Changes</motion.button>
+                  <motion.button onClick={handleEditEvent} className="flex-1 py-2 sm:py-2.5 text-sm bg-gradient-to-r from-[#2A8C8F] to-[#1E7275] text-white rounded-lg sm:rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Save Changes</motion.button>
                 </div>
               </Modal>
             )}
@@ -1371,11 +1371,11 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                   <div>
                     <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Visibility</label>
                     <div className="flex gap-2">
-                      <button type="button" onClick={() => setNewTask({ ...newTask, visibility: 'private' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${newTask.visibility === 'private' ? 'bg-[#2563EB]/20 border-[#2563EB]/50 text-[#2563EB]' : `${t.taskCard} ${t.textMuted}`}`}>
+                      <button type="button" onClick={() => setNewTask({ ...newTask, visibility: 'private' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${newTask.visibility === 'private' ? 'bg-[#2A8C8F]/20 border-[#2A8C8F]/50 text-[#2A8C8F]' : `${t.taskCard} ${t.textMuted}`}`}>
                         <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         <span className="text-xs sm:text-sm">Private</span>
                       </button>
-                      <button type="button" onClick={() => setNewTask({ ...newTask, visibility: 'team' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${newTask.visibility === 'team' ? 'bg-[#2563EB]/20 border-[#2563EB]/50 text-[#2563EB]' : `${t.taskCard} ${t.textMuted}`}`}>
+                      <button type="button" onClick={() => setNewTask({ ...newTask, visibility: 'team' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${newTask.visibility === 'team' ? 'bg-[#2A8C8F]/20 border-[#2A8C8F]/50 text-[#2A8C8F]' : `${t.taskCard} ${t.textMuted}`}`}>
                         <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         <span className="text-xs sm:text-sm">Team</span>
                       </button>
@@ -1399,7 +1399,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                 </div>
                 <div className="flex gap-2 sm:gap-3 mt-4 sm:mt-6">
                   <button onClick={() => setShowTaskModal(false)} className={`flex-1 py-2 sm:py-2.5 text-sm ${t.cancelBtn} border rounded-lg sm:rounded-xl`}>Cancel</button>
-                  <motion.button onClick={handleAddTask} className="flex-1 py-2 sm:py-2.5 text-sm bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] text-white rounded-lg sm:rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Create Task</motion.button>
+                  <motion.button onClick={handleAddTask} className="flex-1 py-2 sm:py-2.5 text-sm bg-gradient-to-r from-[#2A8C8F] to-[#1E7275] text-white rounded-lg sm:rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Create Task</motion.button>
                 </div>
               </Modal>
             )}
@@ -1444,11 +1444,11 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                   <div>
                     <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Visibility</label>
                     <div className="flex gap-2">
-                      <button type="button" onClick={() => setEditingTask({ ...editingTask, visibility: 'private' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${editingTask.visibility === 'private' ? 'bg-[#2563EB]/20 border-[#2563EB]/50 text-[#2563EB]' : `${t.taskCard} ${t.textMuted}`}`}>
+                      <button type="button" onClick={() => setEditingTask({ ...editingTask, visibility: 'private' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${editingTask.visibility === 'private' ? 'bg-[#2A8C8F]/20 border-[#2A8C8F]/50 text-[#2A8C8F]' : `${t.taskCard} ${t.textMuted}`}`}>
                         <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         <span className="text-xs sm:text-sm">Private</span>
                       </button>
-                      <button type="button" onClick={() => setEditingTask({ ...editingTask, visibility: 'team' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${editingTask.visibility === 'team' ? 'bg-[#2563EB]/20 border-[#2563EB]/50 text-[#2563EB]' : `${t.taskCard} ${t.textMuted}`}`}>
+                      <button type="button" onClick={() => setEditingTask({ ...editingTask, visibility: 'team' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${editingTask.visibility === 'team' ? 'bg-[#2A8C8F]/20 border-[#2A8C8F]/50 text-[#2A8C8F]' : `${t.taskCard} ${t.textMuted}`}`}>
                         <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         <span className="text-xs sm:text-sm">Team</span>
                       </button>
@@ -1475,7 +1475,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                 </div>
                 <div className="flex gap-2 sm:gap-3 mt-4 sm:mt-6">
                   <button onClick={() => setEditingTask(null)} className={`flex-1 py-2 sm:py-2.5 text-sm ${t.cancelBtn} border rounded-lg sm:rounded-xl`}>Cancel</button>
-                  <motion.button onClick={handleEditTask} className="flex-1 py-2 sm:py-2.5 text-sm bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] text-white rounded-lg sm:rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Save Changes</motion.button>
+                  <motion.button onClick={handleEditTask} className="flex-1 py-2 sm:py-2.5 text-sm bg-gradient-to-r from-[#2A8C8F] to-[#1E7275] text-white rounded-lg sm:rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Save Changes</motion.button>
                 </div>
               </Modal>
             )}
@@ -1528,7 +1528,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                     <Mail className={`absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 ${t.textMuted}`} />
                     <input type="email" value={shareSearchEmail} onChange={(e) => setShareSearchEmail(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleShareSearch()} placeholder="Search by email..." className={`w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} />
                   </div>
-                  <button onClick={handleShareSearch} className="px-3 sm:px-4 py-2 bg-[#2563EB] text-white rounded-lg sm:rounded-xl">
+                  <button onClick={handleShareSearch} className="px-3 sm:px-4 py-2 bg-[#2A8C8F] text-white rounded-lg sm:rounded-xl">
                     <Search className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
@@ -1544,7 +1544,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                           {isShared ? (
                             <button onClick={() => handleRemoveShare(showShareModal, result.id)} className="px-2 sm:px-3 py-1 bg-rose-500/20 text-rose-500 rounded-lg text-xs sm:text-sm border border-rose-500/30 flex-shrink-0">Remove</button>
                           ) : (
-                            <button onClick={() => handleShareWithUser(showShareModal, result.id)} className="px-2 sm:px-3 py-1 bg-[#2563EB] text-white rounded-lg text-xs sm:text-sm flex-shrink-0">Share</button>
+                            <button onClick={() => handleShareWithUser(showShareModal, result.id)} className="px-2 sm:px-3 py-1 bg-[#2A8C8F] text-white rounded-lg text-xs sm:text-sm flex-shrink-0">Share</button>
                           )}
                         </div>
                       );

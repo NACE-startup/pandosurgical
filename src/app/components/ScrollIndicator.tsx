@@ -23,7 +23,7 @@ export function ScrollIndicator() {
         }}
         className="relative"
       >
-        <ChevronDown className="w-10 h-10 text-[#2563EB] drop-shadow-lg" strokeWidth={2.5} />
+        <ChevronDown className="w-10 h-10 text-[#2A8C8F] drop-shadow-lg" strokeWidth={2.5} />
       </motion.div>
     </motion.div>
   );

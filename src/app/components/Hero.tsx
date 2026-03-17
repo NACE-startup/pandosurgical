@@ -2,13 +2,11 @@ import { motion } from 'motion/react';
 
 export function Hero() {
   return (
-    <section id="home" className="min-h-screen pt-16 sm:pt-20 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-white via-slate-50 to-blue-50/30 -z-10" />
-
+    <section id="home" className="min-h-screen pt-16 sm:pt-20 relative overflow-hidden bg-[#E8ECF1]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative flex items-center justify-center min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-5rem)]">
         <div className="text-center max-w-3xl">
           <motion.h1
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-4 sm:mb-6 leading-tight bg-gradient-to-r from-[#0A192F] via-[#1B3A5C] to-[#2563EB] bg-clip-text text-transparent px-2"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-4 sm:mb-6 leading-tight text-[#0C2340] font-bold px-2"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -32,18 +30,11 @@ export function Hero() {
           >
             <motion.button
               onClick={() => document.getElementById('our-product')?.scrollIntoView({ behavior: 'smooth' })}
-              className="relative px-8 sm:px-10 py-3.5 sm:py-4 bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] text-white rounded-xl shadow-xl overflow-hidden group text-sm sm:text-base"
+              className="relative px-8 sm:px-10 py-3.5 sm:py-4 bg-[#2A8C8F] hover:bg-[#1E7275] text-white rounded-sm shadow-lg overflow-hidden group text-sm sm:text-base font-medium transition-colors"
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
             >
               <span className="relative z-10">Learn More</span>
-              <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                initial={{ x: '-100%' }}
-                whileHover={{ x: '100%' }}
-                transition={{ duration: 0.6 }}
-              />
             </motion.button>
           </motion.div>
         </div>

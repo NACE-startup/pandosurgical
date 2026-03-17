@@ -82,8 +82,8 @@ export function Header() {
     <motion.header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'bg-white/80 backdrop-blur-xl shadow-lg border-b border-gray-200/30'
-          : 'bg-white/50 backdrop-blur-md'
+          ? 'bg-white/90 backdrop-blur-xl shadow-md border-b border-[#2A8C8F]/20'
+          : 'bg-[#E8ECF1]/80 backdrop-blur-md'
       }`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
@@ -97,11 +97,11 @@ export function Header() {
           transition={{ duration: 0.2 }}
         >
           <div className="relative">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-lg border border-white/60 p-1 sm:p-1.5">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-sm bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-lg border border-white/60 p-1 sm:p-1.5">
                 <img src={logoImage} alt="Pando logo" className="w-full h-full object-contain" />
             </div>
           </div>
-            <span className="text-lg sm:text-xl tracking-tight font-medium text-[#0A192F]">
+            <span className="text-lg sm:text-xl tracking-tight font-medium text-[#0C2340]">
             Pando
           </span>
         </motion.div>
@@ -112,13 +112,13 @@ export function Header() {
             <motion.button
               key={item.label}
               onClick={() => scrollToSection(item.id)}
-                className="text-gray-700 hover:text-[#0A192F] transition-colors relative group text-sm lg:text-base"
+                className="text-gray-700 hover:text-[#0C2340] transition-colors relative group text-sm lg:text-base"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
             >
               {item.label}
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#2563EB] group-hover:w-full transition-all duration-300" />
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#2A8C8F] group-hover:w-full transition-all duration-300" />
             </motion.button>
           ))}
         </nav>
@@ -127,7 +127,7 @@ export function Header() {
           <div className="flex items-center gap-3">
             <motion.button
               onClick={handleLogoClick}
-              className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-[#0A192F] text-white hover:bg-[#1B3A5C] transition-colors duration-300"
+              className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-[#0C2340] text-white hover:bg-[#1A3A5C] transition-colors duration-300"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               aria-label={user ? "Open dashboard" : "Open login"}
@@ -143,7 +143,7 @@ export function Header() {
             </motion.button>
 
           <motion.button
-              className="md:hidden p-2 rounded-lg bg-gray-100 text-gray-700 transition-colors duration-300"
+              className="md:hidden p-2 rounded-sm bg-gray-100 text-gray-700 transition-colors duration-300"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             whileTap={{ scale: 0.95 }}
             aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
@@ -183,7 +183,7 @@ export function Header() {
                   <motion.button
                     key={item.label}
                     onClick={() => scrollToSection(item.id)}
-                    className="text-gray-700 hover:text-[#0A192F] hover:bg-[#2563EB]/10 transition-all py-4 px-4 text-left text-lg rounded-xl"
+                    className="text-gray-700 hover:text-[#0C2340] hover:bg-[#2A8C8F]/10 transition-all py-4 px-4 text-left text-lg rounded-sm"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.2, delay: index * 0.05 }}
