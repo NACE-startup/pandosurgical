@@ -1,10 +1,11 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Menu, X, User as UserIcon } from 'lucide-react';
 import logoImage from '@/assets/0c6f0bb1f894e59d5c97c02e2b86e66e1b5d65e8.png';
-import { LoginModal } from './LoginModal';
-import { Dashboard } from './Dashboard';
 import { onAuthChange, User } from '@/lib/firebase';
+
+const LoginModal = lazy(() => import('./LoginModal').then(m => ({ default: m.LoginModal })));
+const Dashboard = lazy(() => import('./Dashboard').then(m => ({ default: m.Dashboard })));
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -197,16 +198,21 @@ export function Header() {
         )}
       </AnimatePresence>
 
-      <LoginModal
-        isOpen={loginModalOpen}
-        onClose={() => setLoginModalOpen(false)}
-      />
-
-      <Dashboard
-        isOpen={dashboardOpen}
-        onClose={() => setDashboardOpen(false)}
-        user={user}
-      />
+      <Suspense fallback={null}>
+        {loginModalOpen && (
+          <LoginModal
+            isOpen={loginModalOpen}
+            onClose={() => setLoginModalOpen(false)}
+          />
+        )}
+        {dashboardOpen && (
+          <Dashboard
+            isOpen={dashboardOpen}
+            onClose={() => setDashboardOpen(false)}
+            user={user}
+          />
+        )}
+      </Suspense>
     </>
   );
 }
