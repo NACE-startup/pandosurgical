@@ -116,7 +116,7 @@ export function Contact() {
 
   return (
     <section id="contact" className="py-12 sm:py-20 bg-[#E8ECF1] relative overflow-hidden" ref={ref}>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 relative">
+      <div className="max-w-4xl mx-auto px-4 sm:px-8 relative">
         <motion.div
           className="text-center mb-8 sm:mb-12"
           initial={{ opacity: 0 }}

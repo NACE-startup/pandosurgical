@@ -5,7 +5,7 @@ import logoImage from '@/assets/0c6f0bb1f894e59d5c97c02e2b86e66e1b5d65e8.png';
 export function Footer() {
   return (
     <footer className="bg-[#0C2340] text-white py-6 sm:py-8 border-t-4 border-[#2A8C8F]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8">
         <motion.div
           className="flex flex-col items-center gap-3 sm:gap-4"
           initial={{ opacity: 0 }}

@@ -22,7 +22,7 @@ export function Comparison() {
 
   return (
     <section id="surgeons" className="py-12 sm:py-20 bg-[#E8ECF1] relative overflow-hidden" ref={ref}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 relative">
         <div className="bg-white rounded-sm shadow-md border-l-4 border-[#2A8C8F] p-6 sm:p-10">
           <motion.div
             className="text-center mb-8 sm:mb-12"

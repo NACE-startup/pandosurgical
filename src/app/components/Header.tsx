@@ -78,8 +78,8 @@ export function Header() {
   };
 
   const navItems = [
+    { label: 'LapRotator', id: 'laprotator' },
     { label: 'Our Product', id: 'our-product' },
-    { label: 'Surgeons', id: 'surgeons' },
     { label: 'Our Team', id: 'our-team' },
     { label: 'Mission', id: 'mission' },
     { label: 'Contact', id: 'contact' },
@@ -90,14 +90,14 @@ export function Header() {
     <motion.header
       className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-200 ${
         scrolled
-          ? 'bg-white shadow-md border-b border-gray-200/50'
+          ? 'bg-[#E8ECF1] shadow-sm border-b border-[#0C2340]/8'
           : 'bg-[#E8ECF1]'
       }`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: 'easeOut' }}
     >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between">
         <motion.div
             className="flex items-center gap-2 sm:gap-3 cursor-pointer"
             onClick={() => scrollToSection('home')}
@@ -180,7 +180,7 @@ export function Header() {
             />
 
             <motion.div
-              className="fixed top-[60px] left-0 right-0 bg-white z-40 md:hidden border-b border-gray-200 shadow-lg"
+              className="fixed top-16 left-0 right-0 bg-[#E8ECF1] z-40 md:hidden border-b border-[#0C2340]/10 shadow-md"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
