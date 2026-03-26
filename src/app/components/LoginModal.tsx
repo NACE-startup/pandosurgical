@@ -161,16 +161,6 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                     <X className="w-5 h-5 text-white" />
                   </button>
 
-                  {/* Logo/Icon */}
-                  <motion.div
-                    className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-[#2A8C8F] to-[#1E7275] flex items-center justify-center shadow-lg shadow-[#2A8C8F]/30"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: 'spring', delay: 0.1 }}
-                  >
-                    <User className="w-8 h-8 text-white" />
-                  </motion.div>
-
                   <h2 className="text-2xl font-semibold text-white mb-1">
                     {getTitle()}
                   </h2>
@@ -219,14 +209,10 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                         </span>
                       </motion.button>
 
-                      {/* Divider */}
-                      <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                          <div className="w-full border-t border-gray-200"></div>
-                        </div>
-                        <div className="relative flex justify-center text-sm">
-                          <span className="px-4 bg-white/80 text-gray-500">or</span>
-                        </div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 h-px bg-gray-300"></div>
+                        <span className="text-sm font-medium text-gray-500">or</span>
+                        <div className="flex-1 h-px bg-gray-300"></div>
                       </div>
                     </>
                   )}

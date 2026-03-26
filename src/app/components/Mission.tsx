@@ -11,9 +11,9 @@ export function Mission() {
         <div className="bg-white rounded-sm shadow-md border-l-4 border-[#2A8C8F] p-6 sm:p-10">
           <motion.div
             className="text-center mb-8 sm:mb-10"
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.4 }}
           >
             <h2 className="text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-4 text-[#0C2340] font-bold">Our Mission</h2>
             <div className="w-20 sm:w-24 h-1 bg-[#2A8C8F] mx-auto rounded-full" />
@@ -22,9 +22,9 @@ export function Mission() {
           {/* Dark navy callout box - matching pitch deck style */}
           <motion.div
             className="bg-[#0C2340] rounded-sm p-6 sm:p-10 max-w-3xl mx-auto mb-10 sm:mb-14"
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.5, delay: 0.1 }}
           >
             <p className="text-xl sm:text-2xl md:text-3xl text-gray-200 leading-relaxed font-light text-center">
               To make laparoscopic surgery more{' '}
@@ -36,9 +36,9 @@ export function Mission() {
 
           <motion.div
             className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 max-w-4xl mx-auto"
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.5, delay: 0.2 }}
           >
             {[
               { stat: 'One-Handed', label: 'Intuitive Rotation' },

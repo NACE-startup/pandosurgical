@@ -1,17 +1,18 @@
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import holdingImage from '@/assets/laprotator-holding.png';
 import holdingImageV2 from '@/assets/laprotator-holding-v2.png';
 
 export function Hero() {
+  const reduced = useReducedMotion();
+  const fade = { initial: { opacity: 0 }, animate: { opacity: 1 } };
   return (
     <section id="home" className="relative min-h-screen overflow-hidden bg-[#E8ECF1]">
       {/* Centered content */}
       <div className="max-w-7xl mx-auto px-6 sm:px-8 relative z-10 flex items-center justify-center min-h-screen pt-16 sm:pt-20 pb-32 sm:pb-16">
         <div className="text-center max-w-3xl">
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
+            {...(reduced ? fade : { initial: { opacity: 0, y: -20 }, animate: { opacity: 1, y: 0 } })}
+            transition={{ duration: 0.5, delay: 0.2 }}
           >
             <span className="inline-block text-[#2A8C8F] text-xs sm:text-sm md:text-base font-semibold tracking-widest uppercase mb-3 sm:mb-4">
               Pando Surgical
@@ -20,27 +21,24 @@ export function Hero() {
 
           <motion.h1
             className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.1] text-[#0C2340] mb-4 sm:mb-6"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.35 }}
+            {...(reduced ? fade : { initial: { opacity: 0, y: 30 }, animate: { opacity: 1, y: 0 } })}
+            transition={{ duration: 0.6, delay: 0.3 }}
           >
             One-Handed Laparoscope Rotation Attachment
           </motion.h1>
 
           <motion.p
             className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 sm:mb-10"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
+            {...(reduced ? fade : { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } })}
+            transition={{ duration: 0.5, delay: 0.4 }}
           >
             Making laparoscopic surgery more equitable and efficient
           </motion.p>
 
           <motion.div
             className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.65 }}
+            {...(reduced ? fade : { initial: { opacity: 0, y: 15 }, animate: { opacity: 1, y: 0 } })}
+            transition={{ duration: 0.5, delay: 0.5 }}
           >
             <motion.button
               onClick={() => document.getElementById('our-product')?.scrollIntoView({ behavior: 'smooth' })}

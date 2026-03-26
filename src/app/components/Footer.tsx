@@ -8,15 +8,15 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <motion.div
           className="flex flex-col items-center gap-3 sm:gap-4"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.4 }}
         >
           <motion.div
             className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full flex items-center justify-center"
-            whileHover={{ scale: 1.1, rotate: 360 }}
-            transition={{ duration: 0.6 }}
+            whileHover={{ scale: 1.05 }}
+            transition={{ duration: 0.2 }}
           >
             <img src={logoImage} alt="Pando Surgical logo" className="w-6 h-6 sm:w-8 sm:h-8" />
           </motion.div>

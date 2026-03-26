@@ -116,9 +116,9 @@ export function Contact() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 relative">
         <motion.div
           className="text-center mb-8 sm:mb-12"
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : {}}
+          transition={{ duration: 0.4 }}
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-4 text-[#0C2340] font-bold">Contact Us</h2>
           <div className="w-20 sm:w-24 h-1 bg-[#2A8C8F] mx-auto rounded-full" />
@@ -126,9 +126,9 @@ export function Contact() {
 
         <motion.div
           className="relative group"
-          initial={{ opacity: 0, y: 50 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 0.2 }}
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : {}}
+          transition={{ duration: 0.5, delay: 0.1 }}
         >
           <div className="bg-white rounded-sm shadow-md border-l-4 border-[#2A8C8F] p-4 sm:p-6 md:p-8">
             
@@ -310,15 +310,7 @@ export function Contact() {
                       </>
                     )}
                   </span>
-                  {/* Shine effect */}
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                    initial={{ x: '-100%' }}
-                    whileHover={{ x: '100%' }}
-                    transition={{ duration: 0.6 }}
-                  />
-                  {/* Golden glow */}
-                  <div className="absolute inset-0 bg-[#2A8C8F] blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300 -z-10" />
+                  
                 </motion.button>
               </form>
             )}

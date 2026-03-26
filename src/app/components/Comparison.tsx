@@ -26,8 +26,8 @@ export function Comparison() {
         <div className="bg-white rounded-sm shadow-md border-l-4 border-[#2A8C8F] p-6 sm:p-10">
           <motion.div
             className="text-center mb-8 sm:mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
             transition={animationConfig}
           >
             <h2 className="text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-4 text-[#0C2340] font-bold">LapRotator - See the Difference</h2>
@@ -47,7 +47,7 @@ export function Comparison() {
                     src={withoutImage}
                     alt="Traditional laparoscopic surgery technique without LapRotator"
                     className="w-full h-full object-contain"
-                    loading="eager"
+                    loading={isMobile ? 'lazy' : 'eager'}
                     decoding="async"
                   />
                 </div>
@@ -75,7 +75,7 @@ export function Comparison() {
                     src={withImage}
                     alt="Laparoscopic surgery with LapRotator V2"
                     className="w-full h-full object-contain"
-                    loading="eager"
+                    loading={isMobile ? 'lazy' : 'eager'}
                     decoding="async"
                   />
                 </div>

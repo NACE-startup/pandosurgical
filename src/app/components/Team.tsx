@@ -29,9 +29,9 @@ export function Team() {
       rel="noopener noreferrer"
       aria-label={`View ${member.name}'s LinkedIn profile`}
       className="relative group cursor-pointer"
-      initial={{ opacity: 0, y: 50 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.8, delay: baseDelay + index * 0.1 }}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={isInView ? { opacity: 1, scale: 1 } : {}}
+      transition={{ duration: 0.5, delay: baseDelay + index * 0.08 }}
     >
       <motion.div
         className="bg-white rounded-sm shadow-md p-4 sm:p-6 hover:shadow-lg transition-all h-full"
@@ -50,7 +50,7 @@ export function Team() {
                 src={member.image}
                 alt={`${member.name}, ${member.role} at Pando Surgical`}
                 className="w-full h-full object-cover relative"
-                loading="lazy"
+                loading="eager"
                 style={
                   member.name === 'Derek Hua'
                     ? { transform: 'scale(2.2) translateY(10%)' }
@@ -84,9 +84,9 @@ export function Team() {
         <div className="bg-white rounded-sm shadow-md border-l-4 border-[#2A8C8F] p-6 sm:p-10">
           <motion.div
             className="text-center mb-8 sm:mb-12"
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.5 }}
           >
             <h2 className="text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-4 text-[#0C2340] font-bold">Our Team</h2>
             <div className="w-20 sm:w-24 h-1 bg-[#2A8C8F] mx-auto rounded-full" />
@@ -94,9 +94,9 @@ export function Team() {
 
           <motion.h3
             className="text-xl sm:text-2xl text-center mb-6 text-gray-500 font-medium"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.1 }}
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.4, delay: 0.1 }}
           >
             Co-Founders
           </motion.h3>
@@ -108,9 +108,9 @@ export function Team() {
 
           <motion.h3
             className="text-xl sm:text-2xl text-center mb-6 text-gray-500 font-medium"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.4, delay: 0.3 }}
           >
             Team
           </motion.h3>

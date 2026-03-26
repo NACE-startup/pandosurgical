@@ -22,9 +22,9 @@ export function Product() {
         <div className="bg-white rounded-sm shadow-md border-l-4 border-[#2A8C8F] p-6 sm:p-10">
           <motion.div
             className="text-center mb-8 sm:mb-12"
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.4 }}
           >
             <h2 className="text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-4 text-[#0C2340] font-bold">Our Product</h2>
             <div className="w-20 sm:w-24 h-1 bg-[#2A8C8F] mx-auto rounded-full" />
@@ -32,9 +32,9 @@ export function Product() {
 
           <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-center">
             <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={isInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              initial={{ opacity: 0 }}
+              animate={isInView ? { opacity: 1 } : {}}
+              transition={{ duration: 0.5, delay: 0.1 }}
               className="order-2 md:order-1 flex items-center justify-center"
             >
               <div className="rounded-sm mx-auto">
@@ -50,9 +50,9 @@ export function Product() {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              animate={isInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.4 }}
+              initial={{ opacity: 0 }}
+              animate={isInView ? { opacity: 1 } : {}}
+              transition={{ duration: 0.5, delay: 0.2 }}
               className="order-1 md:order-2"
             >
               <h3 className="text-xl sm:text-2xl md:text-3xl mb-2 sm:mb-4 text-[#0C2340] font-bold">LapRotator</h3>
@@ -70,9 +70,9 @@ export function Product() {
                   <motion.div
                     key={index}
                     className="flex items-start gap-3 group"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={isInView ? { opacity: 1, x: 0 } : {}}
-                    transition={{ duration: 0.5, delay: 0.6 + index * 0.1 }}
+                    initial={{ opacity: 0 }}
+                    animate={isInView ? { opacity: 1 } : {}}
+                    transition={{ duration: 0.3, delay: 0.3 + index * 0.06 }}
                   >
                     <div className="w-5 h-5 sm:w-6 sm:h-6 bg-[#2A8C8F] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Check className="w-3 h-3 sm:w-4 sm:h-4 text-white" strokeWidth={3} />
