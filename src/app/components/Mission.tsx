@@ -46,9 +46,9 @@ export function Mission() {
               { stat: 'Ergonomic', label: 'Less Surgeon Fatigue' },
               { stat: 'Quick Setup', label: 'Easy Attachment' },
             ].map((item) => (
-              <div key={item.label} className="text-center bg-[#E8ECF1] rounded-sm p-4 sm:p-6 flex flex-col items-center justify-center">
-                <p className="text-xl sm:text-2xl font-bold text-[#0C2340] mb-1 whitespace-nowrap">{item.stat}</p>
-                <p className="text-gray-500 text-xs sm:text-sm">{item.label}</p>
+              <div key={item.label} className="text-center bg-[#E8ECF1] rounded-sm p-3 sm:p-6 flex flex-col items-center justify-center min-w-0">
+                <p className="text-sm sm:text-lg md:text-2xl font-bold text-[#0C2340] mb-1">{item.stat}</p>
+                <p className="text-gray-500 text-[10px] sm:text-xs md:text-sm">{item.label}</p>
               </div>
             ))}
           </motion.div>

@@ -2,12 +2,20 @@ import { motion, useInView } from 'motion/react';
 import { useRef, useState } from 'react';
 import { Send, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import emailjs from '@emailjs/browser';
+import { addContactSubmission } from '@/lib/firebase';
 
-// EmailJS Configuration - Using SendGrid
 const EMAILJS_SERVICE_ID = 'service_ajie1au';
-const EMAILJS_TEMPLATE_CONTACT = 'template_g40ybbn';  // Sends to Pando Surgical
-const EMAILJS_TEMPLATE_AUTOREPLY = 'template_sjwr9ag'; // Auto-reply to user
+const EMAILJS_TEMPLATE_CONTACT = 'template_g40ybbn';
+const EMAILJS_TEMPLATE_AUTOREPLY = 'template_sjwr9ag';
 const EMAILJS_PUBLIC_KEY = '4kITqwgwXtJr6ubMM';
+
+const RECIPIENT_EMAILS = [
+  'tnagai@usc.edu',
+  'pan.anye@gmail.com',
+  'test1@gmail.com',
+  'derekhua2007@gmail.com',
+  'longseanlee@gmail.com',
+];
 
 export function Contact() {
   const ref = useRef(null);
@@ -39,12 +47,20 @@ export function Contact() {
         phone: formData.phone || 'Not provided',
         company: formData.company || 'Not provided',
         message: formData.message,
-        to_email: formData.email, // Explicitly set recipient for auto-reply
+        to_email: RECIPIENT_EMAILS.join(','),
       };
+
+      // Save to Firestore inbox
+      await addContactSubmission({
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone || undefined,
+        company: formData.company || undefined,
+        inquiryType: formData.inquiryType,
+        message: formData.message,
+      });
       
-      console.log('Sending with templateData:', templateData);
-      
-      // Send notification to Pando Surgical
+      // Send notification email to all recipients
       try {
         await emailjs.send(
           EMAILJS_SERVICE_ID,
@@ -52,24 +68,20 @@ export function Contact() {
           templateData,
           EMAILJS_PUBLIC_KEY
         );
-        console.log('✅ Contact notification sent to Pando Surgical');
       } catch (contactError: any) {
-        console.error('❌ Contact notification failed:', contactError);
+        console.error('Contact notification failed:', contactError);
         throw contactError;
       }
       
       // Send auto-reply to user
       try {
-        const autoReplyResult = await emailjs.send(
+        await emailjs.send(
           EMAILJS_SERVICE_ID,
           EMAILJS_TEMPLATE_AUTOREPLY,
-          templateData,
+          { ...templateData, to_email: formData.email },
           EMAILJS_PUBLIC_KEY
         );
-        console.log('✅ Auto-reply sent to user:', autoReplyResult);
       } catch (autoReplyError: any) {
-        console.error('❌ Auto-reply failed:', autoReplyError);
-        // Don't throw - still show success since main email was sent
         console.warn('Auto-reply failed but contact notification was sent');
       }
       

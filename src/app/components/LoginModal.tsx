@@ -128,22 +128,15 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {/* Modal wrapper with backdrop */}
           <motion.div
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
+            className="fixed inset-0 z-50 overflow-y-auto bg-black/40 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-          />
-
-          {/* Modal */}
-          <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
           >
+            <div className="min-h-full flex items-center justify-center p-4">
             <motion.div
               className="relative w-full max-w-md my-8"
               initial={{ scale: 0.95, y: 20 }}
@@ -442,6 +435,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 </form>
               </div>
             </motion.div>
+            </div>
           </motion.div>
         </>
       )}

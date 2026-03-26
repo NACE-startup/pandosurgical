@@ -17,7 +17,7 @@ export function Team() {
   ];
 
   const teamMembers = [
-    { name: 'Toshi Nagai', role: 'COO', image: toshiImage, linkedin: 'https://www.linkedin.com/in/toshio-nagai2029/', description: 'USC Biomedical Engineering' },
+    { name: 'Toshi Nagai', role: 'Advisor', image: toshiImage, linkedin: 'https://www.linkedin.com/in/toshio-nagai2029/', description: 'USC Biomedical Engineering' },
     { name: 'Derek Hua', role: 'Head of Clinical Affairs', image: derekImage, linkedin: 'https://www.linkedin.com/in/derekhuausc/', description: 'USC Biomedical Engineering and Pre-Medicine' },
     { name: 'Sean Lee', role: 'Head of Engineering', image: seanImage, linkedin: 'https://www.linkedin.com/in/sean-long-siang-lee-9bbab8373/', description: 'USC Biomedical Engineering' },
   ];

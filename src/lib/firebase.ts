@@ -613,5 +613,70 @@ export const respondToInvite = async (inviteId: string, status: 'accepted' | 're
   }
 };
 
+// ============ CONTACT INBOX ============
+
+export interface ContactSubmission {
+  id?: string;
+  fullName: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  inquiryType: string;
+  message: string;
+  read: boolean;
+  createdAt?: any;
+}
+
+export const addContactSubmission = async (submission: Omit<ContactSubmission, 'id' | 'createdAt' | 'read'>) => {
+  if (!db) return null;
+  try {
+    const ref = collection(db, 'contactSubmissions');
+    const docRef = await addDoc(ref, {
+      ...submission,
+      read: false,
+      createdAt: serverTimestamp()
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Error saving contact submission:', error);
+    return null;
+  }
+};
+
+export const getContactSubmissions = async () => {
+  if (!db) return [];
+  try {
+    const ref = collection(db, 'contactSubmissions');
+    const q = query(ref, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as ContactSubmission[];
+  } catch (error) {
+    console.error('Error getting contact submissions:', error);
+    return [];
+  }
+};
+
+export const markSubmissionRead = async (submissionId: string) => {
+  if (!db) return false;
+  try {
+    await updateDoc(doc(db, 'contactSubmissions', submissionId), { read: true });
+    return true;
+  } catch (error) {
+    console.error('Error marking submission as read:', error);
+    return false;
+  }
+};
+
+export const deleteContactSubmission = async (submissionId: string) => {
+  if (!db) return false;
+  try {
+    await deleteDoc(doc(db, 'contactSubmissions', submissionId));
+    return true;
+  } catch (error) {
+    console.error('Error deleting contact submission:', error);
+    return false;
+  }
+};
+
 export { auth, db };
 export type { User };

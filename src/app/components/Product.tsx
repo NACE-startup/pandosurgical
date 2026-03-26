@@ -37,7 +37,7 @@ export function Product() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="order-2 md:order-1 flex items-center justify-center"
             >
-              <div className="bg-[#E8ECF1] rounded-sm p-4 sm:p-6 max-w-[80%] mx-auto">
+              <div className="rounded-sm mx-auto">
                 <img
                   src={productImage}
                   alt="LapRotator V23 laparoscope rotation device"
@@ -55,11 +55,11 @@ export function Product() {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="order-1 md:order-2"
             >
-              <h3 className="text-2xl sm:text-3xl md:text-4xl mb-2 sm:mb-4 text-[#0C2340] font-bold">LapRotator</h3>
-              <p className="text-xl sm:text-2xl text-[#2A8C8F] font-medium mb-4 sm:mb-6">One-Handed Laparoscope Rotation</p>
+              <h3 className="text-xl sm:text-2xl md:text-3xl mb-2 sm:mb-4 text-[#0C2340] font-bold">LapRotator</h3>
+              <p className="text-lg sm:text-xl text-[#2A8C8F] font-medium mb-4 sm:mb-6">One-Handed Laparoscope Rotation</p>
 
               <div className="bg-[#E8ECF1] rounded-sm p-4 sm:p-6 mb-6 sm:mb-8">
-                <p className="text-gray-700 text-base sm:text-lg leading-relaxed">
+                <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
                 The LapRotator is an attachment for laparoscopes that enables single-handed
                 rotation, providing enhanced control and flexibility during procedures.
                 </p>
@@ -77,7 +77,7 @@ export function Product() {
                     <div className="w-5 h-5 sm:w-6 sm:h-6 bg-[#2A8C8F] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Check className="w-3 h-3 sm:w-4 sm:h-4 text-white" strokeWidth={3} />
                     </div>
-                    <span className="text-sm sm:text-base text-gray-700">{feature}</span>
+                    <span className="text-xs sm:text-sm text-gray-700">{feature}</span>
                   </motion.div>
                 ))}
               </div>

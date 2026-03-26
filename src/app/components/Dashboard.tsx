@@ -30,7 +30,9 @@ import {
   Globe,
   Menu,
   Edit3,
-  Repeat
+  Repeat,
+  Inbox,
+  Eye
 } from 'lucide-react';
 import { 
   logOut, 
@@ -49,8 +51,12 @@ import {
   getTeamMembers,
   getPendingInvites,
   respondToInvite,
+  getContactSubmissions,
+  markSubmissionRead,
+  deleteContactSubmission,
   FirestoreEvent,
-  FirestoreTask
+  FirestoreTask,
+  ContactSubmission
 } from '@/lib/firebase';
 
 interface DashboardProps {
@@ -186,7 +192,9 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
   });
   const t = themes[theme];
 
-  const [activeTab, setActiveTab] = useState<'schedule' | 'tasks' | 'team' | 'settings'>('schedule');
+  const [activeTab, setActiveTab] = useState<'schedule' | 'tasks' | 'team' | 'inbox' | 'settings'>('schedule');
+  const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
+  const [selectedSubmission, setSelectedSubmission] = useState<ContactSubmission | null>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
@@ -249,12 +257,14 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
       const teamMemberIds = members.map(m => m.id);
       
       // Now get events and tasks with team visibility
-      const [eventsData, tasksData] = await Promise.all([
+      const [eventsData, tasksData, submissionsData] = await Promise.all([
         getEventsForUser(user.uid, teamMemberIds),
-        getTasksForUser(user.uid, teamMemberIds)
+        getTasksForUser(user.uid, teamMemberIds),
+        getContactSubmissions()
       ]);
       setEvents(eventsData as Event[]);
       setTasks(tasksData as Task[]);
+      setSubmissions(submissionsData);
     } catch (error) {
       console.error('Error loading data:', error);
     }
@@ -629,6 +639,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                     { id: 'schedule', icon: Calendar, label: 'Schedule', desc: 'Calendar & tasks' },
                     { id: 'tasks', icon: Zap, label: 'Tasks', desc: 'Track progress' },
                     { id: 'team', icon: Users, label: 'Team', desc: 'Manage members', badge: pendingInvites.length },
+                    { id: 'inbox', icon: Inbox, label: 'Inbox', desc: 'Contact submissions', badge: submissions.filter(s => !s.read).length },
                     { id: 'settings', icon: Settings, label: 'Settings', desc: 'Preferences' },
                   ].map((item) => (
                     <motion.button
@@ -710,6 +721,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                         {activeTab === 'schedule' && 'Events & task deadlines'}
                         {activeTab === 'tasks' && 'Track your progress'}
                         {activeTab === 'team' && 'Manage team members'}
+                        {activeTab === 'inbox' && 'Contact form submissions'}
                         {activeTab === 'settings' && 'Configure preferences'}
                       </p>
                     </div>
@@ -1115,6 +1127,105 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                               <p className={`${t.textMuted} text-center py-4 sm:py-6 text-xs sm:text-sm mt-2`}>Invite teammates using the search above!</p>
                             )}
                           </div>
+                        </div>
+                      )}
+
+                      {/* INBOX TAB */}
+                      {activeTab === 'inbox' && (
+                        <div className="space-y-4 sm:space-y-6">
+                          {selectedSubmission ? (
+                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                              <button
+                                onClick={() => setSelectedSubmission(null)}
+                                className={`flex items-center gap-2 mb-4 text-sm ${t.textMuted} hover:${t.text} transition-colors`}
+                              >
+                                <ChevronLeft className="w-4 h-4" /> Back to inbox
+                              </button>
+                              <div className={`${t.card} backdrop-blur-xl rounded-xl sm:rounded-2xl border p-4 sm:p-6`}>
+                                <div className="flex items-start justify-between mb-4">
+                                  <div>
+                                    <h3 className={`text-lg font-bold ${t.text}`}>{selectedSubmission.fullName}</h3>
+                                    <p className={`text-sm ${t.textMuted}`}>{selectedSubmission.email}</p>
+                                  </div>
+                                  <span className="text-[10px] sm:text-xs px-2 py-1 bg-[#2A8C8F]/20 text-[#2A8C8F] rounded-full">
+                                    {selectedSubmission.inquiryType}
+                                  </span>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3 mb-4">
+                                  {selectedSubmission.phone && (
+                                    <div>
+                                      <p className={`text-xs ${t.textMuted}`}>Phone</p>
+                                      <p className={`text-sm ${t.text}`}>{selectedSubmission.phone}</p>
+                                    </div>
+                                  )}
+                                  {selectedSubmission.company && (
+                                    <div>
+                                      <p className={`text-xs ${t.textMuted}`}>Company</p>
+                                      <p className={`text-sm ${t.text}`}>{selectedSubmission.company}</p>
+                                    </div>
+                                  )}
+                                </div>
+                                <div className={`${theme === 'dark' ? 'bg-white/5' : 'bg-gray-50'} rounded-xl p-4`}>
+                                  <p className={`text-xs ${t.textMuted} mb-1`}>Message</p>
+                                  <p className={`text-sm ${t.text} whitespace-pre-wrap leading-relaxed`}>{selectedSubmission.message}</p>
+                                </div>
+                                <div className="flex gap-2 mt-4">
+                                  <a
+                                    href={`mailto:${selectedSubmission.email}`}
+                                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#2A8C8F] to-[#1E7275] text-white rounded-xl text-sm font-medium"
+                                  >
+                                    <Mail className="w-4 h-4" /> Reply via Email
+                                  </a>
+                                  <button
+                                    onClick={async () => {
+                                      if (selectedSubmission.id) {
+                                        await deleteContactSubmission(selectedSubmission.id);
+                                        setSubmissions(prev => prev.filter(s => s.id !== selectedSubmission.id));
+                                        setSelectedSubmission(null);
+                                      }
+                                    }}
+                                    className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-500 rounded-xl text-sm font-medium hover:bg-red-500/20 transition-colors"
+                                  >
+                                    <Trash2 className="w-4 h-4" /> Delete
+                                  </button>
+                                </div>
+                              </div>
+                            </motion.div>
+                          ) : submissions.length === 0 ? (
+                            <div className={`${t.card} backdrop-blur-xl rounded-xl sm:rounded-2xl border p-8 sm:p-12 text-center`}>
+                              <Inbox className={`w-12 h-12 ${t.textMuted} mx-auto mb-3 opacity-40`} />
+                              <p className={`${t.textMuted} text-sm`}>No contact submissions yet</p>
+                            </div>
+                          ) : (
+                            <div className="space-y-2">
+                              {submissions.map((sub, index) => (
+                                <motion.button
+                                  key={sub.id}
+                                  onClick={async () => {
+                                    setSelectedSubmission(sub);
+                                    if (sub.id && !sub.read) {
+                                      await markSubmissionRead(sub.id);
+                                      setSubmissions(prev => prev.map(s => s.id === sub.id ? { ...s, read: true } : s));
+                                    }
+                                  }}
+                                  className={`w-full text-left ${t.card} backdrop-blur-xl rounded-xl sm:rounded-2xl border p-3 sm:p-4 hover:border-[#2A8C8F]/40 transition-all ${!sub.read ? 'border-l-4 border-l-[#2A8C8F]' : ''}`}
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ delay: index * 0.03 }}
+                                >
+                                  <div className="flex items-center justify-between mb-1">
+                                    <div className="flex items-center gap-2">
+                                      {!sub.read && <div className="w-2 h-2 rounded-full bg-[#2A8C8F]" />}
+                                      <span className={`text-sm font-semibold ${t.text}`}>{sub.fullName}</span>
+                                    </div>
+                                    <span className="text-[10px] sm:text-xs px-2 py-0.5 bg-[#2A8C8F]/15 text-[#2A8C8F] rounded-full">{sub.inquiryType}</span>
+                                  </div>
+                                  <p className={`text-xs ${t.textMuted} mb-1`}>{sub.email}</p>
+                                  <p className={`text-xs ${t.textMuted} line-clamp-1`}>{sub.message}</p>
+                                </motion.button>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )}
 
