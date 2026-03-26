@@ -639,11 +639,20 @@ export const addContactSubmission = async (
   }
   try {
     const ref = collection(db, 'contactSubmissions');
-    const docRef = await addDoc(ref, {
-      ...submission,
+    // Firestore rejects undefined — omit optional fields when empty
+    const payload: Record<string, unknown> = {
+      fullName: submission.fullName,
+      email: submission.email,
+      inquiryType: submission.inquiryType,
+      message: submission.message,
       read: false,
       createdAt: serverTimestamp()
-    });
+    };
+    const phone = submission.phone?.trim();
+    const company = submission.company?.trim();
+    if (phone) payload.phone = phone;
+    if (company) payload.company = company;
+    const docRef = await addDoc(ref, payload as Parameters<typeof addDoc>[1]);
     return { ok: true, id: docRef.id };
   } catch (error: any) {
     console.error('Error saving contact submission:', error);
