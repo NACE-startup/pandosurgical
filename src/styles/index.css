@@ -5,8 +5,7 @@
 /* Mobile-friendly base styles */
 html {
   -webkit-text-size-adjust: 100%;
-  scroll-behavior: smooth;
-  scroll-padding-top: 50px; /* Offset for fixed navbar */
+  scroll-padding-top: 50px;
 }
 
 /* Section scroll offset for anchor links */
@@ -78,10 +77,6 @@ input, select, textarea {
   }
 }
 
-/* Optimize images for smooth loading */
-img {
-  content-visibility: auto;
-}
 
 /* GPU acceleration for transforms */
 .transform {

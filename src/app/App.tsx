@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
@@ -9,111 +9,34 @@ import { Mission } from './components/Mission';
 import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
 import { LoadingScreen } from './components/LoadingScreen';
-import { ScrollIndicator } from './components/ScrollIndicator';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
-
-  const handleLoadingComplete = () => {
-    setIsLoading(false);
-  };
-
-  const sectionVariants = isMobile
-    ? { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: 0.3 } } }
-    : { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.25, 0.1, 0.25, 1] } } };
 
   return (
     <div className="relative bg-[#E8ECF1]">
       <AnimatePresence>
         {isLoading && (
-          <LoadingScreen onLoadingComplete={handleLoadingComplete} />
+          <LoadingScreen onLoadingComplete={() => setIsLoading(false)} />
         )}
       </AnimatePresence>
 
       {!isLoading && (
-        <>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+        >
           <Header />
-          
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-        <motion.div 
-          className="relative"
-          variants={sectionVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: false, amount: 0.2, margin: "100px" }}
-        >
           <Hero />
-          <ScrollIndicator />
-        </motion.div>
-        
-        <motion.div
-          variants={sectionVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: false, amount: 0.2, margin: "100px" }}
-        >
           <Comparison />
-        </motion.div>
-        
-        <motion.div
-          variants={sectionVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: false, amount: 0.2, margin: "100px" }}
-        >
           <Product />
-        </motion.div>
-        
-        <motion.div
-          variants={sectionVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: false, amount: 0.2, margin: "100px" }}
-        >
           <Team />
-        </motion.div>
-
-        <motion.div
-          variants={sectionVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: false, amount: 0.2, margin: "100px" }}
-        >
           <Mission />
-        </motion.div>
-        
-        <motion.div
-          variants={sectionVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: false, amount: 0.2, margin: "100px" }}
-        >
           <Contact />
-        </motion.div>
-        
-        <motion.div
-          variants={sectionVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: false, amount: 0.2, margin: "100px" }}
-        >
           <Footer />
         </motion.div>
-      </motion.div>
-        </>
       )}
       <SpeedInsights />
     </div>
