@@ -627,8 +627,16 @@ export interface ContactSubmission {
   createdAt?: any;
 }
 
-export const addContactSubmission = async (submission: Omit<ContactSubmission, 'id' | 'createdAt' | 'read'>) => {
-  if (!db) return null;
+export type AddContactSubmissionResult =
+  | { ok: true; id: string }
+  | { ok: false; error: string; code?: string };
+
+export const addContactSubmission = async (
+  submission: Omit<ContactSubmission, 'id' | 'createdAt' | 'read'>
+): Promise<AddContactSubmissionResult> => {
+  if (!db) {
+    return { ok: false, error: 'Database is not configured' };
+  }
   try {
     const ref = collection(db, 'contactSubmissions');
     const docRef = await addDoc(ref, {
@@ -636,23 +644,45 @@ export const addContactSubmission = async (submission: Omit<ContactSubmission, '
       read: false,
       createdAt: serverTimestamp()
     });
-    return docRef.id;
-  } catch (error) {
+    return { ok: true, id: docRef.id };
+  } catch (error: any) {
     console.error('Error saving contact submission:', error);
-    return null;
+    const code = error?.code as string | undefined;
+    const message =
+      code === 'permission-denied'
+        ? 'Could not save your inquiry (server permissions). Please contact us by email.'
+        : error?.message || 'Failed to save your inquiry';
+    return { ok: false, error: message, code };
   }
 };
 
 export const getContactSubmissions = async () => {
   if (!db) return [];
+  const ref = collection(db, 'contactSubmissions');
   try {
-    const ref = collection(db, 'contactSubmissions');
     const q = query(ref, orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as ContactSubmission[];
   } catch (error) {
-    console.error('Error getting contact submissions:', error);
-    return [];
+    console.error('Error getting contact submissions (ordered query):', error);
+    try {
+      const snapshot = await getDocs(ref);
+      const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as ContactSubmission[];
+      return list.sort((a, b) => {
+        const ta =
+          typeof (a.createdAt as { toMillis?: () => number })?.toMillis === 'function'
+            ? (a.createdAt as { toMillis: () => number }).toMillis()
+            : 0;
+        const tb =
+          typeof (b.createdAt as { toMillis?: () => number })?.toMillis === 'function'
+            ? (b.createdAt as { toMillis: () => number }).toMillis()
+            : 0;
+        return tb - ta;
+      });
+    } catch (e2) {
+      console.error('Error getting contact submissions:', e2);
+      return [];
+    }
   }
 };
 

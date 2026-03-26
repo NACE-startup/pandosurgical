@@ -50,8 +50,8 @@ export function Contact() {
         to_email: RECIPIENT_EMAILS.join(','),
       };
 
-      // Save to Firestore inbox
-      await addContactSubmission({
+      // Save to Firestore inbox first (public form is unauthenticated — rules must allow create)
+      const saved = await addContactSubmission({
         fullName: formData.fullName,
         email: formData.email,
         phone: formData.phone || undefined,
@@ -59,7 +59,10 @@ export function Contact() {
         inquiryType: formData.inquiryType,
         message: formData.message,
       });
-      
+      if (!saved.ok) {
+        throw new Error(saved.error);
+      }
+
       // Send notification email to all recipients
       try {
         await emailjs.send(
