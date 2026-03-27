@@ -55,10 +55,7 @@ export function Product() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="order-1 md:order-2"
             >
-              <h3
-                id="laprotator"
-                className="text-xl sm:text-2xl md:text-3xl mb-2 sm:mb-4 text-[#0C2340] font-bold scroll-mt-24"
-              >
+              <h3 className="text-xl sm:text-2xl md:text-3xl mb-2 sm:mb-4 text-[#0C2340] font-bold">
                 LapRotator
               </h3>
               <p className="text-lg sm:text-xl text-[#2A8C8F] font-medium mb-4 sm:mb-6">One-Handed Laparoscope Rotation</p>
