@@ -40,8 +40,8 @@ export function Product() {
               <div className="rounded-sm mx-auto">
                 <img
                   src={productImage}
-                  alt="LapRotator V23 laparoscope rotation device"
-                  className="w-full"
+                  alt="LapRotator V2 laparoscope rotation device"
+                  className="w-full [filter:drop-shadow(0_0_2px_white)_drop-shadow(0_0_2px_white)_drop-shadow(0_0_2px_white)]"
                   loading="lazy"
                   width="600"
                   height="400"

@@ -1,6 +1,17 @@
 import { motion, useReducedMotion } from 'motion/react';
-import holdingImageV2 from '@/assets/laprotator-holding-v2.png';
+import heroLeftArt from '@/assets/laprotator-hero-left.png';
+import heroRightArt from '@/assets/laprotator-hero-right.png';
 import laparoscopeHero from '@/assets/laparoscope-hero.png';
+
+/** Side images: pinned to bottom corners, large, with bottom fade. Hidden on mobile, shown md+. */
+const heroSideShell =
+  'hidden md:block absolute bottom-0 z-[5] pointer-events-none w-[clamp(20rem,44vw,40rem)] lg:w-[clamp(24rem,46vw,44rem)] xl:w-[clamp(28rem,44vw,48rem)]';
+
+const heroSideImg =
+  'w-full h-auto object-contain drop-shadow-[0_4px_20px_rgba(12,35,64,0.08)]';
+
+const heroSideFade =
+  'pointer-events-none absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#E8ECF1] to-transparent';
 
 export function Hero() {
   const reduced = useReducedMotion();
@@ -12,7 +23,7 @@ export function Hero() {
   return (
     <section
       id="home"
-      className="relative min-h-[100dvh] h-[100dvh] overflow-hidden bg-[#E8ECF1] sm:h-auto sm:min-h-screen"
+      className="relative min-h-[100dvh] h-[100dvh] overflow-x-hidden overflow-y-hidden bg-[#E8ECF1] sm:h-auto sm:min-h-screen sm:overflow-x-clip sm:overflow-y-visible"
       aria-label="Pando Surgical hero"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10 min-h-[100dvh] h-full sm:h-auto sm:min-h-[100dvh] flex flex-col pt-[3.75rem] pb-8 sm:pt-20 sm:pb-16 sm:justify-center md:pb-20">
@@ -89,23 +100,38 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Side art: right (v2) only — wide slot + vw-based max-h for laptops */}
+      {/* Side art: large images at bottom corners with bottom edge fade */}
       <motion.div
-        className="hidden sm:flex absolute bottom-0 right-0 z-[1] w-[min(52rem,max(15rem,calc(50vw-5.5rem)))] md:w-[min(62rem,max(20rem,calc(50vw-7rem)))] lg:w-[min(80rem,max(28rem,calc(50vw-13rem)))] xl:w-[min(96rem,max(32rem,calc(50vw-11rem)))] 2xl:w-[min(112rem,max(36rem,calc(50vw-9rem)))] items-end justify-end pointer-events-none p-0"
+        className={`${heroSideShell} left-0 scale-[0.95] origin-bottom-left`}
+        {...sideEnterMotion}
+        transition={{ duration: 0.55, delay: 0.28, ease: 'easeOut' }}
+      >
+        <img
+          src={heroLeftArt}
+          alt="Gloved hand holding a laparoscopic instrument"
+          className={heroSideImg}
+          draggable={false}
+        />
+        <div className={heroSideFade} aria-hidden />
+      </motion.div>
+
+      <motion.div
+        className={`${heroSideShell} right-0 lg:right-2 xl:right-4`}
         {...sideEnterMotion}
         transition={{ duration: 0.55, delay: 0.36, ease: 'easeOut' }}
       >
         <img
-          src={holdingImageV2}
-          alt="Surgeon holding the LapRotator — alternate view"
-          className="w-full h-auto max-h-[min(98dvh,clamp(26rem,58vw,76rem))] object-contain object-right-bottom origin-bottom-right scale-[1.12] md:scale-[1.16] lg:scale-[1.3] xl:scale-[1.34] 2xl:scale-[1.3]"
+          src={heroRightArt}
+          alt="Gloved hand holding the LapRotator device"
+          className={heroSideImg}
           draggable={false}
         />
+        <div className={heroSideFade} aria-hidden />
       </motion.div>
 
-      {/* Soft bottom edge into next section (same page bg) — no scroll-driven fade */}
+      {/* Bottom scrim into next section — below side art (was z-8 and covered z-1 images) */}
       <div
-        className="pointer-events-none absolute bottom-0 left-0 right-0 z-[8] h-24 sm:h-36 bg-gradient-to-b from-transparent via-[#E8ECF1]/35 to-[#E8ECF1]"
+        className="pointer-events-none absolute bottom-0 left-0 right-0 z-[2] h-24 sm:h-36 bg-gradient-to-b from-transparent via-[#E8ECF1]/35 to-[#E8ECF1]"
         aria-hidden
       />
     </section>
