@@ -109,21 +109,21 @@ export function Hero() {
         <img
           src={heroLeftArt}
           alt="Gloved hand holding a laparoscopic instrument"
-          className={heroSideImg}
+          className={`${heroSideImg} object-left-bottom`}
           draggable={false}
         />
         <div className={heroSideFade} aria-hidden />
       </motion.div>
 
       <motion.div
-        className={`${heroSideShell} right-0 lg:right-2 xl:right-4`}
+        className={`${heroSideShell} right-0 origin-bottom-right`}
         {...sideEnterMotion}
         transition={{ duration: 0.55, delay: 0.36, ease: 'easeOut' }}
       >
         <img
           src={heroRightArt}
           alt="Gloved hand holding the LapRotator device"
-          className={heroSideImg}
+          className={`${heroSideImg} object-right-bottom`}
           draggable={false}
         />
         <div className={heroSideFade} aria-hidden />
