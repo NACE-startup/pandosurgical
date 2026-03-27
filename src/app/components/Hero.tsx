@@ -1,5 +1,4 @@
 import { motion, useReducedMotion } from 'motion/react';
-import holdingImage from '@/assets/laprotator-holding.png';
 import holdingImageV2 from '@/assets/laprotator-holding-v2.png';
 import laparoscopeHero from '@/assets/laparoscope-hero.png';
 
@@ -90,20 +89,7 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Side art: left baseline. Right (v2): wide slot + vw-based max-h so laptop widths (e.g. 14-inch ~1280–1512px) grow with viewport, not a tight gutter cap. */}
-      <motion.div
-        className="hidden sm:flex absolute bottom-0 left-0 z-[1] w-[min(32rem,max(12rem,calc(50vw-8.25rem)))] md:w-[min(36rem,max(14.5rem,calc(50vw-11.75rem)))] lg:w-[min(44rem,max(16rem,calc(50vw-24.55rem)))] xl:w-[min(50rem,max(16rem,calc(50vw-24.62rem)))] 2xl:w-[min(56rem,max(17rem,calc(50vw-24.68rem)))] items-end justify-start pointer-events-none p-0"
-        {...sideEnterMotion}
-        transition={{ duration: 0.55, delay: 0.28, ease: 'easeOut' }}
-      >
-        <img
-          src={holdingImage}
-          alt="Surgeon holding the LapRotator device"
-          className="w-full h-auto max-h-[min(78dvh,clamp(18rem,40vw,52rem))] object-contain object-left-bottom"
-          draggable={false}
-        />
-      </motion.div>
-
+      {/* Side art: right (v2) only — wide slot + vw-based max-h for laptops */}
       <motion.div
         className="hidden sm:flex absolute bottom-0 right-0 z-[1] w-[min(52rem,max(15rem,calc(50vw-5.5rem)))] md:w-[min(62rem,max(20rem,calc(50vw-7rem)))] lg:w-[min(80rem,max(28rem,calc(50vw-13rem)))] xl:w-[min(96rem,max(32rem,calc(50vw-11rem)))] 2xl:w-[min(112rem,max(36rem,calc(50vw-9rem)))] items-end justify-end pointer-events-none p-0"
         {...sideEnterMotion}
