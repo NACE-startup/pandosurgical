@@ -11,18 +11,15 @@ export function Team() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-50px' });
 
-  const founders = [
+  const teamPeople = [
     { name: 'Aiden Pan', role: 'CEO & Co-Founder', image: aidenImage, linkedin: 'https://www.linkedin.com/in/aidenpan/', description: 'USC Biomedical Engineering' },
     { name: 'Noah Pearson', role: 'CTO & Co-Founder', image: noahImage, linkedin: 'https://www.linkedin.com/in/noah-r-pearson/', description: 'PhD Mechanical Engineering' },
+    { name: 'Toshi Nagai', role: 'Co-Founder', image: toshiImage, linkedin: 'https://www.linkedin.com/in/toshio-nagai2029/', description: 'USC Biomedical Engineering' },
+    { name: 'Derek Hua', role: 'Co-Founder and Head of Clinical Affairs', image: derekImage, linkedin: 'https://www.linkedin.com/in/derekhuausc/', description: 'USC Biomedical Engineering and Pre-Medicine' },
+    { name: 'Sean Lee', role: 'Advisor', image: seanImage, linkedin: 'https://www.linkedin.com/in/sean-long-siang-lee-9bbab8373/', description: 'USC Biomedical Engineering' },
   ];
 
-  const teamMembers = [
-    { name: 'Toshi Nagai', role: 'Advisor', image: toshiImage, linkedin: 'https://www.linkedin.com/in/toshio-nagai2029/', description: 'USC Biomedical Engineering' },
-    { name: 'Derek Hua', role: 'Head of Clinical Affairs', image: derekImage, linkedin: 'https://www.linkedin.com/in/derekhuausc/', description: 'USC Biomedical Engineering and Pre-Medicine' },
-    { name: 'Sean Lee', role: 'Head of Engineering', image: seanImage, linkedin: 'https://www.linkedin.com/in/sean-long-siang-lee-9bbab8373/', description: 'USC Biomedical Engineering' },
-  ];
-
-  const TeamCard = ({ member, index, baseDelay = 0 }: { member: typeof founders[0]; index: number; baseDelay?: number }) => (
+  const TeamCard = ({ member, index, baseDelay = 0 }: { member: (typeof teamPeople)[0]; index: number; baseDelay?: number }) => (
     <motion.a
       href={member.linkedin}
       target="_blank"
@@ -92,31 +89,9 @@ export function Team() {
             <div className="w-20 sm:w-24 h-1 bg-[#2A8C8F] mx-auto rounded-full" />
           </motion.div>
 
-          <motion.h3
-            className="text-xl sm:text-2xl text-center mb-6 text-gray-500 font-medium"
-            initial={{ opacity: 0 }}
-            animate={isInView ? { opacity: 1 } : {}}
-            transition={{ duration: 0.4, delay: 0.1 }}
-          >
-            Co-Founders
-          </motion.h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-2xl mx-auto mb-10 sm:mb-14">
-            {founders.map((member, index) => (
-              <TeamCard key={member.name} member={member} index={index} baseDelay={0.2} />
-            ))}
-          </div>
-
-          <motion.h3
-            className="text-xl sm:text-2xl text-center mb-6 text-gray-500 font-medium"
-            initial={{ opacity: 0 }}
-            animate={isInView ? { opacity: 1 } : {}}
-            transition={{ duration: 0.4, delay: 0.3 }}
-          >
-            Team
-          </motion.h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-            {teamMembers.map((member, index) => (
-              <TeamCard key={member.name} member={member} index={index} baseDelay={0.5} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
+            {teamPeople.map((member, index) => (
+              <TeamCard key={member.name} member={member} index={index} baseDelay={0.15} />
             ))}
           </div>
         </div>
