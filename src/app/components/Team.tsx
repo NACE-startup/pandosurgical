@@ -16,7 +16,7 @@ export function Team() {
     { name: 'Noah Pearson', role: 'CTO & Co-Founder', image: noahImage, linkedin: 'https://www.linkedin.com/in/noah-r-pearson/', description: 'PhD Mechanical Engineering' },
     { name: 'Toshi Nagai', role: 'Co-Founder', image: toshiImage, linkedin: 'https://www.linkedin.com/in/toshio-nagai2029/', description: 'USC Biomedical Engineering' },
     { name: 'Derek Hua', role: 'Co-Founder and Head of Clinical Affairs', image: derekImage, linkedin: 'https://www.linkedin.com/in/derekhuausc/', description: 'USC Biomedical Engineering and Pre-Medicine' },
-    { name: 'Sean Lee', role: 'Advisor', image: seanImage, linkedin: 'https://www.linkedin.com/in/sean-long-siang-lee-9bbab8373/', description: 'USC Biomedical Engineering' },
+    { name: 'Sean Lee', role: 'Co-Founder', image: seanImage, linkedin: 'https://www.linkedin.com/in/sean-long-siang-lee-9bbab8373/', description: 'USC Biomedical Engineering' },
   ];
 
   const TeamCard = ({ member, index, baseDelay = 0 }: { member: (typeof teamPeople)[0]; index: number; baseDelay?: number }) => (
