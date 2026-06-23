@@ -5,34 +5,31 @@ import noahImage from '@/assets/8ee06f89fcb2cc02961b34226e63e63a73f4a3f6.jpg';
 import seanImage from '@/assets/3fd5dc0d150c84d1b711b9d02daf057b44f80a37.jpg';
 import derekImage from '@/assets/aa0c3a7a09c6d51040532cd537dd0918948e3d44.jpg';
 import toshiImage from '@/assets/27bc2f71d3258489976d02225ee535b830fc269d.jpg';
+import huaImage from '@/assets/doctorhua.jpg';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+
+type Person = { name: string; role: string; image: string; linkedin?: string; description: string };
+
+const CARD_WIDTH_CLASS = 'w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] xl:w-[calc(20%-1.2rem)]';
 
 export function Team() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-50px' });
 
-  const teamPeople = [
+  const teamPeople: Person[] = [
     { name: 'Aiden Pan', role: 'CEO & Co-Founder', image: aidenImage, linkedin: 'https://www.linkedin.com/in/aidenpan/', description: 'USC Biomedical Engineering' },
     { name: 'Toshi Nagai', role: 'Co-Founder', image: toshiImage, linkedin: 'https://www.linkedin.com/in/toshio-nagai2029/', description: 'USC Biomedical Engineering' },
     { name: 'Derek Hua', role: 'Co-Founder and Head of Clinical Affairs', image: derekImage, linkedin: 'https://www.linkedin.com/in/derekhuausc/', description: 'USC Biomedical Engineering and Pre-Medicine' },
     { name: 'Sean Lee', role: 'Co-Founder', image: seanImage, linkedin: 'https://www.linkedin.com/in/sean-long-siang-lee-9bbab8373/', description: 'USC Biomedical Engineering' },
   ];
 
-  const advisoryPeople = [
+  const advisoryPeople: Person[] = [
     { name: 'Noah Pearson', role: 'Advisor', image: noahImage, linkedin: 'https://www.linkedin.com/in/noah-r-pearson/', description: 'PhD Mechanical Engineering' },
+    { name: 'Xiaoyang Hua', role: 'Advisor', image: huaImage, description: 'MD, PhD, FACS, Otolaryngology (ENT) Surgeon' },
   ];
 
-  const TeamCard = ({ member, index, baseDelay = 0 }: { member: (typeof teamPeople)[0]; index: number; baseDelay?: number }) => (
-    <motion.a
-      href={member.linkedin}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={`View ${member.name}'s LinkedIn profile`}
-      className="relative group cursor-pointer"
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={isInView ? { opacity: 1, scale: 1 } : {}}
-      transition={{ duration: 0.5, delay: baseDelay + index * 0.08 }}
-    >
+  const TeamCard = ({ member, index, baseDelay = 0 }: { member: Person; index: number; baseDelay?: number }) => {
+    const cardBody = (
       <motion.div
         className="bg-white rounded-sm shadow-md p-4 sm:p-6 hover:shadow-lg transition-all h-full"
         whileHover={{ y: -8 }}
@@ -75,8 +72,31 @@ export function Team() {
           <p className="text-gray-600 leading-relaxed text-xs sm:text-sm">{member.description}</p>
         </div>
       </motion.div>
-    </motion.a>
-  );
+    );
+
+    const motionProps = {
+      className: `relative group ${member.linkedin ? 'cursor-pointer' : ''} ${CARD_WIDTH_CLASS}`,
+      initial: { opacity: 0, scale: 0.95 },
+      animate: isInView ? { opacity: 1, scale: 1 } : {},
+      transition: { duration: 0.5, delay: baseDelay + index * 0.08 },
+    };
+
+    if (member.linkedin) {
+      return (
+        <motion.a
+          href={member.linkedin}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`View ${member.name}'s LinkedIn profile`}
+          {...motionProps}
+        >
+          {cardBody}
+        </motion.a>
+      );
+    }
+
+    return <motion.div {...motionProps}>{cardBody}</motion.div>;
+  };
 
   return (
     <section id="our-team" className="py-12 sm:py-16 bg-[#E8ECF1] relative overflow-hidden" ref={ref}>
@@ -92,7 +112,7 @@ export function Team() {
             <div className="w-20 sm:w-24 h-1 bg-[#2A8C8F] mx-auto rounded-full" />
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
             {teamPeople.map((member, index) => (
               <TeamCard key={member.name} member={member} index={index} baseDelay={0.15} />
             ))}
@@ -108,7 +128,7 @@ export function Team() {
             <div className="w-16 sm:w-20 h-1 bg-[#2A8C8F] mx-auto rounded-full" />
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
             {advisoryPeople.map((member, index) => (
               <TeamCard key={member.name} member={member} index={index} baseDelay={0.15} />
             ))}
