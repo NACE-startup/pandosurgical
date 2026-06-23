@@ -13,10 +13,13 @@ export function Team() {
 
   const teamPeople = [
     { name: 'Aiden Pan', role: 'CEO & Co-Founder', image: aidenImage, linkedin: 'https://www.linkedin.com/in/aidenpan/', description: 'USC Biomedical Engineering' },
-    { name: 'Noah Pearson', role: 'CTO & Co-Founder', image: noahImage, linkedin: 'https://www.linkedin.com/in/noah-r-pearson/', description: 'PhD Mechanical Engineering' },
     { name: 'Toshi Nagai', role: 'Co-Founder', image: toshiImage, linkedin: 'https://www.linkedin.com/in/toshio-nagai2029/', description: 'USC Biomedical Engineering' },
     { name: 'Derek Hua', role: 'Co-Founder and Head of Clinical Affairs', image: derekImage, linkedin: 'https://www.linkedin.com/in/derekhuausc/', description: 'USC Biomedical Engineering and Pre-Medicine' },
     { name: 'Sean Lee', role: 'Co-Founder', image: seanImage, linkedin: 'https://www.linkedin.com/in/sean-long-siang-lee-9bbab8373/', description: 'USC Biomedical Engineering' },
+  ];
+
+  const advisoryPeople = [
+    { name: 'Noah Pearson', role: 'Advisor', image: noahImage, linkedin: 'https://www.linkedin.com/in/noah-r-pearson/', description: 'PhD Mechanical Engineering' },
   ];
 
   const TeamCard = ({ member, index, baseDelay = 0 }: { member: (typeof teamPeople)[0]; index: number; baseDelay?: number }) => (
@@ -91,6 +94,22 @@ export function Team() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
             {teamPeople.map((member, index) => (
+              <TeamCard key={member.name} member={member} index={index} baseDelay={0.15} />
+            ))}
+          </div>
+
+          <motion.div
+            className="text-center mt-10 sm:mt-14 mb-8 sm:mb-12"
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.5 }}
+          >
+            <h3 className="text-2xl sm:text-3xl md:text-4xl mb-3 sm:mb-4 text-[#0C2340] font-bold">Advisory Board</h3>
+            <div className="w-16 sm:w-20 h-1 bg-[#2A8C8F] mx-auto rounded-full" />
+          </motion.div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
+            {advisoryPeople.map((member, index) => (
               <TeamCard key={member.name} member={member} index={index} baseDelay={0.15} />
             ))}
           </div>
