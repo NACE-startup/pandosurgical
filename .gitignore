@@ -32,3 +32,5 @@ npm-debug.log*
 .parcel-cache/
 
 tsconfig.tsbuildinfo
+.vercel
+.env*
