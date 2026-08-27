@@ -144,7 +144,7 @@ export function Header() {
         transition={{ duration: 0.6, ease: 'easeOut' }}
       >
         <div className="max-w-[85rem] mx-auto px-4 sm:px-6 py-3 sm:py-4 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
-          <div className="justify-self-start">
+          <div className="col-start-1 justify-self-start">
             <Link href="/" onClick={() => setMobileMenuOpen(false)}>
               <motion.div whileHover={{ scale: 1.03 }} transition={{ duration: 0.2 }}>
                 <img src={pandoLogo.src} alt="Pando Surgical" className="h-9 sm:h-11 w-auto" />
@@ -153,7 +153,7 @@ export function Header() {
           </div>
 
           {/* Desktop Navigation — centered via the grid's auto middle column */}
-          <nav className="hidden md:flex items-center gap-6 lg:gap-8 justify-self-center" aria-label={t('Main navigation')}>
+          <nav className="col-start-2 hidden md:flex items-center gap-6 lg:gap-8 justify-self-center" aria-label={t('Main navigation')}>
             {navItems.map((item, index) => {
               const active = isItemActive(item);
               const hasDropdown = !!item.dropdown;
@@ -234,14 +234,14 @@ export function Header() {
           </nav>
 
           {/* Right side: search, language, login, mobile menu */}
-          <div className="justify-self-end flex items-center gap-2 sm:gap-3">
+          <div className="col-start-3 justify-self-end flex items-center gap-2 sm:gap-3">
             <SearchBox placeholder={t('Search...')} className="hidden md:block" />
 
             <LanguageSwitcher language={language} onChange={handleLanguageChange} className="hidden md:block" />
 
             <motion.button
               onClick={handleAvatarClick}
-              className="text-sm font-medium text-gray-700 hover:text-navy hover:bg-white/60 transition-colors px-3 py-2.5 -mx-1 rounded-sm"
+              className="hidden md:inline-block text-sm font-medium text-gray-700 hover:text-navy hover:bg-white/60 transition-colors px-3 py-2.5 -mx-1 rounded-sm"
               whileTap={{ scale: 0.97 }}
               aria-label={t(user ? 'Open dashboard' : 'Open login')}
             >
@@ -353,6 +353,23 @@ export function Header() {
                     </motion.div>
                   );
                 })}
+
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.2, delay: navItems.length * 0.05 }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      handleAvatarClick();
+                    }}
+                    className="w-full text-left text-gray-700 hover:text-navy hover:bg-teal/10 transition-all py-4 px-4 text-lg rounded-sm"
+                  >
+                    {user ? t('Dashboard') : t('Log in')}
+                  </button>
+                </motion.div>
 
                 <div className="mt-4 pt-4 border-t border-navy/10">
                   <span className="block px-4 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-widest">{t('Language')}</span>

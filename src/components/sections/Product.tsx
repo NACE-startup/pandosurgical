@@ -43,7 +43,6 @@ export function Product() {
             initial={{ opacity: 0 }}
             animate={isInView ? { opacity: 1 } : {}}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="order-2 md:order-1"
           >
             <div className="relative isolate z-20 bg-white rounded-sm aspect-[4/3] flex items-center justify-center p-8 sm:p-12 overflow-hidden">
               <img
@@ -95,7 +94,6 @@ export function Product() {
             initial={{ opacity: 0 }}
             animate={isInView ? { opacity: 1 } : {}}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="order-1 md:order-2"
           >
             <h3 className="text-xl sm:text-2xl md:text-3xl mb-2 sm:mb-4 text-navy font-bold">
               LapRotator
