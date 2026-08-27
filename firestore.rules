@@ -66,7 +66,9 @@ service cloud.firestore {
     }
 
     // Public site: anyone who says "yes, I'm a clinician" in the sign-up flow
-    // submits a request here (no auth). Portal: team members review it.
+    // submits a request here (no auth). Portal: team members review it. A
+    // non-team Google sign-in may also look up its OWN email, to check
+    // "have I already registered?" before showing the sign-up choice again.
     match /clinicianRequests/{requestId} {
       allow create: if request.resource.data.keys().hasAll(['name', 'email', 'hospital', 'read'])
         && request.resource.data.name is string
@@ -74,11 +76,14 @@ service cloud.firestore {
         && request.resource.data.hospital is string
         && request.resource.data.read == false;
 
-      allow read, update, delete: if isTeamMember();
+      allow read: if isTeamMember();
+      allow read: if request.auth != null && resource.data.email == request.auth.token.email.lower();
+      allow update, delete: if isTeamMember();
     }
 
     // Public site: anyone who says "no" in the sign-up flow submits a newsletter
-    // signup here (no auth). Portal: team members review it.
+    // signup here (no auth). Portal: team members review it. Same self-lookup
+    // exception as clinicianRequests above.
     match /newsletterSignups/{signupId} {
       allow create: if request.resource.data.keys().hasAll(['name', 'email', 'interests', 'read'])
         && request.resource.data.name is string
@@ -86,7 +91,9 @@ service cloud.firestore {
         && request.resource.data.interests is list
         && request.resource.data.read == false;
 
-      allow read, update, delete: if isTeamMember();
+      allow read: if isTeamMember();
+      allow read: if request.auth != null && resource.data.email == request.auth.token.email.lower();
+      allow update, delete: if isTeamMember();
     }
   }
 }

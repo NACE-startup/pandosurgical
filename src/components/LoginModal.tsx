@@ -8,7 +8,10 @@ import {
   signInWithEmail,
   resetPassword,
   addClinicianRequest,
-  addNewsletterSignup
+  addNewsletterSignup,
+  checkEmailAlreadyRegistered,
+  logOut,
+  TEAM_EMAILS
 } from '@/lib/firebase';
 
 interface LoginModalProps {
@@ -61,8 +64,32 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
     if (result.error) {
       setError(result.error);
-    } else if (result.user) {
+      setIsGoogleLoading(false);
+      return;
+    }
+
+    const email = result.user?.email?.toLowerCase() ?? '';
+
+    if (TEAM_EMAILS.includes(email)) {
+      // Real team member — proceed to the Dashboard as normal.
       handleClose();
+      setIsGoogleLoading(false);
+      return;
+    }
+
+    // Not a team email: Google sign-in here is only used to verify identity
+    // for the clinician/newsletter flow, not to grant a real account. Check
+    // whether they've already registered before signing them back out.
+    const alreadyRegistered = await checkEmailAlreadyRegistered(email);
+    await logOut();
+
+    if (alreadyRegistered) {
+      setMode('thankYou');
+    } else {
+      const name = result.user?.displayName ?? '';
+      setClinicianData((prev) => ({ ...prev, name, email }));
+      setNewsletterData((prev) => ({ ...prev, name, email }));
+      setMode('clinicianOrNot');
     }
 
     setIsGoogleLoading(false);

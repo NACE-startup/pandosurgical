@@ -27,10 +27,21 @@ import {
   query,
   where,
   orderBy,
+  limit,
   onSnapshot,
   serverTimestamp,
   Firestore
 } from 'firebase/firestore';
+
+// Team members with admin Dashboard access. Keep this in sync with the
+// isTeamMember() email list in firestore.rules — that file is the actual
+// security boundary; this constant only drives client-side UX routing.
+export const TEAM_EMAILS = [
+  'tnagai@usc.edu',
+  'pan.anye@gmail.com',
+  'derekhua2007@gmail.com',
+  'longseanlee@gmail.com'
+];
 
 // Firebase configuration - Use environment variables in production
 const firebaseConfig = {
@@ -848,7 +859,7 @@ export const addClinicianRequest = async (
     const ref = collection(db, 'clinicianRequests');
     const payload: Record<string, unknown> = {
       name: request.name,
-      email: request.email,
+      email: request.email.trim().toLowerCase(),
       hospital: request.hospital,
       read: false,
       createdAt: serverTimestamp()
@@ -936,7 +947,7 @@ export const addNewsletterSignup = async (
     const ref = collection(db, 'newsletterSignups');
     const docRef = await addDoc(ref, {
       name: signup.name,
-      email: signup.email,
+      email: signup.email.trim().toLowerCase(),
       interests: signup.interests,
       read: false,
       createdAt: serverTimestamp()
@@ -990,6 +1001,26 @@ export const deleteNewsletterSignup = async (signupId: string) => {
     return true;
   } catch (error) {
     console.error('Error deleting newsletter signup:', error);
+    return false;
+  }
+};
+
+// Used right after a non-team Google sign-in to decide whether to show the
+// clinician/newsletter sign-up choice or a "you're already registered" screen.
+// The caller must still be authenticated as `email` when this runs — the
+// Firestore rules only allow this lookup for a user checking their own email.
+export const checkEmailAlreadyRegistered = async (email: string): Promise<boolean> => {
+  if (!db) return false;
+  const normalized = email.trim().toLowerCase();
+  if (!normalized) return false;
+  try {
+    const [clinicianSnap, newsletterSnap] = await Promise.all([
+      getDocs(query(collection(db, 'clinicianRequests'), where('email', '==', normalized), limit(1))),
+      getDocs(query(collection(db, 'newsletterSignups'), where('email', '==', normalized), limit(1)))
+    ]);
+    return !clinicianSnap.empty || !newsletterSnap.empty;
+  } catch (error) {
+    console.error('Error checking existing registration:', error);
     return false;
   }
 };
