@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function TeamPage() {
   return (
     <>
-      <PageHeader eyebrow="Our People" title="Our Team" />
+      <PageHeader title="Our Team" />
       <Team />
     </>
   );

@@ -8,6 +8,7 @@ import productRender from '@/assets/laprotator-v23.png';
 import productPhoto from '@/assets/laprotator-product-2.png';
 import { Comparison } from './Comparison';
 import { FeaturesAndAdvantages } from './FeaturesAndAdvantages';
+import { Specifications } from './Specifications';
 import { useLanguage } from '@/lib/LanguageContext';
 
 const productImages = [
@@ -18,14 +19,8 @@ const productImages = [
 const tabs = [
   { id: 'difference', label: 'See the Difference', heading: 'LapRotator - See the Difference' },
   { id: 'features', label: 'Features and Advantages', heading: 'Features and Advantages' },
+  { id: 'specifications', label: 'Specifications', heading: 'Specifications' },
 ] as const;
-
-const stats = [
-  { stat: 'One-Handed', label: 'Laparoscope Rotation' },
-  { stat: 'Universal', label: 'System Compatibility' },
-  { stat: 'Ergonomic', label: 'Less Surgeon Fatigue' },
-  { stat: 'Quick Setup', label: 'Easy Attachment' },
-];
 
 export function Product() {
   const { t, language } = useLanguage();
@@ -113,26 +108,13 @@ export function Product() {
 
             <Link
               href="/contact"
-              className="inline-block px-6 sm:px-8 py-3 sm:py-3.5 bg-teal hover:bg-teal-hover text-white rounded-sm font-medium transition-colors text-sm sm:text-base"
+              className="group inline-flex items-center gap-2 text-gray-500 hover:text-navy font-medium transition-colors text-sm sm:text-base"
             >
-              {t('Contact Us')}
+              {t('Request a Demo')}
+              <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
             </Link>
           </motion.div>
         </div>
-
-        <motion.div
-          className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-navy/10 mb-10 sm:mb-14"
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          {stats.map((item) => (
-            <div key={item.label} className="text-center py-5 sm:py-2 px-2 sm:px-6 flex flex-col items-center justify-center min-w-0">
-              <p className="text-base sm:text-xl md:text-2xl font-bold text-navy mb-1">{t(item.stat)}</p>
-              <p className="text-gray-500 text-[11px] sm:text-xs md:text-sm">{t(item.label)}</p>
-            </div>
-          ))}
-        </motion.div>
 
         <div className="flex gap-8 sm:gap-10 border-b border-navy/10 overflow-x-auto">
           {tabs.map((tab) => (
@@ -153,7 +135,9 @@ export function Product() {
 
         <div className="pt-8 sm:pt-10">
           <h2 className="text-xl sm:text-2xl mb-5 sm:mb-6 text-navy font-bold">{t(activeTabInfo.heading)}</h2>
-          {activeTab === 'difference' ? <Comparison /> : <FeaturesAndAdvantages />}
+          {activeTab === 'difference' && <Comparison />}
+          {activeTab === 'features' && <FeaturesAndAdvantages />}
+          {activeTab === 'specifications' && <Specifications />}
         </div>
       </div>
     </section>

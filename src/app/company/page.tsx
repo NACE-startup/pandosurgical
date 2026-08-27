@@ -30,7 +30,7 @@ const values = [
 export default function CompanyPage() {
   return (
     <>
-      <PageHeader eyebrow="Our Story" title="Company" />
+      <PageHeader title="Company" />
 
       <section className="pb-16 sm:pb-24 bg-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-8">
@@ -55,7 +55,7 @@ export default function CompanyPage() {
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-navy mb-3">
               <T>What We Value</T>
             </h2>
-            <div className="w-16 sm:w-20 h-1 bg-teal rounded-full" />
+            <div className="w-16 sm:w-20 h-0.5 bg-teal rounded-full" />
           </div>
           <div className="grid sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-navy/10">
             {values.map((value, index) => (

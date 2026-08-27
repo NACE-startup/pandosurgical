@@ -79,7 +79,6 @@ export default function ProductPage() {
       <JsonLd data={productJsonLd} />
       <JsonLd data={faqJsonLd} />
       <PageHeader
-        eyebrow="Product"
         title="LapRotator"
         subtitle="One-Handed Laparoscope Rotation: an attachment for laparoscopes that gives surgeons intuitive, single-handed control."
         align="center"

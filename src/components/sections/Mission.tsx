@@ -20,7 +20,7 @@ export function Mission() {
             transition={{ duration: 0.4 }}
           >
             <h2 className="text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-4 text-navy font-bold">{t('Our Mission')}</h2>
-            <div className="w-20 sm:w-24 h-1 bg-teal rounded-full" />
+            <div className="w-20 sm:w-24 h-0.5 bg-teal rounded-full" />
           </motion.div>
         </div>
       </section>

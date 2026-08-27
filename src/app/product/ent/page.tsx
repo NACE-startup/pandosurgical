@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function EntProductPage() {
   return (
     <>
-      <PageHeader eyebrow="In Stealth" title="Ergonomic ENT Product" align="center" />
+      <PageHeader title="Ergonomic ENT Product" align="center" />
 
       <section className="pb-16 sm:pb-24 bg-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">

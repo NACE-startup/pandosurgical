@@ -79,6 +79,8 @@ const translations: Record<Language, Record<string, string>> = {
       'Al eliminar la necesidad de una segunda mano o un asistente para reposicionar el instrumento, ayuda a los cirujanos a reducir la fatiga durante procedimientos largos, disminuir riesgos de seguridad y trabajar de forma más eficiente en el quirófano.',
     'See the Difference': 'Ve la Diferencia',
     'Features and Advantages': 'Características y Ventajas',
+    Specifications: 'Especificaciones',
+    'Detailed specifications are coming soon.': 'Las especificaciones detalladas estarán disponibles próximamente.',
     'LapRotator - See the Difference': 'LapRotator: Ve la Diferencia',
     'LapRotator V2 laparoscope rotation device render': 'Render del dispositivo de rotación laparoscópica LapRotator V2',
     'The LapRotator device mounted on a laparoscope': 'El dispositivo LapRotator montado en un laparoscopio',
@@ -112,7 +114,6 @@ const translations: Record<Language, Record<string, string>> = {
     'PhD Mechanical Engineering': 'Doctorado en Ingeniería Mecánica',
     'MD, PhD, FACS, Otolaryngology (ENT) Surgeon': 'MD, PhD, FACS, Cirujano Otorrinolaringólogo (ORL)',
     'Our Team': 'Nuestro Equipo',
-    'Our People': 'Nuestra Gente',
 
     // TeamHighlight quote
     "We are a group of passionate undergrads who are hungry to make a change in the surgical space. We're giving it our all to make this happen. We'd like to think we are carbon atoms undergoing pressure to become diamonds.":
@@ -167,8 +168,8 @@ const translations: Record<Language, Record<string, string>> = {
     'Resume (Google Drive Link)': 'Currículum (Enlace de Google Drive)',
     'Make sure sharing is set to "Anyone with the link can view" so we can open it.':
       'Asegúrate de que el acceso esté configurado como "Cualquier persona con el enlace puede ver" para que podamos abrirlo.',
-    'Why are you passionate about this role?': '¿Por qué te apasiona este puesto?',
-    'Why Pando Surgical?': '¿Por qué Pando Surgical?',
+    'Tell us about yourself': 'Cuéntanos sobre ti',
+    'Why Pando Surgical? Why this role?': '¿Por qué Pando Surgical? ¿Por qué este puesto?',
     'What skillsets can you bring to this role?': '¿Qué habilidades puedes aportar a este puesto?',
     'Application Received': 'Solicitud Recibida',
     "Thanks for applying. We'll review your application and be in contact with you soon.":
@@ -239,7 +240,6 @@ const translations: Record<Language, Record<string, string>> = {
       'Buscamos un pasante de Ingeniería para unirse a nuestro equipo. Envía tu currículum y algunas respuestas breves a continuación, y nos pondremos en contacto contigo después de revisar tu solicitud. También puedes escribirnos directamente a',
 
     // Company page
-    'Our Story': 'Nuestra Historia',
     'How Pando Surgical Started': 'Cómo Comenzó Pando Surgical',
     'Pando Surgical started with the mission to improve surgical ergonomics. We are a group of engineers who work closely with physicians, and we noticed that many surgical tools create unnecessary strain on surgeons because they are designed with only one anatomy in mind. As the workforce diversifies, we aim to equip every surgeon with tools that support them.':
       'Pando Surgical nació con la misión de mejorar la ergonomía quirúrgica. Somos un grupo de ingenieros que trabajamos de cerca con médicos, y notamos que muchas herramientas quirúrgicas generan una tensión innecesaria en los cirujanos porque están diseñadas pensando en un solo tipo de anatomía. A medida que la fuerza laboral se diversifica, buscamos equipar a cada cirujano con herramientas que lo respalden.',
@@ -269,7 +269,6 @@ const translations: Record<Language, Record<string, string>> = {
 
     // ENT product page
     'Ergonomic ENT Product': 'Producto ORL Ergonómico',
-    'In Stealth': 'En Modo Confidencial',
     "We're developing a new ergonomic solution for ENT procedures. The product is currently in stealth, so details are under wraps for now. Check back soon.":
       'Estamos desarrollando una nueva solución ergonómica para procedimientos otorrinolaringológicos. El producto se encuentra actualmente en modo confidencial, por lo que los detalles no están disponibles por ahora. Vuelve pronto.',
     'Interested? Get in touch.': '¿Interesado? Ponte en Contacto.',
@@ -350,6 +349,8 @@ const translations: Record<Language, Record<string, string>> = {
       '无需第二只手或助手来调整镜头位置，帮助外科医生在长时间手术中减少疲劳、降低安全隐患，并提高手术室工作效率。',
     'See the Difference': '查看差异',
     'Features and Advantages': '功能与优势',
+    Specifications: '规格参数',
+    'Detailed specifications are coming soon.': '详细规格参数即将上线。',
     'LapRotator - See the Difference': 'LapRotator：查看差异',
     'LapRotator V2 laparoscope rotation device render': 'LapRotator V2腹腔镜旋转设备渲染图',
     'The LapRotator device mounted on a laparoscope': '安装在腹腔镜上的LapRotator设备',
@@ -383,7 +384,6 @@ const translations: Record<Language, Record<string, string>> = {
     'PhD Mechanical Engineering': '机械工程博士',
     'MD, PhD, FACS, Otolaryngology (ENT) Surgeon': '医学博士、哲学博士、美国外科医师学院院士，耳鼻喉科医生',
     'Our Team': '我们的团队',
-    'Our People': '团队成员',
 
     // TeamHighlight quote
     "We are a group of passionate undergrads who are hungry to make a change in the surgical space. We're giving it our all to make this happen. We'd like to think we are carbon atoms undergoing pressure to become diamonds.":
@@ -438,8 +438,8 @@ const translations: Record<Language, Record<string, string>> = {
     'Resume (Google Drive Link)': '简历（谷歌云端硬盘链接）',
     'Make sure sharing is set to "Anyone with the link can view" so we can open it.':
       '请确保共享权限设置为「知道链接的任何人可查看」，以便我们能够打开。',
-    'Why are you passionate about this role?': '您为什么对这个职位充满热情？',
-    'Why Pando Surgical?': '您为什么想加入Pando Surgical？',
+    'Tell us about yourself': '请介绍一下你自己',
+    'Why Pando Surgical? Why this role?': '您为什么想加入Pando Surgical？为什么选择这个职位？',
     'What skillsets can you bring to this role?': '您能为这个职位带来哪些技能？',
     'Application Received': '申请已收到',
     "Thanks for applying. We'll review your application and be in contact with you soon.":
@@ -510,7 +510,6 @@ const translations: Record<Language, Record<string, string>> = {
       '我们正在招聘一名工程实习生加入我们的团队。请在下方提交您的简历并回答几个简短问题，我们会在审核您的申请后与您联系。您也可以直接通过以下邮箱联系我们：',
 
     // Company page
-    'Our Story': '我们的故事',
     'How Pando Surgical Started': 'Pando Surgical的创立故事',
     'Pando Surgical started with the mission to improve surgical ergonomics. We are a group of engineers who work closely with physicians, and we noticed that many surgical tools create unnecessary strain on surgeons because they are designed with only one anatomy in mind. As the workforce diversifies, we aim to equip every surgeon with tools that support them.':
       'Pando Surgical的使命是改善手术的人体工学设计。我们是一群与医生密切合作的工程师，我们注意到许多手术器械只针对单一体型设计，给外科医生带来了不必要的负担。随着从业人员日趋多元化，我们希望为每一位外科医生配备真正支持他们的工具。',
@@ -540,7 +539,6 @@ const translations: Record<Language, Record<string, string>> = {
 
     // ENT product page
     'Ergonomic ENT Product': '人体工学耳鼻喉产品',
-    'In Stealth': '隐秘研发中',
     "We're developing a new ergonomic solution for ENT procedures. The product is currently in stealth, so details are under wraps for now. Check back soon.":
       '我们正在为耳鼻喉手术研发一款全新的人体工学解决方案。该产品目前处于保密研发阶段，具体细节暂不公开，敬请期待。',
     'Interested? Get in touch.': '感兴趣？欢迎联系我们。',
@@ -598,6 +596,17 @@ export function translateExpandAria(lang: Language, expanded: boolean, translate
       return `展开${translatedLabel}`;
     default:
       return `Expand ${translatedLabel}`;
+  }
+}
+
+export function translateWordCount(lang: Language, count: number, limit: number): string {
+  switch (lang) {
+    case 'es':
+      return `${count}/${limit} palabras`;
+    case 'zh':
+      return `${count}/${limit} 词`;
+    default:
+      return `${count}/${limit} words`;
   }
 }
 

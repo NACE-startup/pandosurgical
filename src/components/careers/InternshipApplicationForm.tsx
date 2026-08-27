@@ -5,6 +5,14 @@ import { useState } from 'react';
 import { Send, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { addInternshipApplication } from '@/lib/firebase';
 import { useLanguage } from '@/lib/LanguageContext';
+import { translateWordCount } from '@/lib/i18n';
+
+const WORD_LIMIT = 150;
+
+const countWords = (text: string) => {
+  const trimmed = text.trim();
+  return trimmed === '' ? 0 : trimmed.split(/\s+/).length;
+};
 
 const emptyForm = {
   role: 'Engineering Intern',
@@ -17,7 +25,7 @@ const emptyForm = {
 };
 
 export function InternshipApplicationForm() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [formData, setFormData] = useState(emptyForm);
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
@@ -26,6 +34,16 @@ export function InternshipApplicationForm() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleLongAnswerChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    const words = value.split(/\s+/).filter(Boolean);
+    if (words.length > WORD_LIMIT) {
+      setFormData((prev) => ({ ...prev, [name]: words.slice(0, WORD_LIMIT).join(' ') }));
+      return;
+    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -125,30 +143,36 @@ export function InternshipApplicationForm() {
 
       <div>
         <label className="block text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base">
-          {t('Why are you passionate about this role?')} <span className="text-red-500">*</span>
+          {t('Tell us about yourself')} <span className="text-red-500">*</span>
         </label>
         <textarea
           name="whyPassionate"
           value={formData.whyPassionate}
-          onChange={handleChange}
+          onChange={handleLongAnswerChange}
           required
           rows={3}
           className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent transition-all resize-none text-base"
         />
+        <p className="text-gray-400 text-xs mt-1 text-right">
+          {translateWordCount(language, countWords(formData.whyPassionate), WORD_LIMIT)}
+        </p>
       </div>
 
       <div>
         <label className="block text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base">
-          {t('Why Pando Surgical?')} <span className="text-red-500">*</span>
+          {t('Why Pando Surgical? Why this role?')} <span className="text-red-500">*</span>
         </label>
         <textarea
           name="whyPando"
           value={formData.whyPando}
-          onChange={handleChange}
+          onChange={handleLongAnswerChange}
           required
           rows={3}
           className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent transition-all resize-none text-base"
         />
+        <p className="text-gray-400 text-xs mt-1 text-right">
+          {translateWordCount(language, countWords(formData.whyPando), WORD_LIMIT)}
+        </p>
       </div>
 
       <div>
@@ -158,11 +182,14 @@ export function InternshipApplicationForm() {
         <textarea
           name="skillsets"
           value={formData.skillsets}
-          onChange={handleChange}
+          onChange={handleLongAnswerChange}
           required
           rows={3}
           className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent transition-all resize-none text-base"
         />
+        <p className="text-gray-400 text-xs mt-1 text-right">
+          {translateWordCount(language, countWords(formData.skillsets), WORD_LIMIT)}
+        </p>
       </div>
 
       {status === 'error' && (
