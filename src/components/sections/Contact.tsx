@@ -63,29 +63,28 @@ export function Contact() {
         throw new Error(saved.error);
       }
 
-      // Send notification email to all recipients
-      try {
-        await emailjs.send(
-          EMAILJS_SERVICE_ID,
-          EMAILJS_TEMPLATE_CONTACT,
-          templateData,
-          EMAILJS_PUBLIC_KEY
-        );
-      } catch (contactError: any) {
-        console.error('Contact notification failed:', contactError);
-        throw contactError;
-      }
+      // Email notifications are best-effort: the inquiry is already saved above and
+      // visible in the admin dashboard, so a missing/failing EmailJS setup should
+      // never block the visitor from seeing a successful submission.
+      if (EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_CONTACT && EMAILJS_PUBLIC_KEY) {
+        try {
+          await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CONTACT, templateData, EMAILJS_PUBLIC_KEY);
+        } catch (contactError: any) {
+          console.warn('Contact notification email failed:', contactError);
+        }
 
-      // Send auto-reply to user
-      try {
-        await emailjs.send(
-          EMAILJS_SERVICE_ID,
-          EMAILJS_TEMPLATE_AUTOREPLY,
-          { ...templateData, to_email: formData.email },
-          EMAILJS_PUBLIC_KEY
-        );
-      } catch (autoReplyError: any) {
-        console.warn('Auto-reply failed but contact notification was sent');
+        if (EMAILJS_TEMPLATE_AUTOREPLY) {
+          try {
+            await emailjs.send(
+              EMAILJS_SERVICE_ID,
+              EMAILJS_TEMPLATE_AUTOREPLY,
+              { ...templateData, to_email: formData.email },
+              EMAILJS_PUBLIC_KEY
+            );
+          } catch (autoReplyError: any) {
+            console.warn('Auto-reply email failed but contact notification was sent');
+          }
+        }
       }
 
       setStatus('success');

@@ -35,7 +35,9 @@ import {
   Repeat,
   Inbox,
   Eye,
-  Briefcase
+  Briefcase,
+  Stethoscope,
+  Send
 } from 'lucide-react';
 import {
   logOut,
@@ -60,10 +62,18 @@ import {
   getInternshipApplications,
   markApplicationRead,
   deleteInternshipApplication,
+  getClinicianRequests,
+  markClinicianRequestRead,
+  deleteClinicianRequest,
+  getNewsletterSignups,
+  markNewsletterSignupRead,
+  deleteNewsletterSignup,
   FirestoreEvent,
   FirestoreTask,
   ContactSubmission,
-  InternshipApplication
+  InternshipApplication,
+  ClinicianRequest,
+  NewsletterSignup
 } from '@/lib/firebase';
 
 interface DashboardProps {
@@ -199,11 +209,15 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
   });
   const t = themes[theme];
 
-  const [activeTab, setActiveTab] = useState<'schedule' | 'tasks' | 'team' | 'inbox' | 'applications' | 'settings'>('schedule');
+  const [activeTab, setActiveTab] = useState<'schedule' | 'tasks' | 'team' | 'inbox' | 'applications' | 'clinicians' | 'newsletter' | 'settings'>('schedule');
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
   const [selectedSubmission, setSelectedSubmission] = useState<ContactSubmission | null>(null);
   const [applications, setApplications] = useState<InternshipApplication[]>([]);
   const [selectedApplication, setSelectedApplication] = useState<InternshipApplication | null>(null);
+  const [clinicianRequests, setClinicianRequests] = useState<ClinicianRequest[]>([]);
+  const [selectedClinicianRequest, setSelectedClinicianRequest] = useState<ClinicianRequest | null>(null);
+  const [newsletterSignups, setNewsletterSignups] = useState<NewsletterSignup[]>([]);
+  const [selectedNewsletterSignup, setSelectedNewsletterSignup] = useState<NewsletterSignup | null>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
@@ -266,16 +280,20 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
       const teamMemberIds = members.map(m => m.id);
       
       // Now get events and tasks with team visibility
-      const [eventsData, tasksData, submissionsData, applicationsData] = await Promise.all([
+      const [eventsData, tasksData, submissionsData, applicationsData, clinicianRequestsData, newsletterSignupsData] = await Promise.all([
         getEventsForUser(user.uid, teamMemberIds),
         getTasksForUser(user.uid, teamMemberIds),
         getContactSubmissions(),
-        getInternshipApplications()
+        getInternshipApplications(),
+        getClinicianRequests(),
+        getNewsletterSignups()
       ]);
       setEvents(eventsData as Event[]);
       setTasks(tasksData as Task[]);
       setSubmissions(submissionsData);
       setApplications(applicationsData);
+      setClinicianRequests(clinicianRequestsData);
+      setNewsletterSignups(newsletterSignupsData);
     } catch (error) {
       console.error('Error loading data:', error);
     }
@@ -652,6 +670,8 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                     { id: 'team', icon: Users, label: 'Team', desc: 'Manage members', badge: pendingInvites.length },
                     { id: 'inbox', icon: Inbox, label: 'Inbox', desc: 'Contact submissions', badge: submissions.filter(s => !s.read).length },
                     { id: 'applications', icon: Briefcase, label: 'Applications', desc: 'Internship applicants', badge: applications.filter(a => !a.read).length },
+                    { id: 'clinicians', icon: Stethoscope, label: 'Clinicians', desc: 'Access requests', badge: clinicianRequests.filter(c => !c.read).length },
+                    { id: 'newsletter', icon: Send, label: 'Newsletter', desc: 'Signups', badge: newsletterSignups.filter(n => !n.read).length },
                     { id: 'settings', icon: Settings, label: 'Settings', desc: 'Preferences' },
                   ].map((item) => (
                     <motion.button
@@ -735,6 +755,8 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                         {activeTab === 'team' && 'Manage team members'}
                         {activeTab === 'inbox' && 'Contact form submissions'}
                         {activeTab === 'applications' && 'Internship applications'}
+                        {activeTab === 'clinicians' && 'Clinician access requests'}
+                        {activeTab === 'newsletter' && 'Newsletter signups'}
                         {activeTab === 'settings' && 'Configure preferences'}
                       </p>
                     </div>
@@ -1341,6 +1363,189 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                   </div>
                                   <p className={`text-xs ${t.textMuted} mb-1`}>{app.email}</p>
                                   <p className={`text-xs ${t.textMuted} line-clamp-1`}>{app.whyPassionate}</p>
+                                </motion.button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* CLINICIANS TAB */}
+                      {activeTab === 'clinicians' && (
+                        <div className="space-y-4 sm:space-y-6">
+                          {selectedClinicianRequest ? (
+                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                              <button
+                                onClick={() => setSelectedClinicianRequest(null)}
+                                className={`flex items-center gap-2 mb-4 text-sm ${t.textMuted} hover:${t.text} transition-colors`}
+                              >
+                                <ChevronLeft className="w-4 h-4" /> Back to clinicians
+                              </button>
+                              <div className={`${t.card} backdrop-blur-xl rounded-xl sm:rounded-2xl border p-4 sm:p-6`}>
+                                <div className="flex items-start justify-between mb-4">
+                                  <div>
+                                    <h3 className={`text-lg font-bold ${t.text}`}>{selectedClinicianRequest.name}</h3>
+                                    <p className={`text-sm ${t.textMuted}`}>{selectedClinicianRequest.email}</p>
+                                  </div>
+                                  <span className="text-[10px] sm:text-xs px-2 py-1 bg-[#2A8C8F]/20 text-[#2A8C8F] rounded-full">
+                                    {selectedClinicianRequest.hospital}
+                                  </span>
+                                </div>
+                                {selectedClinicianRequest.phone && (
+                                  <div className="mb-4">
+                                    <p className={`text-xs ${t.textMuted}`}>Phone</p>
+                                    <p className={`text-sm ${t.text}`}>{selectedClinicianRequest.phone}</p>
+                                  </div>
+                                )}
+                                {selectedClinicianRequest.notes && (
+                                  <div className={`${theme === 'dark' ? 'bg-white/5' : 'bg-gray-50'} rounded-xl p-4`}>
+                                    <p className={`text-xs ${t.textMuted} mb-1`}>Notes</p>
+                                    <p className={`text-sm ${t.text} whitespace-pre-wrap leading-relaxed`}>{selectedClinicianRequest.notes}</p>
+                                  </div>
+                                )}
+                                <div className="flex gap-2 mt-4">
+                                  <a
+                                    href={`mailto:${selectedClinicianRequest.email}`}
+                                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#2A8C8F] to-[#1E7275] text-white rounded-xl text-sm font-medium"
+                                  >
+                                    <Mail className="w-4 h-4" /> Reply via Email
+                                  </a>
+                                  <button
+                                    onClick={async () => {
+                                      if (selectedClinicianRequest.id) {
+                                        await deleteClinicianRequest(selectedClinicianRequest.id);
+                                        setClinicianRequests(prev => prev.filter(c => c.id !== selectedClinicianRequest.id));
+                                        setSelectedClinicianRequest(null);
+                                      }
+                                    }}
+                                    className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-500 rounded-xl text-sm font-medium hover:bg-red-500/20 transition-colors"
+                                  >
+                                    <Trash2 className="w-4 h-4" /> Delete
+                                  </button>
+                                </div>
+                              </div>
+                            </motion.div>
+                          ) : clinicianRequests.length === 0 ? (
+                            <div className={`${t.card} backdrop-blur-xl rounded-xl sm:rounded-2xl border p-8 sm:p-12 text-center`}>
+                              <Stethoscope className={`w-12 h-12 ${t.textMuted} mx-auto mb-3 opacity-40`} />
+                              <p className={`${t.textMuted} text-sm`}>No clinician requests yet</p>
+                            </div>
+                          ) : (
+                            <div className="space-y-2">
+                              {clinicianRequests.map((req, index) => (
+                                <motion.button
+                                  key={req.id}
+                                  onClick={async () => {
+                                    setSelectedClinicianRequest(req);
+                                    if (req.id && !req.read) {
+                                      await markClinicianRequestRead(req.id);
+                                      setClinicianRequests(prev => prev.map(c => c.id === req.id ? { ...c, read: true } : c));
+                                    }
+                                  }}
+                                  className={`w-full text-left ${t.card} backdrop-blur-xl rounded-xl sm:rounded-2xl border p-3 sm:p-4 hover:border-[#2A8C8F]/40 transition-all ${!req.read ? 'border-l-4 border-l-[#2A8C8F]' : ''}`}
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ delay: index * 0.03 }}
+                                >
+                                  <div className="flex items-center justify-between mb-1">
+                                    <div className="flex items-center gap-2">
+                                      {!req.read && <div className="w-2 h-2 rounded-full bg-[#2A8C8F]" />}
+                                      <span className={`text-sm font-semibold ${t.text}`}>{req.name}</span>
+                                    </div>
+                                    <span className="text-[10px] sm:text-xs px-2 py-0.5 bg-[#2A8C8F]/15 text-[#2A8C8F] rounded-full">{req.hospital}</span>
+                                  </div>
+                                  <p className={`text-xs ${t.textMuted} mb-1`}>{req.email}</p>
+                                </motion.button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* NEWSLETTER TAB */}
+                      {activeTab === 'newsletter' && (
+                        <div className="space-y-4 sm:space-y-6">
+                          {selectedNewsletterSignup ? (
+                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                              <button
+                                onClick={() => setSelectedNewsletterSignup(null)}
+                                className={`flex items-center gap-2 mb-4 text-sm ${t.textMuted} hover:${t.text} transition-colors`}
+                              >
+                                <ChevronLeft className="w-4 h-4" /> Back to newsletter
+                              </button>
+                              <div className={`${t.card} backdrop-blur-xl rounded-xl sm:rounded-2xl border p-4 sm:p-6`}>
+                                <div className="flex items-start justify-between mb-4">
+                                  <div>
+                                    <h3 className={`text-lg font-bold ${t.text}`}>{selectedNewsletterSignup.name}</h3>
+                                    <p className={`text-sm ${t.textMuted}`}>{selectedNewsletterSignup.email}</p>
+                                  </div>
+                                </div>
+                                <div className={`${theme === 'dark' ? 'bg-white/5' : 'bg-gray-50'} rounded-xl p-4`}>
+                                  <p className={`text-xs ${t.textMuted} mb-2`}>Interested in</p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {selectedNewsletterSignup.interests.length === 0 ? (
+                                      <span className={`text-sm ${t.text}`}>None specified</span>
+                                    ) : (
+                                      selectedNewsletterSignup.interests.map((interest) => (
+                                        <span key={interest} className="text-xs px-2 py-1 bg-[#2A8C8F]/15 text-[#2A8C8F] rounded-full">
+                                          {interest}
+                                        </span>
+                                      ))
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="flex gap-2 mt-4">
+                                  <a
+                                    href={`mailto:${selectedNewsletterSignup.email}`}
+                                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#2A8C8F] to-[#1E7275] text-white rounded-xl text-sm font-medium"
+                                  >
+                                    <Mail className="w-4 h-4" /> Reply via Email
+                                  </a>
+                                  <button
+                                    onClick={async () => {
+                                      if (selectedNewsletterSignup.id) {
+                                        await deleteNewsletterSignup(selectedNewsletterSignup.id);
+                                        setNewsletterSignups(prev => prev.filter(n => n.id !== selectedNewsletterSignup.id));
+                                        setSelectedNewsletterSignup(null);
+                                      }
+                                    }}
+                                    className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-500 rounded-xl text-sm font-medium hover:bg-red-500/20 transition-colors"
+                                  >
+                                    <Trash2 className="w-4 h-4" /> Delete
+                                  </button>
+                                </div>
+                              </div>
+                            </motion.div>
+                          ) : newsletterSignups.length === 0 ? (
+                            <div className={`${t.card} backdrop-blur-xl rounded-xl sm:rounded-2xl border p-8 sm:p-12 text-center`}>
+                              <Send className={`w-12 h-12 ${t.textMuted} mx-auto mb-3 opacity-40`} />
+                              <p className={`${t.textMuted} text-sm`}>No newsletter signups yet</p>
+                            </div>
+                          ) : (
+                            <div className="space-y-2">
+                              {newsletterSignups.map((signup, index) => (
+                                <motion.button
+                                  key={signup.id}
+                                  onClick={async () => {
+                                    setSelectedNewsletterSignup(signup);
+                                    if (signup.id && !signup.read) {
+                                      await markNewsletterSignupRead(signup.id);
+                                      setNewsletterSignups(prev => prev.map(n => n.id === signup.id ? { ...n, read: true } : n));
+                                    }
+                                  }}
+                                  className={`w-full text-left ${t.card} backdrop-blur-xl rounded-xl sm:rounded-2xl border p-3 sm:p-4 hover:border-[#2A8C8F]/40 transition-all ${!signup.read ? 'border-l-4 border-l-[#2A8C8F]' : ''}`}
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ delay: index * 0.03 }}
+                                >
+                                  <div className="flex items-center justify-between mb-1">
+                                    <div className="flex items-center gap-2">
+                                      {!signup.read && <div className="w-2 h-2 rounded-full bg-[#2A8C8F]" />}
+                                      <span className={`text-sm font-semibold ${t.text}`}>{signup.name}</span>
+                                    </div>
+                                  </div>
+                                  <p className={`text-xs ${t.textMuted} mb-1`}>{signup.email}</p>
+                                  <p className={`text-xs ${t.textMuted} line-clamp-1`}>{signup.interests.join(', ') || 'No interests specified'}</p>
                                 </motion.button>
                               ))}
                             </div>

@@ -821,5 +821,178 @@ export const deleteInternshipApplication = async (applicationId: string) => {
   }
 };
 
+// ============ CLINICIAN REQUESTS ============
+
+export interface ClinicianRequest {
+  id?: string;
+  name: string;
+  email: string;
+  hospital: string;
+  phone?: string;
+  notes?: string;
+  read: boolean;
+  createdAt?: any;
+}
+
+export type AddClinicianRequestResult =
+  | { ok: true; id: string }
+  | { ok: false; error: string; code?: string };
+
+export const addClinicianRequest = async (
+  request: Omit<ClinicianRequest, 'id' | 'createdAt' | 'read'>
+): Promise<AddClinicianRequestResult> => {
+  if (!db) {
+    return { ok: false, error: 'Database is not configured' };
+  }
+  try {
+    const ref = collection(db, 'clinicianRequests');
+    const payload: Record<string, unknown> = {
+      name: request.name,
+      email: request.email,
+      hospital: request.hospital,
+      read: false,
+      createdAt: serverTimestamp()
+    };
+    const phone = request.phone?.trim();
+    const notes = request.notes?.trim();
+    if (phone) payload.phone = phone;
+    if (notes) payload.notes = notes;
+    const docRef = await addDoc(ref, payload as Parameters<typeof addDoc>[1]);
+    return { ok: true, id: docRef.id };
+  } catch (error: any) {
+    console.error('Error saving clinician request:', error);
+    const code = error?.code as string | undefined;
+    const message =
+      code === 'permission-denied'
+        ? 'Could not save your request (server permissions). Please contact us by email.'
+        : error?.message || 'Failed to save your request';
+    return { ok: false, error: message, code };
+  }
+};
+
+export const getClinicianRequests = async () => {
+  if (!db) return [];
+  const ref = collection(db, 'clinicianRequests');
+  try {
+    const q = query(ref, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as ClinicianRequest[];
+  } catch (error) {
+    console.error('Error getting clinician requests (ordered query):', error);
+    try {
+      const snapshot = await getDocs(ref);
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as ClinicianRequest[];
+    } catch (e2) {
+      console.error('Error getting clinician requests:', e2);
+      return [];
+    }
+  }
+};
+
+export const markClinicianRequestRead = async (requestId: string) => {
+  if (!db) return false;
+  try {
+    await updateDoc(doc(db, 'clinicianRequests', requestId), { read: true });
+    return true;
+  } catch (error) {
+    console.error('Error marking clinician request as read:', error);
+    return false;
+  }
+};
+
+export const deleteClinicianRequest = async (requestId: string) => {
+  if (!db) return false;
+  try {
+    await deleteDoc(doc(db, 'clinicianRequests', requestId));
+    return true;
+  } catch (error) {
+    console.error('Error deleting clinician request:', error);
+    return false;
+  }
+};
+
+// ============ NEWSLETTER SIGNUPS ============
+
+export interface NewsletterSignup {
+  id?: string;
+  name: string;
+  email: string;
+  interests: string[];
+  read: boolean;
+  createdAt?: any;
+}
+
+export type AddNewsletterSignupResult =
+  | { ok: true; id: string }
+  | { ok: false; error: string; code?: string };
+
+export const addNewsletterSignup = async (
+  signup: Omit<NewsletterSignup, 'id' | 'createdAt' | 'read'>
+): Promise<AddNewsletterSignupResult> => {
+  if (!db) {
+    return { ok: false, error: 'Database is not configured' };
+  }
+  try {
+    const ref = collection(db, 'newsletterSignups');
+    const docRef = await addDoc(ref, {
+      name: signup.name,
+      email: signup.email,
+      interests: signup.interests,
+      read: false,
+      createdAt: serverTimestamp()
+    });
+    return { ok: true, id: docRef.id };
+  } catch (error: any) {
+    console.error('Error saving newsletter signup:', error);
+    const code = error?.code as string | undefined;
+    const message =
+      code === 'permission-denied'
+        ? 'Could not save your signup (server permissions). Please contact us by email.'
+        : error?.message || 'Failed to save your signup';
+    return { ok: false, error: message, code };
+  }
+};
+
+export const getNewsletterSignups = async () => {
+  if (!db) return [];
+  const ref = collection(db, 'newsletterSignups');
+  try {
+    const q = query(ref, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as NewsletterSignup[];
+  } catch (error) {
+    console.error('Error getting newsletter signups (ordered query):', error);
+    try {
+      const snapshot = await getDocs(ref);
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as NewsletterSignup[];
+    } catch (e2) {
+      console.error('Error getting newsletter signups:', e2);
+      return [];
+    }
+  }
+};
+
+export const markNewsletterSignupRead = async (signupId: string) => {
+  if (!db) return false;
+  try {
+    await updateDoc(doc(db, 'newsletterSignups', signupId), { read: true });
+    return true;
+  } catch (error) {
+    console.error('Error marking newsletter signup as read:', error);
+    return false;
+  }
+};
+
+export const deleteNewsletterSignup = async (signupId: string) => {
+  if (!db) return false;
+  try {
+    await deleteDoc(doc(db, 'newsletterSignups', signupId));
+    return true;
+  } catch (error) {
+    console.error('Error deleting newsletter signup:', error);
+    return false;
+  }
+};
+
 export { auth, db };
 export type { User };
