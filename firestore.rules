@@ -1,6 +1,7 @@
 // Deploy: firebase deploy --only firestore:rules
 // If your project already has rules in the Firebase console, merge the
-// `contactSubmissions` block below into those rules instead of replacing everything.
+// `contactSubmissions` and `internshipApplications` blocks below into those rules
+// instead of replacing everything.
 
 rules_version = '2';
 service cloud.firestore {
@@ -34,6 +35,22 @@ service cloud.firestore {
 
     match /teamInvites/{inviteId} {
       allow read, write: if request.auth != null;
+    }
+
+    // Public careers page: anyone may submit an internship application (no auth).
+    // Portal: signed-in users may read / update / delete (applicant review).
+    match /internshipApplications/{applicationId} {
+      allow create: if request.resource.data.keys().hasAll(['role', 'fullName', 'email', 'resumeLink', 'whyPassionate', 'whyPando', 'skillsets', 'read'])
+        && request.resource.data.role is string
+        && request.resource.data.fullName is string
+        && request.resource.data.email is string
+        && request.resource.data.resumeLink is string
+        && request.resource.data.whyPassionate is string
+        && request.resource.data.whyPando is string
+        && request.resource.data.skillsets is string
+        && request.resource.data.read == false;
+
+      allow read, update, delete: if request.auth != null;
     }
   }
 }

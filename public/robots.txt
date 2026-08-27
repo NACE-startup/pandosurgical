@@ -1,7 +1,0 @@
-# Robots.txt for Pando Surgical
-# https://www.pandosurgical.com
-
-User-agent: *
-Allow: /
-
-Sitemap: https://www.pandosurgical.com/sitemap.xml

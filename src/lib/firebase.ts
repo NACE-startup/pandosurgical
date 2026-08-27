@@ -1,3 +1,5 @@
+'use client';
+
 import { initializeApp, FirebaseApp } from 'firebase/app';
 import { 
   getAuth, 
@@ -32,12 +34,12 @@ import {
 
 // Firebase configuration - Use environment variables in production
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
 // Check if Firebase config is available
@@ -713,6 +715,108 @@ export const deleteContactSubmission = async (submissionId: string) => {
     return true;
   } catch (error) {
     console.error('Error deleting contact submission:', error);
+    return false;
+  }
+};
+
+// ============ INTERNSHIP APPLICATIONS ============
+
+export interface InternshipApplication {
+  id?: string;
+  role: string;
+  fullName: string;
+  email: string;
+  resumeLink: string;
+  whyPassionate: string;
+  whyPando: string;
+  skillsets: string;
+  read: boolean;
+  createdAt?: any;
+}
+
+export type AddInternshipApplicationResult =
+  | { ok: true; id: string }
+  | { ok: false; error: string; code?: string };
+
+export const addInternshipApplication = async (
+  application: Omit<InternshipApplication, 'id' | 'createdAt' | 'read'>
+): Promise<AddInternshipApplicationResult> => {
+  if (!db) {
+    return { ok: false, error: 'Database is not configured' };
+  }
+  try {
+    const ref = collection(db, 'internshipApplications');
+    const docRef = await addDoc(ref, {
+      role: application.role,
+      fullName: application.fullName,
+      email: application.email,
+      resumeLink: application.resumeLink,
+      whyPassionate: application.whyPassionate,
+      whyPando: application.whyPando,
+      skillsets: application.skillsets,
+      read: false,
+      createdAt: serverTimestamp()
+    });
+    return { ok: true, id: docRef.id };
+  } catch (error: any) {
+    console.error('Error saving internship application:', error);
+    const code = error?.code as string | undefined;
+    const message =
+      code === 'permission-denied'
+        ? 'Could not save your application (server permissions). Please contact us by email.'
+        : error?.message || 'Failed to save your application';
+    return { ok: false, error: message, code };
+  }
+};
+
+export const getInternshipApplications = async () => {
+  if (!db) return [];
+  const ref = collection(db, 'internshipApplications');
+  try {
+    const q = query(ref, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as InternshipApplication[];
+  } catch (error) {
+    console.error('Error getting internship applications (ordered query):', error);
+    try {
+      const snapshot = await getDocs(ref);
+      const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as InternshipApplication[];
+      return list.sort((a, b) => {
+        const ta =
+          typeof (a.createdAt as { toMillis?: () => number })?.toMillis === 'function'
+            ? (a.createdAt as { toMillis: () => number }).toMillis()
+            : 0;
+        const tb =
+          typeof (b.createdAt as { toMillis?: () => number })?.toMillis === 'function'
+            ? (b.createdAt as { toMillis: () => number }).toMillis()
+            : 0;
+        return tb - ta;
+      });
+    } catch (e2) {
+      console.error('Error getting internship applications:', e2);
+      return [];
+    }
+  }
+};
+
+export const markApplicationRead = async (applicationId: string) => {
+  if (!db) return false;
+  try {
+    await updateDoc(doc(db, 'internshipApplications', applicationId), { read: true });
+    return true;
+  } catch (error) {
+    console.error('Error marking application as read:', error);
+    return false;
+  }
+};
+
+export const deleteInternshipApplication = async (applicationId: string) => {
+  if (!db) return false;
+  try {
+    await deleteDoc(doc(db, 'internshipApplications', applicationId));
+    return true;
+  } catch (error) {
+    console.error('Error deleting internship application:', error);
     return false;
   }
 };
