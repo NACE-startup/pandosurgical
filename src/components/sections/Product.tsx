@@ -36,31 +36,54 @@ export function Product() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="relative isolate z-20 bg-charcoal rounded-sm px-6 py-8 sm:p-10 md:p-14 mb-10 sm:mb-14 overflow-hidden"
         >
-          <img
+          {/* Soft ambient glow behind the photo, echoing the sitewide ambient-glow motif */}
+          <div className="pointer-events-none absolute -left-16 -top-16 w-72 h-72 sm:w-[28rem] sm:h-[28rem] rounded-full bg-teal/10 blur-3xl" />
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal/0 via-teal/70 to-teal/0" />
+
+          <motion.img
+            initial={{ opacity: 0, x: -20 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            whileHover={{ scale: 1.04 }}
             src="/laprotator-hero.png"
             alt={t('The LapRotator device')}
-            className="block mx-auto w-3/4 max-w-xs mb-6 sm:float-left sm:w-2/5 sm:max-w-sm sm:mr-10 sm:mb-2 sm:mx-0"
+            className="relative block mx-auto w-3/4 max-w-xs mb-6 sm:float-left sm:w-2/5 sm:max-w-sm sm:mr-10 sm:mb-2 sm:mx-0 drop-shadow-[0_25px_35px_rgba(0,0,0,0.5)]"
           />
-          <p className="text-gray-200 text-sm sm:text-base leading-relaxed mb-4 text-center sm:text-left">
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="relative text-gray-200 text-sm sm:text-base leading-relaxed mb-4 text-center sm:text-left"
+          >
             {t(
               'The LapRotator is an attachment on the laparoscope that gives surgeons full one-handed control over scope rotation during minimally invasive procedures.'
             )}
-          </p>
-          <p className="text-gray-200 text-sm sm:text-base leading-relaxed mb-6 text-center sm:text-left">
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="relative text-gray-200 text-sm sm:text-base leading-relaxed mb-6 text-center sm:text-left"
+          >
             {t(
               'By removing the need for a second hand or assistant to reposition the scope, it helps surgeons reduce fatigue during long procedures, mitigate safety hazards, and work more efficiently in the OR.'
             )}
-          </p>
+          </motion.p>
           <div className="clear-both" />
-          <div className="text-center sm:text-right">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="relative text-center sm:text-right"
+          >
             <Link
               href="/contact"
-              className="group inline-flex items-center gap-2 text-gray-300 hover:text-white font-medium transition-colors text-sm sm:text-base"
+              className="group inline-flex items-center gap-2 text-gray-300 hover:text-teal font-medium transition-colors text-sm sm:text-base"
             >
               {t('Request a Demo')}
               <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
             </Link>
-          </div>
+          </motion.div>
         </motion.div>
 
         <div className="flex gap-8 sm:gap-10 border-b border-navy/10 overflow-x-auto">
