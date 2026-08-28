@@ -91,7 +91,7 @@ export function Product() {
       </motion.div>
 
       <div className="max-w-[85rem] mx-auto px-4 sm:px-6">
-        <div className="flex gap-8 sm:gap-10 border-b border-navy/10 overflow-x-auto">
+        <div className="flex gap-8 sm:gap-10 border-b border-navy/10 overflow-x-auto sm:overflow-x-visible">
           {tabs.map((tab) => (
             <button
               key={tab.id}
