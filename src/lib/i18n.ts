@@ -62,21 +62,19 @@ const translations: Record<Language, Record<string, string>> = {
     and: 'y',
     ergonomic: 'ergonómica',
     'by developing tools that empower surgeons worldwide.': 'desarrollando herramientas que empoderen a cirujanos de todo el mundo.',
-    'One-Handed': 'Una Sola Mano',
-    'Laparoscope Rotation': 'Rotación del Laparoscopio',
-    Universal: 'Universal',
-    'System Compatibility': 'Compatibilidad de Sistemas',
     Ergonomic: 'Ergonómico',
-    'Less Surgeon Fatigue': 'Menos Fatiga del Cirujano',
-    'Quick Setup': 'Instalación Rápida',
-    'Easy Attachment': 'Fácil Acoplamiento',
 
     // Product page hero + tabs
-    'One-Handed Laparoscope Rotation': 'Rotación Laparoscópica con Una Sola Mano',
     'The LapRotator is an attachment on the laparoscope that gives surgeons full one-handed control over scope rotation during minimally invasive procedures.':
       'El LapRotator es un accesorio para el laparoscopio que le da al cirujano control total, con una sola mano, sobre la rotación del instrumento durante procedimientos mínimamente invasivos.',
     'By removing the need for a second hand or assistant to reposition the scope, it helps surgeons reduce fatigue during long procedures, mitigate safety hazards, and work more efficiently in the OR.':
       'Al eliminar la necesidad de una segunda mano o un asistente para reposicionar el instrumento, ayuda a los cirujanos a reducir la fatiga durante procedimientos largos, disminuir riesgos de seguridad y trabajar de forma más eficiente en el quirófano.',
+    'Compatible with existing laparoscopic systems, it attaches in seconds and requires no additional training, so any OR can put it to use right away.':
+      'Compatible con los sistemas laparoscópicos existentes, se instala en segundos y no requiere capacitación adicional, para que cualquier quirófano pueda empezar a usarlo de inmediato.',
+    'One-Handed Control': 'Control con Una Sola Mano',
+    'Universal Compatibility': 'Compatibilidad Universal',
+    'Reduces Fatigue': 'Reduce la Fatiga',
+    'Quick, Easy Setup': 'Instalación Rápida y Sencilla',
     'See the Difference': 'Ve la Diferencia',
     'Features and Advantages': 'Características y Ventajas',
     Specifications: 'Especificaciones',
@@ -327,21 +325,19 @@ const translations: Record<Language, Record<string, string>> = {
     and: '和',
     ergonomic: '符合人体工学',
     'by developing tools that empower surgeons worldwide.': '通过开发赋能全球外科医生的工具。',
-    'One-Handed': '单手操作',
-    'Laparoscope Rotation': '腹腔镜旋转',
-    Universal: '通用兼容',
-    'System Compatibility': '系统兼容性',
     Ergonomic: '符合人体工学',
-    'Less Surgeon Fatigue': '减少外科医生疲劳',
-    'Quick Setup': '快速安装',
-    'Easy Attachment': '轻松装配',
 
     // Product page hero + tabs
-    'One-Handed Laparoscope Rotation': '单手腹腔镜旋转',
     'The LapRotator is an attachment on the laparoscope that gives surgeons full one-handed control over scope rotation during minimally invasive procedures.':
       'LapRotator是一款安装在腹腔镜上的配件，让外科医生在微创手术中能够单手完全控制镜头的旋转。',
     'By removing the need for a second hand or assistant to reposition the scope, it helps surgeons reduce fatigue during long procedures, mitigate safety hazards, and work more efficiently in the OR.':
       '无需第二只手或助手来调整镜头位置，帮助外科医生在长时间手术中减少疲劳、降低安全隐患，并提高手术室工作效率。',
+    'Compatible with existing laparoscopic systems, it attaches in seconds and requires no additional training, so any OR can put it to use right away.':
+      '兼容现有的腹腔镜系统，几秒钟即可安装完成，无需额外培训，任何手术室都能立即投入使用。',
+    'One-Handed Control': '单手操控',
+    'Universal Compatibility': '通用兼容性',
+    'Reduces Fatigue': '减少疲劳',
+    'Quick, Easy Setup': '安装快捷简便',
     'See the Difference': '查看差异',
     'Features and Advantages': '功能与优势',
     Specifications: '规格参数',
