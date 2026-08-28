@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { PageHeader } from '@/components/PageHeader';
-import { CtaBand } from '@/components/CtaBand';
 import { T } from '@/components/T';
 
 export const metadata: Metadata = {
@@ -26,8 +25,6 @@ export default function EntProductPage() {
           </p>
         </div>
       </section>
-
-      <CtaBand title="Interested? Get in touch." actions={[{ label: 'Contact Us', href: '/contact' }]} />
     </>
   );
 }

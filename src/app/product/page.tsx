@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { PageHeader } from '@/components/PageHeader';
 import { Product } from '@/components/sections/Product';
-import { CtaBand } from '@/components/CtaBand';
 import { JsonLd } from '@/components/JsonLd';
 
 export const metadata: Metadata = {
@@ -84,10 +83,6 @@ export default function ProductPage() {
         align="center"
       />
       <Product />
-      <CtaBand
-        title="Interested in bringing LapRotator to your OR?"
-        actions={[{ label: 'Request a Demo', href: '/contact' }]}
-      />
     </>
   );
 }

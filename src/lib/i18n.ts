@@ -74,8 +74,15 @@ const translations: Record<Language, Record<string, string>> = {
     'See the Difference': 'Ve la Diferencia',
     'Features and Advantages': 'Características y Ventajas',
     Specifications: 'Especificaciones',
-    'Detailed specifications are coming soon.': 'Las especificaciones detalladas estarán disponibles próximamente.',
     'LapRotator - See the Difference': 'LapRotator: Ve la Diferencia',
+    Compatibility: 'Compatibilidad',
+    'The LapRotator is compatible with the following Stryker rigid laparoscopes and camera coupler:':
+      'El LapRotator es compatible con los siguientes laparoscopios rígidos Stryker y acoplador de cámara:',
+    'Laparoscopes (Standard Autoclavable, 30 cm)': 'Laparoscopios (esterilizables en autoclave, estándar, 30 cm)',
+    'IDEAL EYES™ HD (30 cm)': 'IDEAL EYES™ HD (30 cm)',
+    'Bariatric (45 cm)': 'Bariátrico (45 cm)',
+    Pediatric: 'Pediátrico',
+    'Camera coupler': 'Acoplador de cámara',
 
     // Comparison
     'Without LapRotator': 'Sin LapRotator',
@@ -260,12 +267,10 @@ const translations: Record<Language, Record<string, string>> = {
     'Ergonomic ENT Product': 'Producto ORL Ergonómico',
     "We're developing a new ergonomic solution for ENT procedures. The product is currently in stealth, so details are under wraps for now. Check back soon.":
       'Estamos desarrollando una nueva solución ergonómica para procedimientos otorrinolaringológicos. El producto se encuentra actualmente en modo confidencial, por lo que los detalles no están disponibles por ahora. Vuelve pronto.',
-    'Interested? Get in touch.': '¿Interesado? Ponte en Contacto.',
 
     // Product page
     'One-Handed Laparoscope Rotation: an attachment for laparoscopes that gives surgeons intuitive, single-handed control.':
       'Rotación Laparoscópica con Una Sola Mano: un accesorio para laparoscopios que le da al cirujano un control intuitivo y con una sola mano.',
-    'Interested in bringing LapRotator to your OR?': '¿Interesado en llevar el LapRotator a tu quirófano?',
   },
   zh: {
     // Nav / header / global UI
@@ -333,8 +338,15 @@ const translations: Record<Language, Record<string, string>> = {
     'See the Difference': '查看差异',
     'Features and Advantages': '功能与优势',
     Specifications: '规格参数',
-    'Detailed specifications are coming soon.': '详细规格参数即将上线。',
     'LapRotator - See the Difference': 'LapRotator：查看差异',
+    Compatibility: '兼容性',
+    'The LapRotator is compatible with the following Stryker rigid laparoscopes and camera coupler:':
+      'LapRotator兼容以下Stryker硬式腹腔镜及摄像耦合器：',
+    'Laparoscopes (Standard Autoclavable, 30 cm)': '腹腔镜（标准可高压灭菌，30厘米）',
+    'IDEAL EYES™ HD (30 cm)': 'IDEAL EYES™ HD（30厘米）',
+    'Bariatric (45 cm)': '减重手术用（45厘米）',
+    Pediatric: '儿科用',
+    'Camera coupler': '摄像耦合器',
 
     // Comparison
     'Without LapRotator': '未使用LapRotator',
@@ -519,12 +531,10 @@ const translations: Record<Language, Record<string, string>> = {
     'Ergonomic ENT Product': '人体工学耳鼻喉产品',
     "We're developing a new ergonomic solution for ENT procedures. The product is currently in stealth, so details are under wraps for now. Check back soon.":
       '我们正在为耳鼻喉手术研发一款全新的人体工学解决方案。该产品目前处于保密研发阶段，具体细节暂不公开，敬请期待。',
-    'Interested? Get in touch.': '感兴趣？欢迎联系我们。',
 
     // Product page
     'One-Handed Laparoscope Rotation: an attachment for laparoscopes that gives surgeons intuitive, single-handed control.':
       '单手腹腔镜旋转：一款为腹腔镜设计的配件，让外科医生实现直观的单手操控。',
-    'Interested in bringing LapRotator to your OR?': '有意将LapRotator引入您的手术室吗？',
   },
 };
 
