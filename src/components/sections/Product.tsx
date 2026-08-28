@@ -78,7 +78,7 @@ export function Product() {
             initial={{ opacity: 0, y: 12 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5, delay: 0.5 }}
-            className="relative text-center sm:text-left"
+            className="relative text-center sm:text-left mt-6 sm:mt-12"
           >
             <Link
               href="/contact"
