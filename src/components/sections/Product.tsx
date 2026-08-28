@@ -30,8 +30,6 @@ export function Product() {
         transition={{ duration: 0.5, delay: 0.1 }}
         className="relative isolate z-20 bg-charcoal overflow-hidden mb-10 sm:mb-14"
       >
-        {/* Soft ambient glow behind the photo, echoing the sitewide ambient-glow motif */}
-        <div className="pointer-events-none absolute -left-16 -top-16 w-72 h-72 sm:w-[28rem] sm:h-[28rem] rounded-full bg-teal/10 blur-3xl" />
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal/0 via-teal/70 to-teal/0" />
 
         <div className="max-w-[85rem] mx-auto px-4 sm:px-6 py-8 sm:py-10 md:py-12">
