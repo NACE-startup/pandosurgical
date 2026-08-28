@@ -82,11 +82,6 @@ const translations: Record<Language, Record<string, string>> = {
     Specifications: 'Especificaciones',
     'Detailed specifications are coming soon.': 'Las especificaciones detalladas estarán disponibles próximamente.',
     'LapRotator - See the Difference': 'LapRotator: Ve la Diferencia',
-    'LapRotator V2 laparoscope rotation device render': 'Render del dispositivo de rotación laparoscópica LapRotator V2',
-    'The LapRotator device mounted on a laparoscope': 'El dispositivo LapRotator montado en un laparoscopio',
-    'View product image': 'Ver imagen del producto',
-    'Previous product image': 'Imagen anterior del producto',
-    'Next product image': 'Siguiente imagen del producto',
 
     // Comparison
     'Without LapRotator': 'Sin LapRotator',
@@ -352,11 +347,6 @@ const translations: Record<Language, Record<string, string>> = {
     Specifications: '规格参数',
     'Detailed specifications are coming soon.': '详细规格参数即将上线。',
     'LapRotator - See the Difference': 'LapRotator：查看差异',
-    'LapRotator V2 laparoscope rotation device render': 'LapRotator V2腹腔镜旋转设备渲染图',
-    'The LapRotator device mounted on a laparoscope': '安装在腹腔镜上的LapRotator设备',
-    'View product image': '查看产品图片',
-    'Previous product image': '上一张产品图片',
-    'Next product image': '下一张产品图片',
 
     // Comparison
     'Without LapRotator': '未使用LapRotator',

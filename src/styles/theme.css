@@ -4,6 +4,9 @@
   --color-teal: #c68a2e;
   --color-teal-hover: #a66f22;
   --color-mist: #ffffff;
+  /* Neutral dark-gray card backing (distinct from --color-navy), reused anywhere
+     a product photo needs to float on a dark card rather than the navy sections. */
+  --color-charcoal: #4a4a4a;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-manrope), var(--font-sans);
