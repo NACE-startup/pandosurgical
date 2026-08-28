@@ -26,12 +26,12 @@ export function Mission() {
       </section>
 
       <motion.div
-        className="relative isolate z-20 bg-navy"
+        className="relative isolate z-20 bg-charcoal"
         initial={{ opacity: 0 }}
         animate={isInView ? { opacity: 1 } : {}}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
-        <div className="max-w-[85rem] mx-auto px-4 sm:px-6 py-14 sm:py-20">
+        <div className="max-w-[85rem] mx-auto px-4 sm:px-6 py-10 sm:py-14">
           <p className="max-w-3xl mx-auto text-xl sm:text-2xl md:text-3xl text-gray-200 leading-relaxed font-light text-center">
             {t('To make surgery more')}{' '}
             <span className="text-teal font-medium">{t('equitable')}</span>,{' '}

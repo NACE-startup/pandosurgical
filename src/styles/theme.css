@@ -4,9 +4,10 @@
   --color-teal: #c68a2e;
   --color-teal-hover: #a66f22;
   --color-mist: #ffffff;
-  /* Neutral dark-gray card backing (distinct from --color-navy), reused anywhere
-     a product photo needs to float on a dark card rather than the navy sections. */
-  --color-charcoal: #4a4a4a;
+  /* Shared backing for full-bleed, edge-to-edge dark bands (Mission's statement
+     block, the Product hero card) — distinct from --color-navy, which stays the
+     brand's text/button/component color used everywhere else. */
+  --color-charcoal: #262521;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-manrope), var(--font-sans);

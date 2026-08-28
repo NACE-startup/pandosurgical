@@ -71,10 +71,6 @@ const translations: Record<Language, Record<string, string>> = {
       'Al eliminar la necesidad de una segunda mano o un asistente para reposicionar el instrumento, ayuda a los cirujanos a reducir la fatiga durante procedimientos largos, disminuir riesgos de seguridad y trabajar de forma más eficiente en el quirófano.',
     'Compatible with existing laparoscopic systems, it attaches in seconds and requires no additional training, so any OR can put it to use right away.':
       'Compatible con los sistemas laparoscópicos existentes, se instala en segundos y no requiere capacitación adicional, para que cualquier quirófano pueda empezar a usarlo de inmediato.',
-    'One-Handed Control': 'Control con Una Sola Mano',
-    'Universal Compatibility': 'Compatibilidad Universal',
-    'Reduces Fatigue': 'Reduce la Fatiga',
-    'Quick, Easy Setup': 'Instalación Rápida y Sencilla',
     'See the Difference': 'Ve la Diferencia',
     'Features and Advantages': 'Características y Ventajas',
     Specifications: 'Especificaciones',
@@ -334,10 +330,6 @@ const translations: Record<Language, Record<string, string>> = {
       '无需第二只手或助手来调整镜头位置，帮助外科医生在长时间手术中减少疲劳、降低安全隐患，并提高手术室工作效率。',
     'Compatible with existing laparoscopic systems, it attaches in seconds and requires no additional training, so any OR can put it to use right away.':
       '兼容现有的腹腔镜系统，几秒钟即可安装完成，无需额外培训，任何手术室都能立即投入使用。',
-    'One-Handed Control': '单手操控',
-    'Universal Compatibility': '通用兼容性',
-    'Reduces Fatigue': '减少疲劳',
-    'Quick, Easy Setup': '安装快捷简便',
     'See the Difference': '查看差异',
     'Features and Advantages': '功能与优势',
     Specifications: '规格参数',
