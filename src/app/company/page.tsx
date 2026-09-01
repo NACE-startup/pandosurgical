@@ -4,6 +4,9 @@ import { Mission } from '@/components/sections/Mission';
 import { CtaBand } from '@/components/CtaBand';
 import { T } from '@/components/T';
 import pitchPhoto from '@/assets/mfc-pitch-finals.jpg';
+import equitablePhoto from '@/assets/value-equitable.jpg';
+import efficientPhoto from '@/assets/value-efficient.jpg';
+import ergonomicPhoto from '@/assets/value-ergonomic.jpg';
 
 export const metadata: Metadata = {
   title: 'Company',
@@ -17,14 +20,17 @@ const values = [
   {
     name: 'Equitable',
     description: 'Every surgeon deserves to feel supported. This starts with the tools they use.',
+    photo: equitablePhoto,
   },
   {
     name: 'Efficient',
     description: 'We design to improve surgical workflows, reducing operating time and improving patient outcomes.',
+    photo: efficientPhoto,
   },
   {
     name: 'Ergonomic',
     description: 'We are creating a world where the intersection between humans and technology is seamless.',
+    photo: ergonomicPhoto,
   },
 ];
 
@@ -64,9 +70,14 @@ export default function CompanyPage() {
               <T>What We Value</T>
             </h2>
           </div>
-          <div className="grid sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-navy/10">
+          <div className="grid sm:grid-cols-3 gap-8 sm:gap-10">
             {values.map((value, index) => (
-              <div key={index} className="py-6 sm:py-2 sm:px-8 first:pt-0 sm:first:pt-2 sm:first:pl-0 text-left">
+              <div key={index} className="text-left">
+                <img
+                  src={value.photo.src}
+                  alt=""
+                  className="w-full h-40 sm:h-48 object-cover rounded-sm mb-4"
+                />
                 <p className="text-navy font-bold mb-2">
                   <T>{value.name}</T>
                 </p>

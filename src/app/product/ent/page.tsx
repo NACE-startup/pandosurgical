@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { T } from '@/components/T';
-import entSurgeryPhoto from '@/assets/ent-surgery.jpg';
+import entSurgeryPhoto from '@/assets/ent-black.jpg';
 
 export const metadata: Metadata = {
   title: 'ENT Product',
@@ -16,7 +16,7 @@ export default function EntProductPage() {
         src={entSurgeryPhoto.src}
         alt=""
         aria-hidden="true"
-        className="absolute inset-0 w-full h-full object-cover blur-sm scale-105 opacity-90"
+        className="absolute inset-0 w-full h-full object-cover blur-sm scale-105 opacity-100"
       />
       {/* Film-grain texture in place of a flat dark overlay, generated inline so it needs no extra image request */}
       <div
