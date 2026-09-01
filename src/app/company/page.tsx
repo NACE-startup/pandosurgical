@@ -33,7 +33,7 @@ export default function CompanyPage() {
     <>
       <PageHeader title="Company" />
 
-      <section className="min-h-[80vh] sm:min-h-[85vh] flex items-center bg-white pb-16 sm:pb-0">
+      <section className="min-h-[80vh] sm:min-h-[85vh] bg-white pt-2 sm:pt-4 pb-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 grid sm:grid-cols-2 gap-8 sm:gap-16 items-center">
           <div>
             <h2 className="text-3xl sm:text-4xl font-bold text-navy mb-5 sm:mb-6">
