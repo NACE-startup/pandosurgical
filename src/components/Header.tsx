@@ -32,6 +32,7 @@ const navItems: NavItem[] = [
   { label: 'News', href: '/news' },
   {
     label: 'About',
+    href: '/company',
     dropdown: [
       { label: 'Company', href: '/company' },
       { label: 'Investors', href: '/investors' },

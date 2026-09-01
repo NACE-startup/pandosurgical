@@ -118,6 +118,12 @@ const translations: Record<Language, Record<string, string>> = {
 
     // News
     'News.': 'Noticias.',
+    'Accepted into USC and Techstars University Catalyst Pre-Accelerator':
+      'Aceptados en el Pre-Acelerador University Catalyst de USC y Techstars',
+    'Pando Surgical has officially been accepted into the USC and Techstars University Catalyst Pre-Accelerator, a high-impact program delivered in partnership with the USC Research and Innovation office. The program officially launched in late August in Los Angeles, bringing together the Pando Surgical leadership team, program directors, and a select cohort of fellow founders for collaborative kickoff sessions. Over the coming weeks, the company will engage in intensive mentorship and strategic development to accelerate its commercialization pathway alongside top-tier, research-backed ventures.':
+      'Pando Surgical ha sido oficialmente aceptada en el Pre-Acelerador University Catalyst de USC y Techstars, un programa de alto impacto desarrollado en asociación con la oficina de Investigación e Innovación de USC. El programa se lanzó oficialmente a finales de agosto en Los Ángeles, reuniendo al equipo directivo de Pando Surgical, a los directores del programa y a un grupo selecto de otros fundadores para sesiones de arranque colaborativas. En las próximas semanas, la empresa participará en mentoría intensiva y desarrollo estratégico para acelerar su camino hacia la comercialización junto a empresas de primer nivel respaldadas por investigación.',
+    'USC campus tower, marking the USC and Techstars University Catalyst Pre-Accelerator':
+      'Torre del campus de USC, en referencia al Pre-Acelerador University Catalyst de USC y Techstars',
     '2nd Place, USC Viterbi Min Family Challenge': '2.º lugar, Min Family Challenge de USC Viterbi',
     "The Min Family Challenge (MFC) is USC Viterbi's flagship student venture competition, part of tiehub's annual $150K Awards Night, awarding funding to student-founded startups with the strongest potential for real-world impact. At the 2026 MEPC & MFC Awards Night on April 27, our team placed 2nd overall and was also selected by audience vote as one of three finalists to deliver a live three-minute pitch, which we won, bringing a working prototype of the LapRotator to the stage.":
       'El Min Family Challenge (MFC) es la competencia insignia de emprendimiento estudiantil de USC Viterbi, parte de la Noche de Premios anual de $150,000 de tiehub, que otorga financiamiento a startups fundadas por estudiantes con el mayor potencial de impacto real. En la Noche de Premios MEPC y MFC 2026, celebrada el 27 de abril, nuestro equipo obtuvo el 2.º lugar general y también fue elegido por votación del público como uno de tres finalistas para dar un discurso en vivo de tres minutos, el cual ganamos, llevando al escenario un prototipo funcional del LapRotator.',
@@ -383,6 +389,12 @@ const translations: Record<Language, Record<string, string>> = {
 
     // News
     'News.': '新闻。',
+    'Accepted into USC and Techstars University Catalyst Pre-Accelerator':
+      '获南加州大学与Techstars大学催化剂预加速器项目录取',
+    'Pando Surgical has officially been accepted into the USC and Techstars University Catalyst Pre-Accelerator, a high-impact program delivered in partnership with the USC Research and Innovation office. The program officially launched in late August in Los Angeles, bringing together the Pando Surgical leadership team, program directors, and a select cohort of fellow founders for collaborative kickoff sessions. Over the coming weeks, the company will engage in intensive mentorship and strategic development to accelerate its commercialization pathway alongside top-tier, research-backed ventures.':
+      'Pando Surgical已正式入选南加州大学与Techstars大学催化剂预加速器项目，这是一项与南加州大学研究与创新办公室合作推出的高影响力项目。该项目于8月下旬在洛杉矶正式启动，汇聚了Pando Surgical的领导团队、项目主管以及一批精选的同期创始人，共同参加启动协作会议。在接下来的几周里，公司将参与密集的导师指导与战略发展，与众多顶尖的、以研究为基础的创业公司一同加速商业化进程。',
+    'USC campus tower, marking the USC and Techstars University Catalyst Pre-Accelerator':
+      '南加州大学校园钟楼，象征着南加州大学与Techstars大学催化剂预加速器项目',
     '2nd Place, USC Viterbi Min Family Challenge': '南加州大学Viterbi Min Family Challenge 亚军',
     "The Min Family Challenge (MFC) is USC Viterbi's flagship student venture competition, part of tiehub's annual $150K Awards Night, awarding funding to student-founded startups with the strongest potential for real-world impact. At the 2026 MEPC & MFC Awards Night on April 27, our team placed 2nd overall and was also selected by audience vote as one of three finalists to deliver a live three-minute pitch, which we won, bringing a working prototype of the LapRotator to the stage.":
       'Min Family Challenge（MFC）是南加州大学Viterbi工程学院的旗舰学生创业大赛，是tiehub一年一度、总奖金15万美元颁奖之夜的重要组成部分，旨在为最具现实影响力潜力的学生创业公司提供资金支持。在2026年4月27日举行的MEPC与MFC颁奖之夜上，我们的团队总成绩获得亚军，并凭借观众投票入选三强，登台进行三分钟现场路演，最终我们带着LapRotator的实机原型赢得了这一轮比赛。',
