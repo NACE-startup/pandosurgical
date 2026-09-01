@@ -263,249 +263,6 @@ export const getAllUsers = async () => {
   }
 };
 
-// ============ EVENTS ============
-
-export interface FirestoreEvent {
-  id?: string;
-  title: string;
-  date: string;
-  time: string;
-  type: 'meeting' | 'interview' | 'deadline' | 'other';
-  description?: string;
-  createdBy: string;
-  createdByEmail: string;
-  sharedWith: string[]; // Array of user IDs who can view
-  assignees?: string[]; // Array of user IDs involved in the event
-  visibility: 'private' | 'team'; // private = only creator, team = all team members
-  isRecurring?: boolean;
-  recurringDays?: number[]; // 0 = Sunday, 1 = Monday, etc.
-  recurringEndDate?: string; // When recurring events should stop
-  recurringGroupId?: string; // Links recurring events together
-  createdAt?: any;
-}
-
-// Add event
-export const addEvent = async (event: Omit<FirestoreEvent, 'id' | 'createdAt'>) => {
-  if (!db) {
-    console.error('Firestore not initialized - cannot add event');
-    return null;
-  }
-  try {
-    console.log('Saving event to Firestore:', event);
-    const eventsRef = collection(db, 'events');
-    const docRef = await addDoc(eventsRef, {
-      ...event,
-      createdAt: serverTimestamp()
-    });
-    console.log('Event saved successfully with ID:', docRef.id);
-    return docRef.id;
-  } catch (error: any) {
-    console.error('Error adding event to Firestore:', error);
-    console.error('Error code:', error.code);
-    console.error('Error message:', error.message);
-    return null;
-  }
-};
-
-// Get events for user (created by them, shared with them, assigned to them, or team-visible)
-export const getEventsForUser = async (userId: string, teamMemberIds: string[] = []) => {
-  if (!db) return [];
-  try {
-    const eventsRef = collection(db, 'events');
-    const events = new Map();
-    
-    // Create a set of all relevant user IDs (current user + team members)
-    const relevantUserIds = new Set([userId, ...teamMemberIds]);
-    
-    // Get events created by user
-    const createdQuery = query(eventsRef, where('createdBy', '==', userId));
-    const createdSnap = await getDocs(createdQuery);
-    createdSnap.docs.forEach(doc => {
-      events.set(doc.id, { id: doc.id, ...doc.data() });
-    });
-    
-    // Get events shared with user
-    const sharedQuery = query(eventsRef, where('sharedWith', 'array-contains', userId));
-    const sharedSnap = await getDocs(sharedQuery);
-    sharedSnap.docs.forEach(doc => events.set(doc.id, { id: doc.id, ...doc.data() }));
-    
-    // Get events where user is an assignee
-    const assignedQuery = query(eventsRef, where('assignees', 'array-contains', userId));
-    const assignedSnap = await getDocs(assignedQuery);
-    assignedSnap.docs.forEach(doc => events.set(doc.id, { id: doc.id, ...doc.data() }));
-    
-    // Get ALL team-visible events and filter client-side
-    // This ensures we don't miss any events due to query limitations
-    const teamVisibleQuery = query(eventsRef, where('visibility', '==', 'team'));
-    const teamVisibleSnap = await getDocs(teamVisibleQuery);
-    teamVisibleSnap.docs.forEach(doc => {
-      const data = doc.data();
-      // Include if created by user themselves OR by any team member
-      if (relevantUserIds.has(data.createdBy)) {
-        events.set(doc.id, { id: doc.id, ...data });
-      }
-    });
-    
-    console.log(`Loaded ${events.size} events for user ${userId}`);
-    return Array.from(events.values());
-  } catch (error) {
-    console.error('Error getting events:', error);
-    return [];
-  }
-};
-
-// Update event
-export const updateEvent = async (eventId: string, updates: Partial<FirestoreEvent>) => {
-  if (!db) {
-    console.error('Firestore not initialized - cannot update event');
-    return false;
-  }
-  try {
-    console.log('Updating event:', eventId, updates);
-    const eventRef = doc(db, 'events', eventId);
-    await updateDoc(eventRef, updates);
-    console.log('Event updated successfully');
-    return true;
-  } catch (error: any) {
-    console.error('Error updating event:', error);
-    console.error('Error code:', error.code);
-    console.error('Error message:', error.message);
-    // Common error: permission-denied means Firestore rules need to be updated
-    if (error.code === 'permission-denied') {
-      console.error('PERMISSION DENIED: Update your Firestore Security Rules to allow updates');
-    }
-    return false;
-  }
-};
-
-// Delete event
-export const deleteEvent = async (eventId: string) => {
-  if (!db) return false;
-  try {
-    await deleteDoc(doc(db, 'events', eventId));
-    return true;
-  } catch (error) {
-    console.error('Error deleting event:', error);
-    return false;
-  }
-};
-
-// Update event shared users
-export const updateEventSharing = async (eventId: string, sharedWith: string[]) => {
-  if (!db) return false;
-  try {
-    await updateDoc(doc(db, 'events', eventId), { sharedWith });
-    return true;
-  } catch (error) {
-    console.error('Error updating event sharing:', error);
-    return false;
-  }
-};
-
-// ============ TASKS ============
-
-export interface FirestoreTask {
-  id?: string;
-  title: string;
-  description?: string;
-  dueDate?: string;
-  priority: 'low' | 'medium' | 'high';
-  status: 'todo' | 'in_progress' | 'done';
-  createdBy: string;
-  assignees?: string[]; // Array of user IDs assigned to the task
-  visibility: 'private' | 'team'; // private = only creator & assignees, team = all team members
-  createdAt?: any;
-}
-
-// Add task
-export const addTask = async (task: Omit<FirestoreTask, 'id' | 'createdAt'>) => {
-  if (!db) {
-    console.error('Firestore not initialized - cannot add task');
-    return null;
-  }
-  try {
-    console.log('Saving task to Firestore:', task);
-    const tasksRef = collection(db, 'tasks');
-    const docRef = await addDoc(tasksRef, {
-      ...task,
-      createdAt: serverTimestamp()
-    });
-    console.log('Task saved successfully with ID:', docRef.id);
-    return docRef.id;
-  } catch (error: any) {
-    console.error('Error adding task to Firestore:', error);
-    console.error('Error code:', error.code);
-    console.error('Error message:', error.message);
-    return null;
-  }
-};
-
-// Get tasks for user (created by them, assigned to them, or team-visible)
-export const getTasksForUser = async (userId: string, teamMemberIds: string[] = []) => {
-  if (!db) return [];
-  try {
-    const tasksRef = collection(db, 'tasks');
-    const tasks = new Map();
-    
-    // Create a set of all relevant user IDs (current user + team members)
-    const relevantUserIds = new Set([userId, ...teamMemberIds]);
-    
-    // Get tasks created by user
-    const createdQuery = query(tasksRef, where('createdBy', '==', userId));
-    const createdSnap = await getDocs(createdQuery);
-    createdSnap.docs.forEach(doc => {
-      tasks.set(doc.id, { id: doc.id, ...doc.data() });
-    });
-    
-    // Get tasks assigned to user
-    const assignedQuery = query(tasksRef, where('assignees', 'array-contains', userId));
-    const assignedSnap = await getDocs(assignedQuery);
-    assignedSnap.docs.forEach(doc => tasks.set(doc.id, { id: doc.id, ...doc.data() }));
-    
-    // Get ALL team-visible tasks and filter client-side
-    // This ensures we don't miss any tasks due to query limitations
-    const teamVisibleQuery = query(tasksRef, where('visibility', '==', 'team'));
-    const teamVisibleSnap = await getDocs(teamVisibleQuery);
-    teamVisibleSnap.docs.forEach(doc => {
-      const data = doc.data();
-      // Include if created by user themselves OR by any team member
-      if (relevantUserIds.has(data.createdBy)) {
-        tasks.set(doc.id, { id: doc.id, ...data });
-      }
-    });
-    
-    console.log(`Loaded ${tasks.size} tasks for user ${userId}`);
-    return Array.from(tasks.values());
-  } catch (error) {
-    console.error('Error getting tasks:', error);
-    return [];
-  }
-};
-
-// Update task
-export const updateTask = async (taskId: string, updates: Partial<FirestoreTask>) => {
-  if (!db) return false;
-  try {
-    await updateDoc(doc(db, 'tasks', taskId), updates);
-    return true;
-  } catch (error) {
-    console.error('Error updating task:', error);
-    return false;
-  }
-};
-
-// Delete task
-export const deleteTask = async (taskId: string) => {
-  if (!db) return false;
-  try {
-    await deleteDoc(doc(db, 'tasks', taskId));
-    return true;
-  } catch (error) {
-    console.error('Error deleting task:', error);
-    return false;
-  }
-};
-
 // ============ TEAM INVITES ============
 
 export interface TeamInvite {
@@ -1021,6 +778,145 @@ export const checkEmailAlreadyRegistered = async (email: string): Promise<boolea
     return !clinicianSnap.empty || !newsletterSnap.empty;
   } catch (error) {
     console.error('Error checking existing registration:', error);
+    return false;
+  }
+};
+
+// ============ TEAM CONTACTS ============
+// Shared address book any team member can add to / edit / delete from the Dashboard.
+
+export interface TeamContact {
+  id?: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  howWeKnowThem: string;
+  lastContacted?: string; // Free-form date string the team enters, not a Firestore timestamp
+  createdBy: string;
+  createdAt?: any;
+  updatedAt?: any;
+}
+
+export const addTeamContact = async (contact: Omit<TeamContact, 'id' | 'createdAt' | 'updatedAt'>) => {
+  if (!db) return null;
+  try {
+    const ref = collection(db, 'teamContacts');
+    const payload: Record<string, unknown> = {
+      name: contact.name,
+      howWeKnowThem: contact.howWeKnowThem,
+      createdBy: contact.createdBy,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    };
+    if (contact.email) payload.email = contact.email;
+    if (contact.phone) payload.phone = contact.phone;
+    if (contact.lastContacted) payload.lastContacted = contact.lastContacted;
+    const docRef = await addDoc(ref, payload as Parameters<typeof addDoc>[1]);
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding team contact:', error);
+    return null;
+  }
+};
+
+export const getTeamContacts = async () => {
+  if (!db) return [];
+  try {
+    const snapshot = await getDocs(collection(db, 'teamContacts'));
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as TeamContact[];
+  } catch (error) {
+    console.error('Error getting team contacts:', error);
+    return [];
+  }
+};
+
+export const updateTeamContact = async (contactId: string, updates: Partial<TeamContact>) => {
+  if (!db) return false;
+  try {
+    await updateDoc(doc(db, 'teamContacts', contactId), { ...updates, updatedAt: serverTimestamp() });
+    return true;
+  } catch (error) {
+    console.error('Error updating team contact:', error);
+    return false;
+  }
+};
+
+export const deleteTeamContact = async (contactId: string) => {
+  if (!db) return false;
+  try {
+    await deleteDoc(doc(db, 'teamContacts', contactId));
+    return true;
+  } catch (error) {
+    console.error('Error deleting team contact:', error);
+    return false;
+  }
+};
+
+// ============ NEWS POSTS ============
+// Team-authored company news, published live on the public /news page.
+
+export interface NewsPost {
+  id?: string;
+  headline: string;
+  body: string;
+  photoUrl: string;
+  createdBy: string;
+  createdByEmail: string;
+  createdAt?: any;
+}
+
+export const uploadNewsPhoto = async (file: File): Promise<string | null> => {
+  if (!app) return null;
+  try {
+    const { getStorage, ref: storageRef, uploadBytes, getDownloadURL } = await import('firebase/storage');
+    const storage = getStorage(app);
+    const path = `news/${Date.now()}-${file.name}`;
+    const fileRef = storageRef(storage, path);
+    await uploadBytes(fileRef, file);
+    return await getDownloadURL(fileRef);
+  } catch (error) {
+    console.error('Error uploading news photo:', error);
+    return null;
+  }
+};
+
+export const addNewsPost = async (post: Omit<NewsPost, 'id' | 'createdAt'>) => {
+  if (!db) return null;
+  try {
+    const ref = collection(db, 'newsPosts');
+    const docRef = await addDoc(ref, { ...post, createdAt: serverTimestamp() });
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding news post:', error);
+    return null;
+  }
+};
+
+export const getNewsPosts = async () => {
+  if (!db) return [];
+  try {
+    const q = query(collection(db, 'newsPosts'), orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as NewsPost[];
+  } catch (error) {
+    console.error('Error getting news posts (ordered query):', error);
+    try {
+      const snapshot = await getDocs(collection(db, 'newsPosts'));
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as NewsPost[];
+    } catch (e2) {
+      console.error('Error getting news posts:', e2);
+      return [];
+    }
+  }
+};
+
+export const deleteNewsPost = async (postId: string) => {
+  if (!db) return false;
+  try {
+    await deleteDoc(doc(db, 'newsPosts', postId));
+    return true;
+  } catch (error) {
+    console.error('Error deleting news post:', error);
     return false;
   }
 };

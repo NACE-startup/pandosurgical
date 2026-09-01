@@ -7,7 +7,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // Only these team emails get admin access (Dashboard: inbox, applications,
-    // clinician requests, newsletter signups, events, tasks, team). Anyone else
+    // clinician requests, newsletter signups, contacts, news, team). Anyone else
     // who authenticates (e.g. via Google sign-in) gets no read access to admin data.
     function isTeamMember() {
       return request.auth != null &&
@@ -37,16 +37,19 @@ service cloud.firestore {
       allow create, update: if request.auth != null && request.auth.uid == userId;
     }
 
-    match /events/{eventId} {
-      allow read, write: if isTeamMember();
-    }
-
-    match /tasks/{taskId} {
-      allow read, write: if isTeamMember();
-    }
-
     match /teamInvites/{inviteId} {
       allow read, write: if isTeamMember();
+    }
+
+    // Portal: shared address book any team member can add to / edit / delete.
+    match /teamContacts/{contactId} {
+      allow read, write: if isTeamMember();
+    }
+
+    // Team writes news posts in the portal; the public /news page reads them.
+    match /newsPosts/{postId} {
+      allow read: if true;
+      allow create, update, delete: if isTeamMember();
     }
 
     // Public careers page: anyone may submit an internship application (no auth).

@@ -2,56 +2,40 @@
 
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { 
-  X, 
-  Calendar, 
-  Clock, 
-  Plus, 
-  Trash2, 
+import {
+  X,
+  Trash2,
   Users,
   Settings,
   LogOut,
   AlertTriangle,
   ChevronLeft,
-  ChevronRight,
   UserPlus,
   Mail,
+  Phone,
   Search,
-  Share2,
   CheckCircle,
   XCircle,
   Bell,
   Loader2,
   Sparkles,
-  Zap,
   Sun,
   Moon,
-  Check,
-  ListTodo,
-  Lock,
-  Globe,
   Menu,
   Edit3,
-  Repeat,
   Inbox,
-  Eye,
   Briefcase,
   Stethoscope,
-  Send
+  Send,
+  Plus,
+  Contact as ContactIcon,
+  Newspaper,
+  Image as ImageIcon
 } from 'lucide-react';
 import {
   logOut,
   User,
   searchUsersByEmail,
-  addEvent as addEventToDb,
-  getEventsForUser,
-  deleteEvent as deleteEventFromDb,
-  updateEventSharing,
-  updateEvent as updateEventInDb,
-  addTask as addTaskToDb,
-  getTasksForUser,
-  updateTask as updateTaskInDb,
-  deleteTask as deleteTaskFromDb,
   sendTeamInvite,
   getTeamMembers,
   getPendingInvites,
@@ -68,48 +52,26 @@ import {
   getNewsletterSignups,
   markNewsletterSignupRead,
   deleteNewsletterSignup,
-  FirestoreEvent,
-  FirestoreTask,
+  addTeamContact,
+  getTeamContacts,
+  updateTeamContact,
+  deleteTeamContact,
+  addNewsPost,
+  getNewsPosts,
+  deleteNewsPost,
+  uploadNewsPhoto,
   ContactSubmission,
   InternshipApplication,
   ClinicianRequest,
-  NewsletterSignup
+  NewsletterSignup,
+  TeamContact,
+  NewsPost
 } from '@/lib/firebase';
 
 interface DashboardProps {
   isOpen: boolean;
   onClose: () => void;
   user: User | null;
-}
-
-interface Event {
-  id: string;
-  title: string;
-  date: string;
-  time: string;
-  type: 'meeting' | 'interview' | 'deadline' | 'other';
-  description?: string;
-  createdBy: string;
-  createdByEmail: string;
-  sharedWith: string[];
-  assignees?: string[];
-  visibility: 'private' | 'team';
-  isRecurring?: boolean;
-  recurringDays?: number[];
-  recurringEndDate?: string;
-  recurringGroupId?: string;
-}
-
-interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  dueDate?: string;
-  priority: 'low' | 'medium' | 'high';
-  status: 'todo' | 'in_progress' | 'done';
-  createdBy: string;
-  assignees?: string[];
-  visibility: 'private' | 'team';
 }
 
 interface TeamMember {
@@ -125,20 +87,15 @@ interface Invite {
   status: string;
 }
 
-// Calendar item type for unified display
-interface CalendarItem {
-  id: string;
-  title: string;
-  date: string;
-  time?: string;
-  type: 'meeting' | 'interview' | 'deadline' | 'other' | 'task';
-  isTask?: boolean;
-  priority?: 'low' | 'medium' | 'high';
-  status?: 'todo' | 'in_progress' | 'done';
-  createdBy: string;
-  assignees?: string[];
-  visibility: 'private' | 'team';
-}
+// Formats a Firestore Timestamp (or a value already coerced to one) into a local date + time string.
+const formatTimestamp = (createdAt: unknown): string => {
+  const toDate = (createdAt as { toDate?: () => Date } | undefined)?.toDate;
+  if (typeof toDate !== 'function') return 'just now';
+  return toDate.call(createdAt).toLocaleString(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
+};
 
 // Theme configuration
 const themes = {
@@ -209,7 +166,7 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
   });
   const t = themes[theme];
 
-  const [activeTab, setActiveTab] = useState<'schedule' | 'tasks' | 'team' | 'inbox' | 'applications' | 'clinicians' | 'newsletter' | 'settings'>('schedule');
+  const [activeTab, setActiveTab] = useState<'contacts' | 'news' | 'team' | 'inbox' | 'applications' | 'clinicians' | 'newsletter' | 'settings'>('contacts');
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
   const [selectedSubmission, setSelectedSubmission] = useState<ContactSubmission | null>(null);
   const [applications, setApplications] = useState<InternshipApplication[]>([]);
@@ -220,21 +177,19 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
   const [selectedNewsletterSignup, setSelectedNewsletterSignup] = useState<NewsletterSignup | null>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [showEventModal, setShowEventModal] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
-  const [showShareModal, setShowShareModal] = useState<string | null>(null);
-  const [events, setEvents] = useState<Event[]>([]);
-  const [newEvent, setNewEvent] = useState<{ title: string; date: string; time: string; type: 'meeting' | 'interview' | 'deadline' | 'other'; description: string; assignees: string[]; visibility: 'private' | 'team'; isRecurring: boolean; recurringDays: number[]; recurringEndDate: string }>({ title: '', date: '', time: '', type: 'meeting', description: '', assignees: [], visibility: 'private', isRecurring: false, recurringDays: [], recurringEndDate: '' });
-  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [showTaskModal, setShowTaskModal] = useState(false);
-  const [showDeleteTaskConfirm, setShowDeleteTaskConfirm] = useState<string | null>(null);
-  const [newTask, setNewTask] = useState<{ title: string; description: string; dueDate: string; priority: 'low' | 'medium' | 'high'; status: 'todo' | 'in_progress' | 'done'; assignees: string[]; visibility: 'private' | 'team' }>({ title: '', description: '', dueDate: '', priority: 'medium', status: 'todo', assignees: [], visibility: 'private' });
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [contacts, setContacts] = useState<TeamContact[]>([]);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [editingContact, setEditingContact] = useState<TeamContact | null>(null);
+  const [newContact, setNewContact] = useState<{ name: string; email: string; phone: string; howWeKnowThem: string; lastContacted: string }>({ name: '', email: '', phone: '', howWeKnowThem: '', lastContacted: '' });
+  const [showDeleteContactConfirm, setShowDeleteContactConfirm] = useState<string | null>(null);
+  const [savingContact, setSavingContact] = useState(false);
+
+  const [newsPosts, setNewsPosts] = useState<NewsPost[]>([]);
+  const [showNewsModal, setShowNewsModal] = useState(false);
+  const [newNewsPost, setNewNewsPost] = useState<{ headline: string; body: string; photoFile: File | null; photoPreview: string }>({ headline: '', body: '', photoFile: null, photoPreview: '' });
+  const [showDeleteNewsConfirm, setShowDeleteNewsConfirm] = useState<string | null>(null);
+  const [savingNews, setSavingNews] = useState(false);
 
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [pendingInvites, setPendingInvites] = useState<Invite[]>([]);
@@ -243,15 +198,6 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
   const [searching, setSearching] = useState(false);
   const [searchPerformed, setSearchPerformed] = useState(false);
   const [inviting, setInviting] = useState<string | null>(null);
-
-  const [shareSearchEmail, setShareSearchEmail] = useState('');
-  const [shareSearchResults, setShareSearchResults] = useState<TeamMember[]>([]);
-
-  // Get all selectable team members (including current user)
-  const selectableMembers: TeamMember[] = user ? [
-    { id: user.uid, email: user.email || '', displayName: user.displayName || 'You' },
-    ...teamMembers.filter(m => m.id !== user.uid)
-  ] : [];
 
   useEffect(() => {
     if (isOpen && user) loadAllData();
@@ -267,29 +213,20 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
     if (!user) return;
     setLoading(true);
     try {
-      // First get team members and invites
-      const [membersData, invitesData] = await Promise.all([
+      const [membersData, invitesData, contactsData, newsPostsData, submissionsData, applicationsData, clinicianRequestsData, newsletterSignupsData] = await Promise.all([
         getTeamMembers(user.uid),
-        getPendingInvites(user.uid)
-      ]);
-      const members = membersData as TeamMember[];
-      setTeamMembers(members);
-      setPendingInvites(invitesData as Invite[]);
-      
-      // Get team member IDs for visibility filtering
-      const teamMemberIds = members.map(m => m.id);
-      
-      // Now get events and tasks with team visibility
-      const [eventsData, tasksData, submissionsData, applicationsData, clinicianRequestsData, newsletterSignupsData] = await Promise.all([
-        getEventsForUser(user.uid, teamMemberIds),
-        getTasksForUser(user.uid, teamMemberIds),
+        getPendingInvites(user.uid),
+        getTeamContacts(),
+        getNewsPosts(),
         getContactSubmissions(),
         getInternshipApplications(),
         getClinicianRequests(),
         getNewsletterSignups()
       ]);
-      setEvents(eventsData as Event[]);
-      setTasks(tasksData as Task[]);
+      setTeamMembers(membersData as TeamMember[]);
+      setPendingInvites(invitesData as Invite[]);
+      setContacts(contactsData);
+      setNewsPosts(newsPostsData);
       setSubmissions(submissionsData);
       setApplications(applicationsData);
       setClinicianRequests(clinicianRequestsData);
@@ -302,208 +239,83 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
 
   const handleLogout = async () => { await logOut(); onClose(); };
 
-  const getDaysInMonth = (date: Date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const days: (Date | null)[] = [];
-    for (let i = 0; i < firstDay.getDay(); i++) days.push(null);
-    for (let i = 1; i <= lastDay.getDate(); i++) days.push(new Date(year, month, i));
-    return days;
-  };
-
-  const formatDate = (date: Date) => date.toISOString().split('T')[0];
-  
-  // Get calendar items for a date (events + tasks with due dates)
-  const getCalendarItemsForDate = (date: Date): CalendarItem[] => {
-    const dateStr = formatDate(date);
-    const eventItems: CalendarItem[] = events
-      .filter(e => e.date === dateStr)
-      .map(e => ({ ...e, isTask: false }));
-    
-    const taskItems: CalendarItem[] = tasks
-      .filter(t => t.dueDate === dateStr)
-      .map(t => ({
-        id: t.id,
-        title: t.title,
-        date: t.dueDate!,
-        type: 'task' as const,
-        isTask: true,
-        priority: t.priority,
-        status: t.status,
-        createdBy: t.createdBy,
-        assignees: t.assignees,
-        visibility: t.visibility
-      }));
-    
-    return [...eventItems, ...taskItems];
-  };
-
-  // Check if date has any items
-  const getItemCountForDate = (date: Date) => getCalendarItemsForDate(date).length;
-
-  const handleAddEvent = async () => {
-    if (!user || !newEvent.title || !newEvent.date) return;
-    
-    const recurringGroupId = newEvent.isRecurring ? `recurring_${Date.now()}` : undefined;
-    
-    // If recurring, create events for each selected day
-    if (newEvent.isRecurring && newEvent.recurringDays.length > 0 && newEvent.recurringEndDate) {
-      const startDate = new Date(newEvent.date);
-      const endDate = new Date(newEvent.recurringEndDate);
-      const createdEvents: Event[] = [];
-      
-      // Iterate through each week until end date
-      const currentDate = new Date(startDate);
-      while (currentDate <= endDate) {
-        for (const dayOfWeek of newEvent.recurringDays) {
-          const eventDate = new Date(currentDate);
-          // Find the next occurrence of this day of week
-          const diff = dayOfWeek - eventDate.getDay();
-          if (diff >= 0) {
-            eventDate.setDate(eventDate.getDate() + diff);
-          } else {
-            eventDate.setDate(eventDate.getDate() + 7 + diff);
-          }
-          
-          if (eventDate >= startDate && eventDate <= endDate) {
-            const dateStr = eventDate.toISOString().split('T')[0];
-            const eventData: Omit<FirestoreEvent, 'id' | 'createdAt'> = {
-              title: newEvent.title,
-              date: dateStr,
-              time: newEvent.time,
-              type: newEvent.type,
-              description: newEvent.description,
-              createdBy: user.uid,
-              createdByEmail: user.email || '',
-              sharedWith: [],
-              assignees: newEvent.assignees,
-              visibility: newEvent.visibility,
-              isRecurring: true,
-              recurringDays: newEvent.recurringDays,
-              recurringEndDate: newEvent.recurringEndDate,
-              recurringGroupId
-            };
-            const eventId = await addEventToDb(eventData);
-            if (eventId) {
-              createdEvents.push({ id: eventId, ...eventData });
-            }
-          }
-        }
-        currentDate.setDate(currentDate.getDate() + 7);
-      }
-      
-      if (createdEvents.length > 0) {
-        setEvents([...events, ...createdEvents]);
-        console.log(`Created ${createdEvents.length} recurring events`);
-      }
-    } else {
-      // Single event
-      const eventData: Omit<FirestoreEvent, 'id' | 'createdAt'> = {
-        title: newEvent.title,
-        date: newEvent.date,
-        time: newEvent.time,
-        type: newEvent.type,
-        description: newEvent.description,
-        createdBy: user.uid,
-        createdByEmail: user.email || '',
-        sharedWith: [],
-        assignees: newEvent.assignees,
-        visibility: newEvent.visibility
-      };
-      const eventId = await addEventToDb(eventData);
-      if (eventId) {
-        setEvents([...events, { id: eventId, ...eventData }]);
-        console.log('Event added successfully:', eventId);
-      } else {
-        console.error('Failed to save event to database');
-        alert('Failed to save event. Please check your connection and try again.');
-      }
+  const handleAddContact = async () => {
+    if (!user || !newContact.name.trim() || !newContact.howWeKnowThem.trim()) return;
+    setSavingContact(true);
+    const id = await addTeamContact({
+      name: newContact.name.trim(),
+      email: newContact.email.trim(),
+      phone: newContact.phone.trim(),
+      howWeKnowThem: newContact.howWeKnowThem.trim(),
+      lastContacted: newContact.lastContacted,
+      createdBy: user.uid
+    });
+    if (id) {
+      setContacts([{ id, name: newContact.name.trim(), email: newContact.email.trim() || undefined, phone: newContact.phone.trim() || undefined, howWeKnowThem: newContact.howWeKnowThem.trim(), lastContacted: newContact.lastContacted || undefined, createdBy: user.uid }, ...contacts]);
     }
-    
-    setNewEvent({ title: '', date: '', time: '', type: 'meeting', description: '', assignees: [], visibility: 'private', isRecurring: false, recurringDays: [], recurringEndDate: '' });
-    setShowEventModal(false);
+    setNewContact({ name: '', email: '', phone: '', howWeKnowThem: '', lastContacted: '' });
+    setShowContactModal(false);
+    setSavingContact(false);
   };
 
-  const handleEditEvent = async () => {
-    if (!editingEvent) return;
-    const updates: Partial<FirestoreEvent> = {
-      title: editingEvent.title,
-      date: editingEvent.date,
-      time: editingEvent.time,
-      type: editingEvent.type,
-      description: editingEvent.description,
-      assignees: editingEvent.assignees,
-      visibility: editingEvent.visibility
+  const handleEditContact = async () => {
+    if (!editingContact?.id) return;
+    setSavingContact(true);
+    const updates = {
+      name: editingContact.name,
+      email: editingContact.email || '',
+      phone: editingContact.phone || '',
+      howWeKnowThem: editingContact.howWeKnowThem,
+      lastContacted: editingContact.lastContacted || ''
     };
-    const success = await updateEventInDb(editingEvent.id, updates);
+    const success = await updateTeamContact(editingContact.id, updates);
     if (success) {
-      setEvents(events.map(e => e.id === editingEvent.id ? { ...e, ...updates } : e));
-      console.log('Event updated successfully');
-    } else {
-      alert('Failed to update event. Please try again.');
+      setContacts(contacts.map(c => c.id === editingContact.id ? { ...c, ...editingContact } : c));
     }
-    setEditingEvent(null);
+    setEditingContact(null);
+    setSavingContact(false);
   };
 
-  const handleDeleteEvent = async (id: string) => {
-    if (await deleteEventFromDb(id)) setEvents(events.filter(e => e.id !== id));
-    setShowDeleteConfirm(null);
+  const handleDeleteContact = async (id: string) => {
+    if (await deleteTeamContact(id)) setContacts(contacts.filter(c => c.id !== id));
+    setShowDeleteContactConfirm(null);
   };
 
-  const handleAddTask = async () => {
-    if (!user || !newTask.title) return;
-    const taskData: Omit<FirestoreTask, 'id' | 'createdAt'> = {
-      title: newTask.title,
-      description: newTask.description,
-      dueDate: newTask.dueDate,
-      priority: newTask.priority,
-      status: newTask.status,
+  const handleNewsPhotoChange = (file: File | null) => {
+    if (!file) {
+      setNewNewsPost(prev => ({ ...prev, photoFile: null, photoPreview: '' }));
+      return;
+    }
+    setNewNewsPost(prev => ({ ...prev, photoFile: file, photoPreview: URL.createObjectURL(file) }));
+  };
+
+  const handleAddNewsPost = async () => {
+    if (!user || !newNewsPost.headline.trim() || !newNewsPost.body.trim() || !newNewsPost.photoFile) return;
+    setSavingNews(true);
+    const photoUrl = await uploadNewsPhoto(newNewsPost.photoFile);
+    if (!photoUrl) {
+      alert('Failed to upload photo. Please try again.');
+      setSavingNews(false);
+      return;
+    }
+    const id = await addNewsPost({
+      headline: newNewsPost.headline.trim(),
+      body: newNewsPost.body.trim(),
+      photoUrl,
       createdBy: user.uid,
-      assignees: newTask.assignees,
-      visibility: newTask.visibility
-    };
-    const taskId = await addTaskToDb(taskData);
-    if (taskId) {
-      setTasks([...tasks, { id: taskId, ...taskData }]);
-      console.log('Task added successfully:', taskId);
-    } else {
-      console.error('Failed to save task to database');
-      alert('Failed to save task. Please check your connection and try again.');
+      createdByEmail: user.email || ''
+    });
+    if (id) {
+      setNewsPosts([{ id, headline: newNewsPost.headline.trim(), body: newNewsPost.body.trim(), photoUrl, createdBy: user.uid, createdByEmail: user.email || '' }, ...newsPosts]);
     }
-    setNewTask({ title: '', description: '', dueDate: '', priority: 'medium', status: 'todo', assignees: [], visibility: 'private' });
-    setShowTaskModal(false);
+    setNewNewsPost({ headline: '', body: '', photoFile: null, photoPreview: '' });
+    setShowNewsModal(false);
+    setSavingNews(false);
   };
 
-  const handleEditTask = async () => {
-    if (!editingTask) return;
-    const updates: Partial<FirestoreTask> = {
-      title: editingTask.title,
-      description: editingTask.description,
-      dueDate: editingTask.dueDate,
-      priority: editingTask.priority,
-      status: editingTask.status,
-      assignees: editingTask.assignees,
-      visibility: editingTask.visibility
-    };
-    const success = await updateTaskInDb(editingTask.id, updates);
-    if (success) {
-      setTasks(tasks.map(t => t.id === editingTask.id ? { ...t, ...updates } : t));
-      console.log('Task updated successfully');
-    } else {
-      alert('Failed to update task. Please try again.');
-    }
-    setEditingTask(null);
-  };
-
-  const handleUpdateTaskStatus = async (taskId: string, status: Task['status']) => {
-    if (await updateTaskInDb(taskId, { status })) setTasks(tasks.map(t => t.id === taskId ? { ...t, status } : t));
-  };
-
-  const handleDeleteTask = async (id: string) => {
-    if (await deleteTaskFromDb(id)) setTasks(tasks.filter(t => t.id !== id));
-    setShowDeleteTaskConfirm(null);
+  const handleDeleteNewsPost = async (id: string) => {
+    if (await deleteNewsPost(id)) setNewsPosts(newsPosts.filter(n => n.id !== id));
+    setShowDeleteNewsConfirm(null);
   };
 
   const handleSearchUsers = async () => {
@@ -539,51 +351,6 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
       if (status === 'accepted') setTeamMembers(await getTeamMembers(user!.uid) as TeamMember[]);
     }
   };
-
-  const handleShareSearch = async () => {
-    if (!shareSearchEmail.trim()) return;
-    const results = await searchUsersByEmail(shareSearchEmail.toLowerCase());
-    setShareSearchResults((results as TeamMember[]).filter((r: any) => r.id !== user?.uid));
-  };
-
-  const handleShareWithUser = async (eventId: string, userId: string) => {
-    const event = events.find(e => e.id === eventId);
-    if (!event) return;
-    const newSharedWith = [...(event.sharedWith || []), userId];
-    if (await updateEventSharing(eventId, newSharedWith)) setEvents(events.map(e => e.id === eventId ? { ...e, sharedWith: newSharedWith } : e));
-  };
-
-  const handleRemoveShare = async (eventId: string, userId: string) => {
-    const event = events.find(e => e.id === eventId);
-    if (!event) return;
-    const newSharedWith = (event.sharedWith || []).filter(id => id !== userId);
-    if (await updateEventSharing(eventId, newSharedWith)) setEvents(events.map(e => e.id === eventId ? { ...e, sharedWith: newSharedWith } : e));
-  };
-
-  const toggleAssignee = (assignees: string[], setAssignees: (a: string[]) => void, memberId: string) => {
-    if (assignees.includes(memberId)) {
-      setAssignees(assignees.filter(id => id !== memberId));
-    } else {
-      setAssignees([...assignees, memberId]);
-    }
-  };
-
-  const getMemberName = (memberId: string) => {
-    if (memberId === user?.uid) return 'You';
-    const member = teamMembers.find(m => m.id === memberId);
-    return member?.displayName || member?.email?.split('@')[0] || 'Unknown';
-  };
-
-  const eventTypeColors = { meeting: 'from-blue-500 to-cyan-400', interview: 'from-emerald-500 to-teal-400', deadline: 'from-rose-500 to-pink-400', other: 'from-slate-500 to-gray-400', task: 'from-purple-500 to-violet-400' };
-  const eventTypeBgLight = { meeting: 'bg-blue-50 border-blue-200', interview: 'bg-emerald-50 border-emerald-200', deadline: 'bg-rose-50 border-rose-200', other: 'bg-slate-50 border-slate-200', task: 'bg-purple-50 border-purple-200' };
-  const eventTypeBgDark = { meeting: 'bg-blue-500/20 border-blue-500/30', interview: 'bg-emerald-500/20 border-emerald-500/30', deadline: 'bg-rose-500/20 border-rose-500/30', other: 'bg-slate-500/20 border-slate-500/30', task: 'bg-purple-500/20 border-purple-500/30' };
-  const eventTypeBg = theme === 'light' ? eventTypeBgLight : eventTypeBgDark;
-  
-  const priorityColorsLight = { low: 'bg-emerald-100 text-emerald-700 border-emerald-200', medium: 'bg-amber-100 text-amber-700 border-amber-200', high: 'bg-rose-100 text-rose-700 border-rose-200' };
-  const priorityColorsDark = { low: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', medium: 'bg-amber-500/20 text-amber-300 border-amber-500/30', high: 'bg-rose-500/20 text-rose-300 border-rose-500/30' };
-  const priorityColors = theme === 'light' ? priorityColorsLight : priorityColorsDark;
-  
-  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
   return (
     <AnimatePresence>
@@ -665,8 +432,8 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                 {/* Navigation */}
                 <nav className="flex-1 p-3 md:p-3 lg:p-4 space-y-2 overflow-y-auto">
                   {[
-                    { id: 'schedule', icon: Calendar, label: 'Schedule', desc: 'Calendar & tasks' },
-                    { id: 'tasks', icon: Zap, label: 'Tasks', desc: 'Track progress' },
+                    { id: 'contacts', icon: ContactIcon, label: 'Contacts', desc: 'Team contacts' },
+                    { id: 'news', icon: Newspaper, label: 'News', desc: 'Publish updates' },
                     { id: 'team', icon: Users, label: 'Team', desc: 'Manage members', badge: pendingInvites.length },
                     { id: 'inbox', icon: Inbox, label: 'Inbox', desc: 'Contact submissions', badge: submissions.filter(s => !s.read).length },
                     { id: 'applications', icon: Briefcase, label: 'Applications', desc: 'Internship applicants', badge: applications.filter(a => !a.read).length },
@@ -750,8 +517,8 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                         <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 bg-[#2A8C8F]/20 text-[#2A8C8F] rounded-full font-normal">Live</span>
                       </h1>
                       <p className={`${t.textMuted} text-xs sm:text-sm hidden sm:block`}>
-                        {activeTab === 'schedule' && 'Events & task deadlines'}
-                        {activeTab === 'tasks' && 'Track your progress'}
+                        {activeTab === 'contacts' && 'Shared team contacts'}
+                        {activeTab === 'news' && 'Publish company news'}
                         {activeTab === 'team' && 'Manage team members'}
                         {activeTab === 'inbox' && 'Contact form submissions'}
                         {activeTab === 'applications' && 'Internship applications'}
@@ -791,252 +558,111 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                     </div>
                   ) : (
                     <>
-                      {/* SCHEDULE TAB */}
-                      {activeTab === 'schedule' && (
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-                          {/* Calendar */}
-                          <div className={`lg:col-span-2 ${t.card} backdrop-blur-xl rounded-xl sm:rounded-2xl border p-3 sm:p-4 md:p-6`}>
-                            <div className="flex items-center justify-between mb-4 sm:mb-6">
-                              <h2 className={`text-base sm:text-lg font-semibold ${t.text}`}>
-                                {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
-                              </h2>
-                              <div className="flex items-center gap-1 sm:gap-2">
-                                <motion.button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))} className={`p-1.5 sm:p-2 rounded-lg ${t.card} border`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                  <ChevronLeft className={`w-4 h-4 ${t.textMuted}`} />
-                                </motion.button>
-                                <motion.button onClick={() => setCurrentMonth(new Date())} className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm text-[#2A8C8F] hover:bg-[#2A8C8F]/10 rounded-lg border border-[#2A8C8F]/30" whileHover={{ scale: 1.02 }}>Today</motion.button>
-                                <motion.button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))} className={`p-1.5 sm:p-2 rounded-lg ${t.card} border`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                  <ChevronRight className={`w-4 h-4 ${t.textMuted}`} />
-                                </motion.button>
-                              </div>
-                            </div>
+                      {/* CONTACTS TAB */}
+                      {activeTab === 'contacts' && (
+                        <div className="space-y-4 sm:space-y-6">
+                          <motion.button
+                            onClick={() => setShowContactModal(true)}
+                            className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-[#2A8C8F] to-[#1E7275] text-white rounded-xl font-medium shadow-lg shadow-[#2A8C8F]/30 border border-[#2A8C8F]/50 text-sm sm:text-base"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+                            New Contact
+                          </motion.button>
 
-                            <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
-                              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
-                                <div key={i} className={`text-center text-[10px] sm:text-xs font-medium ${t.textMuted} py-1 sm:py-2`}>
-                                  <span className="sm:hidden">{day}</span>
-                                  <span className="hidden sm:inline">{['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i]}</span>
-                                </div>
-                              ))}
-                              {getDaysInMonth(currentMonth).map((day, index) => {
-                                const isToday = day && formatDate(day) === formatDate(new Date());
-                                const isSelected = day && selectedDate && formatDate(day) === formatDate(selectedDate);
-                                const dayItems = day ? getCalendarItemsForDate(day) : [];
-                                
-                                return (
-                                  <motion.button
-                                    key={index}
-                                    onClick={() => day && setSelectedDate(day)}
-                                    className={`aspect-square p-0.5 sm:p-1 rounded-lg sm:rounded-xl text-xs sm:text-sm relative transition-all ${
-                                      !day ? 'invisible' :
-                                      isSelected ? 'bg-gradient-to-br from-[#2A8C8F] to-[#1E7275] text-white shadow-lg shadow-[#2A8C8F]/30' :
-                                      isToday ? 'bg-[#2A8C8F]/20 text-[#2A8C8F] border border-[#2A8C8F]/30' :
-                                      `${t.cardHover} ${t.textSecondary} border border-transparent hover:border-slate-200`
-                                    }`}
-                                    whileHover={day ? { scale: 1.1 } : {}}
-                                    whileTap={day ? { scale: 0.95 } : {}}
-                                  >
-                                    {day?.getDate()}
-                                    {dayItems.length > 0 && (
-                                      <div className="absolute bottom-0.5 sm:bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
-                                        {dayItems.slice(0, 3).map((item, i) => (
-                                          <div key={i} className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-gradient-to-r ${eventTypeColors[item.type]}`} />
-                                        ))}
-                                      </div>
-                                    )}
-                                  </motion.button>
-                                );
-                              })}
+                          {contacts.length === 0 ? (
+                            <div className={`${t.card} backdrop-blur-xl rounded-xl sm:rounded-2xl border p-8 sm:p-12 text-center`}>
+                              <ContactIcon className={`w-12 h-12 ${t.textMuted} mx-auto mb-3 opacity-40`} />
+                              <p className={`${t.textMuted} text-sm`}>No contacts yet</p>
                             </div>
-                            
-                            {/* Legend */}
-                            <div className={`mt-3 sm:mt-4 pt-3 sm:pt-4 border-t ${t.sidebarBorder} flex flex-wrap gap-2 sm:gap-3`}>
-                              {[
-                                { type: 'meeting', label: 'Meeting' },
-                                { type: 'interview', label: 'Interview' },
-                                { type: 'deadline', label: 'Deadline' },
-                                { type: 'task', label: 'Task' },
-                              ].map(item => (
-                                <div key={item.type} className="flex items-center gap-1 sm:gap-1.5">
-                                  <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-gradient-to-r ${eventTypeColors[item.type as keyof typeof eventTypeColors]}`} />
-                                  <span className={`text-[10px] sm:text-xs ${t.textMuted}`}>{item.label}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Events Sidebar */}
-                          <div className="space-y-3 sm:space-y-4">
-                            <motion.button
-                              onClick={() => { setShowEventModal(true); if (selectedDate) setNewEvent(prev => ({ ...prev, date: formatDate(selectedDate) })); }}
-                              className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 bg-gradient-to-r from-[#2A8C8F] to-[#1E7275] text-white rounded-xl font-medium shadow-lg shadow-[#2A8C8F]/30 border border-[#2A8C8F]/50 text-sm sm:text-base"
-                              whileHover={{ scale: 1.02, y: -2 }}
-                              whileTap={{ scale: 0.98 }}
-                            >
-                              <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-                              New Event
-                            </motion.button>
-
-                            <div className={`${t.card} backdrop-blur-xl rounded-xl sm:rounded-2xl border p-3 sm:p-4`}>
-                              <h3 className={`font-semibold ${t.text} mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base`}>
-                                <Calendar className="w-4 h-4 text-[#2A8C8F]" />
-                                {selectedDate ? selectedDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : 'Select a date'}
-                              </h3>
-                              
-                              {selectedDate && getCalendarItemsForDate(selectedDate).length > 0 ? (
-                                <div className="space-y-2 sm:space-y-3 max-h-48 sm:max-h-64 overflow-y-auto">
-                                  {getCalendarItemsForDate(selectedDate).map(item => (
-                                    <motion.div key={item.id} className={`p-2.5 sm:p-3 rounded-lg sm:rounded-xl border ${eventTypeBg[item.type]} group`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                                      <div className="flex items-start justify-between gap-2">
-                                        <div className="flex-1 min-w-0">
-                                          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                                            {item.isTask && <ListTodo className="w-3 h-3 text-purple-500 flex-shrink-0" />}
-                                            <p className={`font-medium ${t.text} text-xs sm:text-sm truncate`}>{item.title}</p>
-                                            {item.visibility === 'team' ? <Globe className={`w-3 h-3 ${t.textMuted} flex-shrink-0`} /> : <Lock className={`w-3 h-3 ${t.textMuted} flex-shrink-0`} />}
-                                          </div>
-                                          {item.time ? (
-                                            <p className={`text-[10px] sm:text-xs ${t.textMuted} flex items-center gap-1 mt-1`}>
-                                              <Clock className="w-3 h-3" />{item.time}
-                                            </p>
-                                          ) : !item.isTask && (
-                                            <p className={`text-[10px] sm:text-xs ${t.textMuted} mt-1`}>All day</p>
-                                          )}
-                                          {item.isTask && item.priority && (
-                                            <span className={`inline-block mt-1 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full border ${priorityColors[item.priority]}`}>{item.priority}</span>
-                                          )}
-                                          {item.assignees && item.assignees.length > 0 && (
-                                            <div className="flex items-center gap-1 mt-1.5 sm:mt-2">
-                                              <Users className={`w-3 h-3 ${t.textMuted} flex-shrink-0`} />
-                                              <span className={`text-[10px] sm:text-xs ${t.textMuted} truncate`}>
-                                                {item.assignees.map(id => getMemberName(id)).join(', ')}
-                                              </span>
-                                            </div>
-                                          )}
-                                        </div>
-                                        {!item.isTask && (
-                                          <div className="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all flex-shrink-0">
-                                            <button onClick={() => {
-                                              const event = events.find(e => e.id === item.id);
-                                              if (event) setEditingEvent(event);
-                                            }} className="p-1 sm:p-1.5 rounded-lg bg-amber-500/20 text-amber-500 hover:bg-amber-500/30">
-                                              <Edit3 className="w-3 h-3" />
-                                            </button>
-                                            <button onClick={() => setShowShareModal(item.id)} className="p-1 sm:p-1.5 rounded-lg bg-blue-500/20 text-blue-500 hover:bg-blue-500/30">
-                                              <Share2 className="w-3 h-3" />
-                                            </button>
-                                            <button onClick={() => setShowDeleteConfirm(item.id)} className="p-1 sm:p-1.5 rounded-lg bg-rose-500/20 text-rose-500 hover:bg-rose-500/30">
-                                              <Trash2 className="w-3 h-3" />
-                                            </button>
-                                          </div>
-                                        )}
-                                      </div>
-                                    </motion.div>
-                                  ))}
-                                </div>
-                              ) : (
-                                <p className={`${t.textMuted} text-xs sm:text-sm text-center py-6 sm:py-8`}>
-                                  {selectedDate ? 'No events or tasks' : 'Select a date'}
-                                </p>
-                              )}
-                            </div>
-
-                            <div className={`${t.card} backdrop-blur-xl rounded-xl sm:rounded-2xl border p-3 sm:p-4`}>
-                              <h3 className={`font-semibold ${t.text} mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base`}>
-                                <Zap className="w-4 h-4 text-[#2A8C8F]" />
-                                Upcoming
-                              </h3>
-                              <div className="space-y-1.5 sm:space-y-2 max-h-40 sm:max-h-48 overflow-y-auto">
-                                {[
-                                  ...events.filter(e => new Date(e.date) >= new Date()).map(e => ({ ...e, isTask: false, sortDate: e.date })),
-                                  ...tasks.filter(t => t.dueDate && new Date(t.dueDate) >= new Date()).map(t => ({ id: t.id, title: t.title, date: t.dueDate!, type: 'task' as const, isTask: true, sortDate: t.dueDate! }))
-                                ].sort((a, b) => new Date(a.sortDate).getTime() - new Date(b.sortDate).getTime()).slice(0, 5).map(item => (
-                                  <div key={item.id} className={`flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 rounded-lg ${t.cardHover} transition-colors`}>
-                                    <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-gradient-to-r flex-shrink-0 ${eventTypeColors[item.type as keyof typeof eventTypeColors]}`} />
-                                    <div className="flex-1 min-w-0">
-                                      <p className={`text-xs sm:text-sm font-medium ${t.textSecondary} truncate`}>{item.title}</p>
-                                      <p className={`text-[10px] sm:text-xs ${t.textMuted}`}>{item.date}</p>
+                          ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                              {contacts.map((contact, index) => (
+                                <motion.div
+                                  key={contact.id}
+                                  className={`${t.card} backdrop-blur-xl rounded-xl sm:rounded-2xl border p-3 sm:p-4 group`}
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ delay: index * 0.03 }}
+                                >
+                                  <div className="flex items-start justify-between gap-2 mb-2">
+                                    <p className={`font-semibold ${t.text} text-sm sm:text-base truncate`}>{contact.name}</p>
+                                    <div className="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all flex-shrink-0">
+                                      <button onClick={() => setEditingContact(contact)} className="p-1 sm:p-1.5 rounded-lg bg-amber-500/20 text-amber-500 hover:bg-amber-500/30">
+                                        <Edit3 className="w-3 h-3" />
+                                      </button>
+                                      <button onClick={() => setShowDeleteContactConfirm(contact.id!)} className="p-1 sm:p-1.5 rounded-lg bg-rose-500/20 text-rose-500 hover:bg-rose-500/30">
+                                        <Trash2 className="w-3 h-3" />
+                                      </button>
                                     </div>
-                                    {item.isTask && <ListTodo className="w-3 h-3 text-purple-500 flex-shrink-0" />}
                                   </div>
-                                ))}
-                                {events.filter(e => new Date(e.date) >= new Date()).length === 0 && tasks.filter(t => t.dueDate && new Date(t.dueDate) >= new Date()).length === 0 && (
-                                  <p className={`${t.textMuted} text-xs sm:text-sm text-center py-3 sm:py-4`}>Nothing upcoming</p>
-                                )}
-                              </div>
+                                  <div className="space-y-1 mb-2">
+                                    {contact.email && (
+                                      <p className={`text-xs sm:text-sm ${t.textMuted} flex items-center gap-1.5 truncate`}>
+                                        <Mail className="w-3 h-3 flex-shrink-0" />{contact.email}
+                                      </p>
+                                    )}
+                                    {contact.phone && (
+                                      <p className={`text-xs sm:text-sm ${t.textMuted} flex items-center gap-1.5 truncate`}>
+                                        <Phone className="w-3 h-3 flex-shrink-0" />{contact.phone}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <p className={`text-xs sm:text-sm ${t.textSecondary} mb-2`}>{contact.howWeKnowThem}</p>
+                                  {contact.lastContacted && (
+                                    <p className={`text-[10px] sm:text-xs ${t.textMuted}`}>Last contacted: {contact.lastContacted}</p>
+                                  )}
+                                </motion.div>
+                              ))}
                             </div>
-                          </div>
+                          )}
                         </div>
                       )}
 
-                      {/* TASKS TAB */}
-                      {activeTab === 'tasks' && (
+                      {/* NEWS TAB */}
+                      {activeTab === 'news' && (
                         <div className="space-y-4 sm:space-y-6">
-                          <motion.button onClick={() => setShowTaskModal(true)} className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-[#2A8C8F] to-[#1E7275] text-white rounded-xl font-medium shadow-lg shadow-[#2A8C8F]/30 border border-[#2A8C8F]/50 text-sm sm:text-base" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                          <motion.button
+                            onClick={() => setShowNewsModal(true)}
+                            className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-[#2A8C8F] to-[#1E7275] text-white rounded-xl font-medium shadow-lg shadow-[#2A8C8F]/30 border border-[#2A8C8F]/50 text-sm sm:text-base"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
                             <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-                            New Task
+                            New Post
                           </motion.button>
 
-                          {/* Mobile: Horizontal scroll tabs */}
-                          <div className="flex gap-2 overflow-x-auto pb-2 md:hidden -mx-3 px-3">
-                            {(['todo', 'in_progress', 'done'] as const).map(status => (
-                              <button
-                                key={status}
-                                onClick={() => {
-                                  const el = document.getElementById(`task-col-${status}`);
-                                  el?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
-                                }}
-                                className={`flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg border ${t.card} text-sm`}
-                              >
-                                <div className={`w-2 h-2 rounded-full ${status === 'todo' ? 'bg-gray-400' : status === 'in_progress' ? 'bg-blue-500' : 'bg-emerald-500'}`} />
-                                <span className={t.textSecondary}>
-                                  {status === 'todo' ? 'To Do' : status === 'in_progress' ? 'In Progress' : 'Done'}
-                                </span>
-                                <span className={`${t.textMuted} text-xs`}>({tasks.filter(t => t.status === status).length})</span>
-                              </button>
-                            ))}
-                          </div>
-
-                          {/* Desktop: Grid layout */}
-                          <div className="hidden md:grid md:grid-cols-3 gap-4 lg:gap-6">
-                            {(['todo', 'in_progress', 'done'] as const).map(status => (
-                              <div key={status} id={`task-col-${status}`} className={`${t.card} backdrop-blur-xl rounded-xl sm:rounded-2xl border p-3 sm:p-4`}>
-                                <h3 className={`font-semibold ${t.text} mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base`}>
-                                  <div className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full ${status === 'todo' ? 'bg-gray-400' : status === 'in_progress' ? 'bg-blue-500' : 'bg-emerald-500'}`} />
-                                  {status === 'todo' ? 'To Do' : status === 'in_progress' ? 'In Progress' : 'Done'}
-                                  <span className={`${t.textMuted} text-xs sm:text-sm font-normal`}>({tasks.filter(t => t.status === status).length})</span>
-                                </h3>
-                                <div className="space-y-2 sm:space-y-3 max-h-[60vh] overflow-y-auto">
-                                  {tasks.filter(t => t.status === status).map(task => (
-                                    <TaskCard key={task.id} task={task} priorityColors={priorityColors} theme={theme} t={t} getMemberName={getMemberName} onStatusChange={handleUpdateTaskStatus} onDelete={() => setShowDeleteTaskConfirm(task.id)} onEdit={() => setEditingTask(task)} />
-                                  ))}
-                                  {tasks.filter(t => t.status === status).length === 0 && (
-                                    <p className={`${t.textMuted} text-xs sm:text-sm text-center py-6 sm:py-8`}>No tasks</p>
-                                  )}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-
-                          {/* Mobile: Stacked columns */}
-                          <div className="md:hidden space-y-4">
-                            {(['todo', 'in_progress', 'done'] as const).map(status => (
-                              <div key={status} id={`task-col-${status}`} className={`${t.card} backdrop-blur-xl rounded-xl border p-3`}>
-                                <h3 className={`font-semibold ${t.text} mb-3 flex items-center gap-2 text-sm`}>
-                                  <div className={`w-2.5 h-2.5 rounded-full ${status === 'todo' ? 'bg-gray-400' : status === 'in_progress' ? 'bg-blue-500' : 'bg-emerald-500'}`} />
-                                  {status === 'todo' ? 'To Do' : status === 'in_progress' ? 'In Progress' : 'Done'}
-                                  <span className={`${t.textMuted} text-xs font-normal`}>({tasks.filter(t => t.status === status).length})</span>
-                                </h3>
-                                <div className="space-y-2">
-                                  {tasks.filter(t => t.status === status).map(task => (
-                                    <TaskCard key={task.id} task={task} priorityColors={priorityColors} theme={theme} t={t} getMemberName={getMemberName} onStatusChange={handleUpdateTaskStatus} onDelete={() => setShowDeleteTaskConfirm(task.id)} onEdit={() => setEditingTask(task)} />
-                                  ))}
-                                  {tasks.filter(t => t.status === status).length === 0 && (
-                                    <p className={`${t.textMuted} text-xs text-center py-4`}>No tasks</p>
-                                  )}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
+                          {newsPosts.length === 0 ? (
+                            <div className={`${t.card} backdrop-blur-xl rounded-xl sm:rounded-2xl border p-8 sm:p-12 text-center`}>
+                              <Newspaper className={`w-12 h-12 ${t.textMuted} mx-auto mb-3 opacity-40`} />
+                              <p className={`${t.textMuted} text-sm`}>No news posts yet</p>
+                            </div>
+                          ) : (
+                            <div className="space-y-3 sm:space-y-4">
+                              {newsPosts.map((post, index) => (
+                                <motion.div
+                                  key={post.id}
+                                  className={`${t.card} backdrop-blur-xl rounded-xl sm:rounded-2xl border p-3 sm:p-4 flex gap-3 sm:gap-4 group`}
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ delay: index * 0.03 }}
+                                >
+                                  <img src={post.photoUrl} alt="" className="w-20 h-20 sm:w-28 sm:h-28 rounded-lg sm:rounded-xl object-cover flex-shrink-0" />
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-start justify-between gap-2">
+                                      <p className={`font-semibold ${t.text} text-sm sm:text-base`}>{post.headline}</p>
+                                      <button onClick={() => setShowDeleteNewsConfirm(post.id!)} className="p-1 sm:p-1.5 rounded-lg bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all flex-shrink-0">
+                                        <Trash2 className="w-3 h-3" />
+                                      </button>
+                                    </div>
+                                    <p className={`text-xs sm:text-sm ${t.textMuted} line-clamp-2 mt-1`}>{post.body}</p>
+                                    <p className={`text-[10px] ${t.textMuted} opacity-70 mt-1.5`}>{formatTimestamp(post.createdAt)}</p>
+                                  </div>
+                                </motion.div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )}
 
@@ -1295,13 +921,17 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                   <Briefcase className="w-4 h-4" /> View Resume
                                 </a>
 
+                                <p className={`text-xs ${t.textMuted} mb-4`}>
+                                  Submitted {formatTimestamp(selectedApplication.createdAt)}
+                                </p>
+
                                 <div className="space-y-3">
                                   <div className={`${theme === 'dark' ? 'bg-white/5' : 'bg-gray-50'} rounded-xl p-4`}>
-                                    <p className={`text-xs ${t.textMuted} mb-1`}>Why are you passionate about this role?</p>
+                                    <p className={`text-xs ${t.textMuted} mb-1`}>Tell us about yourself</p>
                                     <p className={`text-sm ${t.text} whitespace-pre-wrap leading-relaxed`}>{selectedApplication.whyPassionate}</p>
                                   </div>
                                   <div className={`${theme === 'dark' ? 'bg-white/5' : 'bg-gray-50'} rounded-xl p-4`}>
-                                    <p className={`text-xs ${t.textMuted} mb-1`}>Why Pando Surgical?</p>
+                                    <p className={`text-xs ${t.textMuted} mb-1`}>Why Pando Surgical? Why this role?</p>
                                     <p className={`text-sm ${t.text} whitespace-pre-wrap leading-relaxed`}>{selectedApplication.whyPando}</p>
                                   </div>
                                   <div className={`${theme === 'dark' ? 'bg-white/5' : 'bg-gray-50'} rounded-xl p-4`}>
@@ -1362,7 +992,8 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
                                     <span className="text-[10px] sm:text-xs px-2 py-0.5 bg-[#2A8C8F]/15 text-[#2A8C8F] rounded-full">{app.role}</span>
                                   </div>
                                   <p className={`text-xs ${t.textMuted} mb-1`}>{app.email}</p>
-                                  <p className={`text-xs ${t.textMuted} line-clamp-1`}>{app.whyPassionate}</p>
+                                  <p className={`text-xs ${t.textMuted} line-clamp-1 mb-1`}>{app.whyPassionate}</p>
+                                  <p className={`text-[10px] ${t.textMuted} opacity-70`}>{formatTimestamp(app.createdAt)}</p>
                                 </motion.button>
                               ))}
                             </div>
@@ -1593,359 +1224,90 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
 
           {/* Modals */}
           <AnimatePresence>
-            {showEventModal && (
-              <Modal theme={theme} t={t} onClose={() => setShowEventModal(false)}>
-                <h3 className={`text-lg sm:text-xl font-bold ${t.text} mb-3 sm:mb-4`}>New Event</h3>
+            {showContactModal && (
+              <Modal theme={theme} t={t} onClose={() => setShowContactModal(false)}>
+                <h3 className={`text-lg sm:text-xl font-bold ${t.text} mb-3 sm:mb-4`}>New Contact</h3>
                 <div className="space-y-3 sm:space-y-4">
                   <div>
-                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Title</label>
-                    <input type="text" value={newEvent.title} onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} placeholder="Event title" />
+                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Name</label>
+                    <input type="text" value={newContact.name} onChange={(e) => setNewContact({ ...newContact, name: e.target.value })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} placeholder="Full name" />
                   </div>
                   <div className="grid grid-cols-2 gap-2 sm:gap-4">
                     <div>
-                      <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>{newEvent.isRecurring ? 'Start Date' : 'Date'}</label>
-                      <input type="date" value={newEvent.date} onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })} className={`w-full px-2 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} />
+                      <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Email <span className="text-[10px] sm:text-xs opacity-60">(opt)</span></label>
+                      <input type="email" value={newContact.email} onChange={(e) => setNewContact({ ...newContact, email: e.target.value })} className={`w-full px-2 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} />
                     </div>
                     <div>
-                      <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Time <span className="text-[10px] sm:text-xs opacity-60">(opt)</span></label>
-                      <input type="time" value={newEvent.time} onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })} className={`w-full px-2 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} />
+                      <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Phone <span className="text-[10px] sm:text-xs opacity-60">(opt)</span></label>
+                      <input type="tel" value={newContact.phone} onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })} className={`w-full px-2 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} />
                     </div>
                   </div>
                   <div>
-                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Type</label>
-                    <select value={newEvent.type} onChange={(e) => setNewEvent({ ...newEvent, type: e.target.value as any })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`}>
-                      <option value="meeting">Meeting</option>
-                      <option value="interview">Interview</option>
-                      <option value="deadline">Deadline</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-                  {/* Recurring Event Options */}
-                  <div>
-                    <label className={`flex items-center gap-2 cursor-pointer`}>
-                      <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded flex items-center justify-center border transition-all ${newEvent.isRecurring ? t.checkboxChecked : t.checkboxBg}`}>
-                        {newEvent.isRecurring && <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />}
-                      </div>
-                      <input type="checkbox" checked={newEvent.isRecurring} onChange={(e) => setNewEvent({ ...newEvent, isRecurring: e.target.checked })} className="hidden" />
-                      <span className={`text-xs sm:text-sm ${t.text} flex items-center gap-1`}>
-                        <Repeat className="w-3.5 h-3.5" />
-                        Recurring Weekly
-                      </span>
-                    </label>
-                    {newEvent.isRecurring && (
-                      <div className="mt-2 space-y-2">
-                        <div className="flex flex-wrap gap-1.5">
-                          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, idx) => (
-                            <button
-                              key={day}
-                              type="button"
-                              onClick={() => {
-                                const days = newEvent.recurringDays.includes(idx)
-                                  ? newEvent.recurringDays.filter(d => d !== idx)
-                                  : [...newEvent.recurringDays, idx];
-                                setNewEvent({ ...newEvent, recurringDays: days });
-                              }}
-                              className={`px-2 py-1 text-[10px] sm:text-xs rounded-lg border transition-all ${
-                                newEvent.recurringDays.includes(idx)
-                                  ? 'bg-[#2A8C8F] border-[#2A8C8F] text-white'
-                                  : `${t.taskCard} ${t.textMuted}`
-                              }`}
-                            >
-                              {day}
-                            </button>
-                          ))}
-                        </div>
-                        <div>
-                          <label className={`block text-[10px] sm:text-xs ${t.textMuted} mb-1`}>End Date</label>
-                          <input type="date" value={newEvent.recurringEndDate} onChange={(e) => setNewEvent({ ...newEvent, recurringEndDate: e.target.value })} className={`w-full px-2 sm:px-4 py-1.5 sm:py-2 text-sm ${t.input} border rounded-lg focus:outline-none ${t.inputFocus}`} />
-                        </div>
-                      </div>
-                    )}
+                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>How We Know Them</label>
+                    <input type="text" value={newContact.howWeKnowThem} onChange={(e) => setNewContact({ ...newContact, howWeKnowThem: e.target.value })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} placeholder="e.g. Met at MFC Awards Night" />
                   </div>
                   <div>
-                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Visibility</label>
-                    <div className="flex gap-2">
-                      <button type="button" onClick={() => setNewEvent({ ...newEvent, visibility: 'private' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${newEvent.visibility === 'private' ? 'bg-[#2A8C8F]/20 border-[#2A8C8F]/50 text-[#2A8C8F]' : `${t.taskCard} ${t.textMuted}`}`}>
-                        <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        <span className="text-xs sm:text-sm">Private</span>
-                      </button>
-                      <button type="button" onClick={() => setNewEvent({ ...newEvent, visibility: 'team' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${newEvent.visibility === 'team' ? 'bg-[#2A8C8F]/20 border-[#2A8C8F]/50 text-[#2A8C8F]' : `${t.taskCard} ${t.textMuted}`}`}>
-                        <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        <span className="text-xs sm:text-sm">Team</span>
-                      </button>
-                    </div>
-                    <p className={`text-[10px] sm:text-xs ${t.textMuted} mt-1`}>{newEvent.visibility === 'private' ? 'Only you and participants can see this' : 'All team members can see this'}</p>
-                  </div>
-                  <div>
-                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Participants</label>
-                    <div className={`p-2 sm:p-3 rounded-lg sm:rounded-xl ${t.taskCard} border space-y-1.5 sm:space-y-2 max-h-28 sm:max-h-32 overflow-y-auto`}>
-                      {selectableMembers.length > 0 ? selectableMembers.map(member => (
-                        <label key={member.id} className={`flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 rounded-lg ${t.cardHover} cursor-pointer`}>
-                          <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded flex items-center justify-center border transition-all ${newEvent.assignees.includes(member.id) ? t.checkboxChecked : t.checkboxBg}`}>
-                            {newEvent.assignees.includes(member.id) && <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />}
-                          </div>
-                          <input type="checkbox" checked={newEvent.assignees.includes(member.id)} onChange={() => toggleAssignee(newEvent.assignees, (a) => setNewEvent({ ...newEvent, assignees: a }), member.id)} className="hidden" />
-                          <span className={`text-xs sm:text-sm ${t.text} truncate`}>{member.id === user?.uid ? 'You' : member.displayName || member.email}</span>
-                        </label>
-                      )) : <p className={`text-xs sm:text-sm ${t.textMuted} text-center py-2`}>Add team members first</p>}
-                    </div>
-                  </div>
-                  <div>
-                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Description</label>
-                    <textarea value={newEvent.description} onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus} resize-none`} rows={2} placeholder="Optional" />
+                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Last Contacted <span className="text-[10px] sm:text-xs opacity-60">(opt)</span></label>
+                    <input type="date" value={newContact.lastContacted} onChange={(e) => setNewContact({ ...newContact, lastContacted: e.target.value })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} />
                   </div>
                 </div>
                 <div className="flex gap-2 sm:gap-3 mt-4 sm:mt-6">
-                  <button onClick={() => setShowEventModal(false)} className={`flex-1 py-2 sm:py-2.5 text-sm ${t.cancelBtn} border rounded-lg sm:rounded-xl`}>Cancel</button>
-                  <motion.button onClick={handleAddEvent} className="flex-1 py-2 sm:py-2.5 text-sm bg-gradient-to-r from-[#2A8C8F] to-[#1E7275] text-white rounded-lg sm:rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Create Event</motion.button>
+                  <button onClick={() => setShowContactModal(false)} className={`flex-1 py-2 sm:py-2.5 text-sm ${t.cancelBtn} border rounded-lg sm:rounded-xl`}>Cancel</button>
+                  <motion.button onClick={handleAddContact} disabled={savingContact || !newContact.name.trim() || !newContact.howWeKnowThem.trim()} className="flex-1 py-2 sm:py-2.5 text-sm bg-gradient-to-r from-[#2A8C8F] to-[#1E7275] text-white rounded-lg sm:rounded-xl font-medium disabled:opacity-50" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>{savingContact ? 'Saving...' : 'Add Contact'}</motion.button>
                 </div>
               </Modal>
             )}
           </AnimatePresence>
 
-          {/* Edit Event Modal */}
+          {/* Edit Contact Modal */}
           <AnimatePresence>
-            {editingEvent && (
-              <Modal theme={theme} t={t} onClose={() => setEditingEvent(null)}>
-                <h3 className={`text-lg sm:text-xl font-bold ${t.text} mb-3 sm:mb-4`}>Edit Event</h3>
+            {editingContact && (
+              <Modal theme={theme} t={t} onClose={() => setEditingContact(null)}>
+                <h3 className={`text-lg sm:text-xl font-bold ${t.text} mb-3 sm:mb-4`}>Edit Contact</h3>
                 <div className="space-y-3 sm:space-y-4">
                   <div>
-                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Title</label>
-                    <input type="text" value={editingEvent.title} onChange={(e) => setEditingEvent({ ...editingEvent, title: e.target.value })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} placeholder="Event title" />
+                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Name</label>
+                    <input type="text" value={editingContact.name} onChange={(e) => setEditingContact({ ...editingContact, name: e.target.value })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} />
                   </div>
                   <div className="grid grid-cols-2 gap-2 sm:gap-4">
                     <div>
-                      <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Date</label>
-                      <input type="date" value={editingEvent.date} onChange={(e) => setEditingEvent({ ...editingEvent, date: e.target.value })} className={`w-full px-2 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} />
+                      <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Email</label>
+                      <input type="email" value={editingContact.email || ''} onChange={(e) => setEditingContact({ ...editingContact, email: e.target.value })} className={`w-full px-2 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} />
                     </div>
                     <div>
-                      <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Time</label>
-                      <input type="time" value={editingEvent.time} onChange={(e) => setEditingEvent({ ...editingEvent, time: e.target.value })} className={`w-full px-2 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} />
+                      <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Phone</label>
+                      <input type="tel" value={editingContact.phone || ''} onChange={(e) => setEditingContact({ ...editingContact, phone: e.target.value })} className={`w-full px-2 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} />
                     </div>
                   </div>
                   <div>
-                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Type</label>
-                    <select value={editingEvent.type} onChange={(e) => setEditingEvent({ ...editingEvent, type: e.target.value as any })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`}>
-                      <option value="meeting">Meeting</option>
-                      <option value="interview">Interview</option>
-                      <option value="deadline">Deadline</option>
-                      <option value="other">Other</option>
-                    </select>
+                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>How We Know Them</label>
+                    <input type="text" value={editingContact.howWeKnowThem} onChange={(e) => setEditingContact({ ...editingContact, howWeKnowThem: e.target.value })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} />
                   </div>
                   <div>
-                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Visibility</label>
-                    <div className="flex gap-2">
-                      <button type="button" onClick={() => setEditingEvent({ ...editingEvent, visibility: 'private' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${editingEvent.visibility === 'private' ? 'bg-[#2A8C8F]/20 border-[#2A8C8F]/50 text-[#2A8C8F]' : `${t.taskCard} ${t.textMuted}`}`}>
-                        <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        <span className="text-xs sm:text-sm">Private</span>
-                      </button>
-                      <button type="button" onClick={() => setEditingEvent({ ...editingEvent, visibility: 'team' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${editingEvent.visibility === 'team' ? 'bg-[#2A8C8F]/20 border-[#2A8C8F]/50 text-[#2A8C8F]' : `${t.taskCard} ${t.textMuted}`}`}>
-                        <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        <span className="text-xs sm:text-sm">Team</span>
-                      </button>
-                    </div>
-                  </div>
-                  <div>
-                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Participants</label>
-                    <div className={`p-2 sm:p-3 rounded-lg sm:rounded-xl ${t.taskCard} border space-y-1.5 sm:space-y-2 max-h-28 sm:max-h-32 overflow-y-auto`}>
-                      {selectableMembers.length > 0 ? selectableMembers.map(member => (
-                        <label key={member.id} className={`flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 rounded-lg ${t.cardHover} cursor-pointer`}>
-                          <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded flex items-center justify-center border transition-all ${(editingEvent.assignees || []).includes(member.id) ? t.checkboxChecked : t.checkboxBg}`}>
-                            {(editingEvent.assignees || []).includes(member.id) && <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />}
-                          </div>
-                          <input type="checkbox" checked={(editingEvent.assignees || []).includes(member.id)} onChange={() => {
-                            const assignees = editingEvent.assignees || [];
-                            const newAssignees = assignees.includes(member.id) ? assignees.filter(id => id !== member.id) : [...assignees, member.id];
-                            setEditingEvent({ ...editingEvent, assignees: newAssignees });
-                          }} className="hidden" />
-                          <span className={`text-xs sm:text-sm ${t.text} truncate`}>{member.id === user?.uid ? 'You' : member.displayName || member.email}</span>
-                        </label>
-                      )) : <p className={`text-xs sm:text-sm ${t.textMuted} text-center py-2`}>Add team members first</p>}
-                    </div>
-                  </div>
-                  <div>
-                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Description</label>
-                    <textarea value={editingEvent.description || ''} onChange={(e) => setEditingEvent({ ...editingEvent, description: e.target.value })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus} resize-none`} rows={2} placeholder="Optional" />
+                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Last Contacted</label>
+                    <input type="date" value={editingContact.lastContacted || ''} onChange={(e) => setEditingContact({ ...editingContact, lastContacted: e.target.value })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} />
                   </div>
                 </div>
                 <div className="flex gap-2 sm:gap-3 mt-4 sm:mt-6">
-                  <button onClick={() => setEditingEvent(null)} className={`flex-1 py-2 sm:py-2.5 text-sm ${t.cancelBtn} border rounded-lg sm:rounded-xl`}>Cancel</button>
-                  <motion.button onClick={handleEditEvent} className="flex-1 py-2 sm:py-2.5 text-sm bg-gradient-to-r from-[#2A8C8F] to-[#1E7275] text-white rounded-lg sm:rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Save Changes</motion.button>
+                  <button onClick={() => setEditingContact(null)} className={`flex-1 py-2 sm:py-2.5 text-sm ${t.cancelBtn} border rounded-lg sm:rounded-xl`}>Cancel</button>
+                  <motion.button onClick={handleEditContact} disabled={savingContact} className="flex-1 py-2 sm:py-2.5 text-sm bg-gradient-to-r from-[#2A8C8F] to-[#1E7275] text-white rounded-lg sm:rounded-xl font-medium disabled:opacity-50" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>{savingContact ? 'Saving...' : 'Save Changes'}</motion.button>
                 </div>
               </Modal>
             )}
           </AnimatePresence>
 
           <AnimatePresence>
-            {showTaskModal && (
-              <Modal theme={theme} t={t} onClose={() => setShowTaskModal(false)}>
-                <h3 className={`text-lg sm:text-xl font-bold ${t.text} mb-3 sm:mb-4`}>New Task</h3>
-                <div className="space-y-3 sm:space-y-4">
-                  <div>
-                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Title</label>
-                    <input type="text" value={newTask.title} onChange={(e) => setNewTask({ ...newTask, title: e.target.value })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} placeholder="Task title" />
-                  </div>
-                  <div>
-                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Description</label>
-                    <textarea value={newTask.description} onChange={(e) => setNewTask({ ...newTask, description: e.target.value })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus} resize-none`} rows={2} placeholder="Optional" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 sm:gap-4">
-                    <div>
-                      <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Due Date</label>
-                      <input type="date" value={newTask.dueDate} onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })} className={`w-full px-2 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} />
-                    </div>
-                    <div>
-                      <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Priority</label>
-                      <select value={newTask.priority} onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as any })} className={`w-full px-2 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`}>
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div>
-                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Visibility</label>
-                    <div className="flex gap-2">
-                      <button type="button" onClick={() => setNewTask({ ...newTask, visibility: 'private' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${newTask.visibility === 'private' ? 'bg-[#2A8C8F]/20 border-[#2A8C8F]/50 text-[#2A8C8F]' : `${t.taskCard} ${t.textMuted}`}`}>
-                        <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        <span className="text-xs sm:text-sm">Private</span>
-                      </button>
-                      <button type="button" onClick={() => setNewTask({ ...newTask, visibility: 'team' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${newTask.visibility === 'team' ? 'bg-[#2A8C8F]/20 border-[#2A8C8F]/50 text-[#2A8C8F]' : `${t.taskCard} ${t.textMuted}`}`}>
-                        <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        <span className="text-xs sm:text-sm">Team</span>
-                      </button>
-                    </div>
-                    <p className={`text-[10px] sm:text-xs ${t.textMuted} mt-1`}>{newTask.visibility === 'private' ? 'Only you and assignees can see this' : 'All team members can see this'}</p>
-                  </div>
-                  <div>
-                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Assign To</label>
-                    <div className={`p-2 sm:p-3 rounded-lg sm:rounded-xl ${t.taskCard} border space-y-1.5 sm:space-y-2 max-h-28 sm:max-h-32 overflow-y-auto`}>
-                      {selectableMembers.length > 0 ? selectableMembers.map(member => (
-                        <label key={member.id} className={`flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 rounded-lg ${t.cardHover} cursor-pointer`}>
-                          <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded flex items-center justify-center border transition-all ${newTask.assignees.includes(member.id) ? t.checkboxChecked : t.checkboxBg}`}>
-                            {newTask.assignees.includes(member.id) && <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />}
-                          </div>
-                          <input type="checkbox" checked={newTask.assignees.includes(member.id)} onChange={() => toggleAssignee(newTask.assignees, (a) => setNewTask({ ...newTask, assignees: a }), member.id)} className="hidden" />
-                          <span className={`text-xs sm:text-sm ${t.text} truncate`}>{member.id === user?.uid ? 'You' : member.displayName || member.email}</span>
-                        </label>
-                      )) : <p className={`text-xs sm:text-sm ${t.textMuted} text-center py-2`}>Add team members first</p>}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex gap-2 sm:gap-3 mt-4 sm:mt-6">
-                  <button onClick={() => setShowTaskModal(false)} className={`flex-1 py-2 sm:py-2.5 text-sm ${t.cancelBtn} border rounded-lg sm:rounded-xl`}>Cancel</button>
-                  <motion.button onClick={handleAddTask} className="flex-1 py-2 sm:py-2.5 text-sm bg-gradient-to-r from-[#2A8C8F] to-[#1E7275] text-white rounded-lg sm:rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Create Task</motion.button>
-                </div>
-              </Modal>
-            )}
-          </AnimatePresence>
-
-          {/* Edit Task Modal */}
-          <AnimatePresence>
-            {editingTask && (
-              <Modal theme={theme} t={t} onClose={() => setEditingTask(null)}>
-                <h3 className={`text-lg sm:text-xl font-bold ${t.text} mb-3 sm:mb-4`}>Edit Task</h3>
-                <div className="space-y-3 sm:space-y-4">
-                  <div>
-                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Title</label>
-                    <input type="text" value={editingTask.title} onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} placeholder="Task title" />
-                  </div>
-                  <div>
-                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Description</label>
-                    <textarea value={editingTask.description || ''} onChange={(e) => setEditingTask({ ...editingTask, description: e.target.value })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus} resize-none`} rows={2} placeholder="Optional" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 sm:gap-4">
-                    <div>
-                      <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Due Date</label>
-                      <input type="date" value={editingTask.dueDate || ''} onChange={(e) => setEditingTask({ ...editingTask, dueDate: e.target.value })} className={`w-full px-2 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} />
-                    </div>
-                    <div>
-                      <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Priority</label>
-                      <select value={editingTask.priority} onChange={(e) => setEditingTask({ ...editingTask, priority: e.target.value as any })} className={`w-full px-2 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`}>
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div>
-                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Status</label>
-                    <select value={editingTask.status} onChange={(e) => setEditingTask({ ...editingTask, status: e.target.value as any })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`}>
-                      <option value="todo">To Do</option>
-                      <option value="in_progress">In Progress</option>
-                      <option value="done">Done</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Visibility</label>
-                    <div className="flex gap-2">
-                      <button type="button" onClick={() => setEditingTask({ ...editingTask, visibility: 'private' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${editingTask.visibility === 'private' ? 'bg-[#2A8C8F]/20 border-[#2A8C8F]/50 text-[#2A8C8F]' : `${t.taskCard} ${t.textMuted}`}`}>
-                        <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        <span className="text-xs sm:text-sm">Private</span>
-                      </button>
-                      <button type="button" onClick={() => setEditingTask({ ...editingTask, visibility: 'team' })} className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border transition-all ${editingTask.visibility === 'team' ? 'bg-[#2A8C8F]/20 border-[#2A8C8F]/50 text-[#2A8C8F]' : `${t.taskCard} ${t.textMuted}`}`}>
-                        <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        <span className="text-xs sm:text-sm">Team</span>
-                      </button>
-                    </div>
-                  </div>
-                  <div>
-                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Assign To</label>
-                    <div className={`p-2 sm:p-3 rounded-lg sm:rounded-xl ${t.taskCard} border space-y-1.5 sm:space-y-2 max-h-28 sm:max-h-32 overflow-y-auto`}>
-                      {selectableMembers.length > 0 ? selectableMembers.map(member => (
-                        <label key={member.id} className={`flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 rounded-lg ${t.cardHover} cursor-pointer`}>
-                          <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded flex items-center justify-center border transition-all ${(editingTask.assignees || []).includes(member.id) ? t.checkboxChecked : t.checkboxBg}`}>
-                            {(editingTask.assignees || []).includes(member.id) && <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />}
-                          </div>
-                          <input type="checkbox" checked={(editingTask.assignees || []).includes(member.id)} onChange={() => {
-                            const assignees = editingTask.assignees || [];
-                            const newAssignees = assignees.includes(member.id) ? assignees.filter(id => id !== member.id) : [...assignees, member.id];
-                            setEditingTask({ ...editingTask, assignees: newAssignees });
-                          }} className="hidden" />
-                          <span className={`text-xs sm:text-sm ${t.text} truncate`}>{member.id === user?.uid ? 'You' : member.displayName || member.email}</span>
-                        </label>
-                      )) : <p className={`text-xs sm:text-sm ${t.textMuted} text-center py-2`}>Add team members first</p>}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex gap-2 sm:gap-3 mt-4 sm:mt-6">
-                  <button onClick={() => setEditingTask(null)} className={`flex-1 py-2 sm:py-2.5 text-sm ${t.cancelBtn} border rounded-lg sm:rounded-xl`}>Cancel</button>
-                  <motion.button onClick={handleEditTask} className="flex-1 py-2 sm:py-2.5 text-sm bg-gradient-to-r from-[#2A8C8F] to-[#1E7275] text-white rounded-lg sm:rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Save Changes</motion.button>
-                </div>
-              </Modal>
-            )}
-          </AnimatePresence>
-
-          <AnimatePresence>
-            {showDeleteConfirm && (
-              <Modal theme={theme} t={t} onClose={() => setShowDeleteConfirm(null)}>
+            {showDeleteContactConfirm && (
+              <Modal theme={theme} t={t} onClose={() => setShowDeleteContactConfirm(null)}>
                 <div className="text-center">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full bg-rose-500/20 border border-rose-500/30 flex items-center justify-center">
                     <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-rose-500" />
                   </div>
-                  <h3 className={`text-lg sm:text-xl font-bold ${t.text} mb-2`}>Delete Event?</h3>
-                  <p className={`${t.textMuted} text-sm mb-4 sm:mb-6`}>This will remove the event for everyone.</p>
-                  <div className="flex gap-2 sm:gap-3">
-                    <button onClick={() => setShowDeleteConfirm(null)} className={`flex-1 py-2 sm:py-2.5 text-sm ${t.cancelBtn} border rounded-lg sm:rounded-xl`}>Cancel</button>
-                    <motion.button onClick={() => handleDeleteEvent(showDeleteConfirm)} className="flex-1 py-2 sm:py-2.5 text-sm bg-rose-500 text-white rounded-lg sm:rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Delete</motion.button>
-                  </div>
-                </div>
-              </Modal>
-            )}
-          </AnimatePresence>
-
-          <AnimatePresence>
-            {showDeleteTaskConfirm && (
-              <Modal theme={theme} t={t} onClose={() => setShowDeleteTaskConfirm(null)}>
-                <div className="text-center">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full bg-rose-500/20 border border-rose-500/30 flex items-center justify-center">
-                    <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-rose-500" />
-                  </div>
-                  <h3 className={`text-lg sm:text-xl font-bold ${t.text} mb-2`}>Delete Task?</h3>
+                  <h3 className={`text-lg sm:text-xl font-bold ${t.text} mb-2`}>Delete Contact?</h3>
                   <p className={`${t.textMuted} text-sm mb-4 sm:mb-6`}>This cannot be undone.</p>
                   <div className="flex gap-2 sm:gap-3">
-                    <button onClick={() => setShowDeleteTaskConfirm(null)} className={`flex-1 py-2 sm:py-2.5 text-sm ${t.cancelBtn} border rounded-lg sm:rounded-xl`}>Cancel</button>
-                    <motion.button onClick={() => handleDeleteTask(showDeleteTaskConfirm)} className="flex-1 py-2 sm:py-2.5 text-sm bg-rose-500 text-white rounded-lg sm:rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Delete</motion.button>
+                    <button onClick={() => setShowDeleteContactConfirm(null)} className={`flex-1 py-2 sm:py-2.5 text-sm ${t.cancelBtn} border rounded-lg sm:rounded-xl`}>Cancel</button>
+                    <motion.button onClick={() => handleDeleteContact(showDeleteContactConfirm)} className="flex-1 py-2 sm:py-2.5 text-sm bg-rose-500 text-white rounded-lg sm:rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Delete</motion.button>
                   </div>
                 </div>
               </Modal>
@@ -1953,41 +1315,61 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
           </AnimatePresence>
 
           <AnimatePresence>
-            {showShareModal && (
-              <Modal theme={theme} t={t} onClose={() => { setShowShareModal(null); setShareSearchResults([]); setShareSearchEmail(''); }}>
-                <h3 className={`text-lg sm:text-xl font-bold ${t.text} mb-3 sm:mb-4`}>Share Event</h3>
-                <p className={`${t.textMuted} text-xs sm:text-sm mb-3 sm:mb-4`}>Search for users to share this event with.</p>
-                
-                <div className="flex gap-2 sm:gap-3 mb-3 sm:mb-4">
-                  <div className="flex-1 relative">
-                    <Mail className={`absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 ${t.textMuted}`} />
-                    <input type="email" value={shareSearchEmail} onChange={(e) => setShareSearchEmail(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleShareSearch()} placeholder="Search by email..." className={`w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} />
+            {showNewsModal && (
+              <Modal theme={theme} t={t} onClose={() => setShowNewsModal(false)}>
+                <h3 className={`text-lg sm:text-xl font-bold ${t.text} mb-3 sm:mb-4`}>New Post</h3>
+                <div className="space-y-3 sm:space-y-4">
+                  <div>
+                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Headline</label>
+                    <input type="text" value={newNewsPost.headline} onChange={(e) => setNewNewsPost({ ...newNewsPost, headline: e.target.value })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus}`} placeholder="Headline" />
                   </div>
-                  <button onClick={handleShareSearch} className="px-3 sm:px-4 py-2 bg-[#2A8C8F] text-white rounded-lg sm:rounded-xl">
-                    <Search className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </button>
+                  <div>
+                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Description</label>
+                    <textarea value={newNewsPost.body} onChange={(e) => setNewNewsPost({ ...newNewsPost, body: e.target.value })} className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm ${t.input} border rounded-lg sm:rounded-xl focus:outline-none ${t.inputFocus} resize-none`} rows={4} placeholder="What happened?" />
+                  </div>
+                  <div>
+                    <label className={`block text-xs sm:text-sm ${t.textMuted} mb-1`}>Photo</label>
+                    {newNewsPost.photoPreview ? (
+                      <div className="relative">
+                        <img src={newNewsPost.photoPreview} alt="" className="w-full h-40 object-cover rounded-lg sm:rounded-xl" />
+                        <button type="button" onClick={() => handleNewsPhotoChange(null)} className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 text-white hover:bg-black/80">
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <label className={`flex flex-col items-center justify-center gap-2 py-6 rounded-lg sm:rounded-xl border border-dashed ${t.taskCard} cursor-pointer`}>
+                        <ImageIcon className={`w-6 h-6 ${t.textMuted}`} />
+                        <span className={`text-xs sm:text-sm ${t.textMuted}`}>Click to upload a photo</span>
+                        <input type="file" accept="image/*" className="hidden" onChange={(e) => handleNewsPhotoChange(e.target.files?.[0] || null)} />
+                      </label>
+                    )}
+                  </div>
                 </div>
+                <div className="flex gap-2 sm:gap-3 mt-4 sm:mt-6">
+                  <button onClick={() => setShowNewsModal(false)} className={`flex-1 py-2 sm:py-2.5 text-sm ${t.cancelBtn} border rounded-lg sm:rounded-xl`}>Cancel</button>
+                  <motion.button onClick={handleAddNewsPost} disabled={savingNews || !newNewsPost.headline.trim() || !newNewsPost.body.trim() || !newNewsPost.photoFile} className="flex-1 py-2 sm:py-2.5 text-sm bg-gradient-to-r from-[#2A8C8F] to-[#1E7275] text-white rounded-lg sm:rounded-xl font-medium disabled:opacity-50 flex items-center justify-center gap-2" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    {savingNews ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                    {savingNews ? 'Publishing...' : 'Publish'}
+                  </motion.button>
+                </div>
+              </Modal>
+            )}
+          </AnimatePresence>
 
-                {shareSearchResults.length > 0 && (
-                  <div className="space-y-2 mb-3 sm:mb-4">
-                    {shareSearchResults.map(result => {
-                      const event = events.find(e => e.id === showShareModal);
-                      const isShared = event?.sharedWith?.includes(result.id);
-                      return (
-                        <div key={result.id} className={`flex items-center justify-between gap-2 ${t.taskCard} rounded-lg sm:rounded-xl p-2.5 sm:p-3 border`}>
-                          <span className={`text-xs sm:text-sm ${t.textSecondary} truncate`}>{result.email}</span>
-                          {isShared ? (
-                            <button onClick={() => handleRemoveShare(showShareModal, result.id)} className="px-2 sm:px-3 py-1 bg-rose-500/20 text-rose-500 rounded-lg text-xs sm:text-sm border border-rose-500/30 flex-shrink-0">Remove</button>
-                          ) : (
-                            <button onClick={() => handleShareWithUser(showShareModal, result.id)} className="px-2 sm:px-3 py-1 bg-[#2A8C8F] text-white rounded-lg text-xs sm:text-sm flex-shrink-0">Share</button>
-                          )}
-                        </div>
-                      );
-                    })}
+          <AnimatePresence>
+            {showDeleteNewsConfirm && (
+              <Modal theme={theme} t={t} onClose={() => setShowDeleteNewsConfirm(null)}>
+                <div className="text-center">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full bg-rose-500/20 border border-rose-500/30 flex items-center justify-center">
+                    <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-rose-500" />
                   </div>
-                )}
-
-                <button onClick={() => { setShowShareModal(null); setShareSearchResults([]); setShareSearchEmail(''); }} className={`w-full py-2 sm:py-2.5 text-sm ${t.cancelBtn} border rounded-lg sm:rounded-xl`}>Done</button>
+                  <h3 className={`text-lg sm:text-xl font-bold ${t.text} mb-2`}>Delete Post?</h3>
+                  <p className={`${t.textMuted} text-sm mb-4 sm:mb-6`}>This will remove it from the public site.</p>
+                  <div className="flex gap-2 sm:gap-3">
+                    <button onClick={() => setShowDeleteNewsConfirm(null)} className={`flex-1 py-2 sm:py-2.5 text-sm ${t.cancelBtn} border rounded-lg sm:rounded-xl`}>Cancel</button>
+                    <motion.button onClick={() => handleDeleteNewsPost(showDeleteNewsConfirm)} className="flex-1 py-2 sm:py-2.5 text-sm bg-rose-500 text-white rounded-lg sm:rounded-xl font-medium" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>Delete</motion.button>
+                  </div>
+                </div>
               </Modal>
             )}
           </AnimatePresence>
@@ -2013,44 +1395,5 @@ function Modal({ children, onClose, theme, t }: { children: React.ReactNode; onC
         </motion.div>
       </motion.div>
     </>
-  );
-}
-
-function TaskCard({ task, priorityColors, theme, t, getMemberName, onStatusChange, onDelete, onEdit }: { task: Task; priorityColors: Record<string, string>; theme: 'light' | 'dark'; t: typeof themes.light; getMemberName: (id: string) => string; onStatusChange: (id: string, status: Task['status']) => void; onDelete: () => void; onEdit: () => void }) {
-  return (
-    <motion.div className={`p-2.5 sm:p-3 rounded-lg sm:rounded-xl ${t.taskCard} border group`} layout whileHover={{ scale: 1.02 }}>
-      <div className="flex items-start justify-between gap-2 mb-1.5 sm:mb-2">
-        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
-          <p className={`font-medium ${t.text} text-xs sm:text-sm truncate`}>{task.title}</p>
-          {task.visibility === 'team' ? <Globe className={`w-3 h-3 ${t.textMuted} flex-shrink-0`} /> : <Lock className={`w-3 h-3 ${t.textMuted} flex-shrink-0`} />}
-        </div>
-        <div className="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all flex-shrink-0">
-          <button onClick={onEdit} className="p-1 rounded-lg bg-amber-500/20 text-amber-500 hover:bg-amber-500/30">
-            <Edit3 className="w-3 h-3" />
-          </button>
-          <button onClick={onDelete} className="p-1 rounded-lg bg-rose-500/20 text-rose-500 hover:bg-rose-500/30">
-            <Trash2 className="w-3 h-3" />
-          </button>
-        </div>
-      </div>
-      {task.description && <p className={`text-[10px] sm:text-xs ${t.textMuted} mb-1.5 sm:mb-2 line-clamp-2`}>{task.description}</p>}
-      <div className="flex items-center justify-between flex-wrap gap-1">
-        <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full border ${priorityColors[task.priority]}`}>{task.priority}</span>
-        {task.dueDate && <span className={`text-[10px] sm:text-xs ${t.textMuted}`}>{task.dueDate}</span>}
-      </div>
-      {task.assignees && task.assignees.length > 0 && (
-        <div className="flex items-center gap-1 mt-1.5 sm:mt-2">
-          <Users className={`w-3 h-3 ${t.textMuted} flex-shrink-0`} />
-          <span className={`text-[10px] sm:text-xs ${t.textMuted} truncate`}>
-            {task.assignees.map(id => getMemberName(id)).join(', ')}
-          </span>
-        </div>
-      )}
-      <div className="mt-2 sm:mt-3 flex gap-1">
-        {task.status !== 'todo' && <button onClick={() => onStatusChange(task.id, 'todo')} className={`flex-1 text-[10px] sm:text-xs py-1 sm:py-1.5 rounded-lg ${theme === 'light' ? 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200' : 'bg-gray-500/20 text-gray-400 hover:bg-gray-500/30 border border-gray-500/30'}`}>To Do</button>}
-        {task.status !== 'in_progress' && <button onClick={() => onStatusChange(task.id, 'in_progress')} className={`flex-1 text-[10px] sm:text-xs py-1 sm:py-1.5 rounded-lg ${theme === 'light' ? 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200' : 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 border border-blue-500/30'}`}>In Progress</button>}
-        {task.status !== 'done' && <button onClick={() => onStatusChange(task.id, 'done')} className={`flex-1 text-[10px] sm:text-xs py-1 sm:py-1.5 rounded-lg ${theme === 'light' ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200' : 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border border-emerald-500/30'}`}>Done</button>}
-      </div>
-    </motion.div>
   );
 }

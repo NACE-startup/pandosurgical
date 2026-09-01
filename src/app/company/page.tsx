@@ -59,7 +59,7 @@ export default function CompanyPage() {
           </div>
           <div className="grid sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-navy/10">
             {values.map((value, index) => (
-              <div key={index} className="py-6 sm:py-2 sm:px-8 first:pt-0 sm:first:pl-0 text-left">
+              <div key={index} className="py-6 sm:py-2 sm:px-8 first:pt-0 sm:first:pt-2 sm:first:pl-0 text-left">
                 <p className="text-navy font-bold mb-2">
                   <T>{value.name}</T>
                 </p>
