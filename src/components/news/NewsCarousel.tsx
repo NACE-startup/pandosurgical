@@ -131,7 +131,7 @@ export function NewsCarousel() {
                         </a>
                       )}
                     </div>
-                    <div className={`min-w-0 self-center p-8 sm:p-14 ${item.textOffsetClassName ?? ''}`}>
+                    <div className={`min-w-0 self-start sm:self-center p-8 sm:p-14 ${item.textOffsetClassName ?? ''}`}>
                       <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3">{t(item.headline)}</h2>
                       <p className="text-gray-300 text-sm sm:text-base">{t(item.body)}</p>
                     </div>
