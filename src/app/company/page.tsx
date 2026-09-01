@@ -33,13 +33,13 @@ export default function CompanyPage() {
     <>
       <PageHeader title="Company" />
 
-      <section className="pb-16 sm:pb-24 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-8 grid sm:grid-cols-2 gap-8 sm:gap-12 items-center">
+      <section className="min-h-[80vh] sm:min-h-[85vh] flex items-center bg-white pb-16 sm:pb-0">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 grid sm:grid-cols-2 gap-8 sm:gap-16 items-center">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-navy mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-navy mb-5 sm:mb-6">
               <T>How Pando Surgical Started</T>
             </h2>
-            <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
+            <p className="text-gray-700 text-base sm:text-lg leading-relaxed">
               <T>
                 {
                   'Pando Surgical started with the mission to improve surgical ergonomics. We are a group of engineers who work closely with physicians, and we noticed that many surgical tools create unnecessary strain on surgeons because they are designed with only one anatomy in mind. As the workforce diversifies, we aim to equip every surgeon with tools that support them.'
@@ -50,7 +50,7 @@ export default function CompanyPage() {
           <img
             src={pitchPhoto.src}
             alt={'Team Pando Surgical delivering the live pitch finals at the USC Viterbi MEPC & MFC Awards Night'}
-            className="w-full h-64 sm:h-80 object-cover rounded-sm"
+            className="w-full h-80 sm:h-[32rem] object-cover rounded-sm"
           />
         </div>
       </section>
