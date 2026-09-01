@@ -83,7 +83,6 @@ export function Team() {
           transition={{ duration: 0.5 }}
         >
           <h3 className="text-2xl sm:text-3xl md:text-4xl mb-3 sm:mb-4 text-navy font-bold">{t('Advisory Board')}</h3>
-          <div className="w-16 sm:w-20 h-0.5 bg-teal rounded-full" />
         </motion.div>
 
         <div className="flex flex-wrap gap-4 sm:gap-6">

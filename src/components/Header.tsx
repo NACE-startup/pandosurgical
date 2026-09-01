@@ -182,7 +182,7 @@ export function Header() {
                         />
                       )}
                       <span
-                        className={`absolute -bottom-1 left-0 h-0.5 bg-teal transition-all duration-300 ${
+                        className={`absolute -bottom-1 left-1/2 -translate-x-1/2 h-0.5 bg-teal transition-all duration-300 ${
                           active ? 'w-full' : 'w-0 group-hover:w-full'
                         }`}
                       />
@@ -196,7 +196,7 @@ export function Header() {
                         }`}
                       />
                       <span
-                        className={`absolute -bottom-1 left-0 h-0.5 bg-teal transition-all duration-300 ${
+                        className={`absolute -bottom-1 left-1/2 -translate-x-1/2 h-0.5 bg-teal transition-all duration-300 ${
                           active ? 'w-full' : 'w-0 group-hover:w-full'
                         }`}
                       />
