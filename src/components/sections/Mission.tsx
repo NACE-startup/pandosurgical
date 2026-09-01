@@ -18,7 +18,7 @@ export function Mission() {
         transition={{ duration: 0.5 }}
       >
         <div className="max-w-[85rem] mx-auto px-4 sm:px-6 py-10 sm:py-14">
-          <p className="text-sm sm:text-base text-gray-400 text-center mb-3 sm:mb-4">{t('Our Mission')}</p>
+          <p className="text-lg sm:text-xl italic text-gray-400 text-center mb-3 sm:mb-4">{t('Our Mission')}</p>
           <p className="max-w-3xl mx-auto text-xl sm:text-2xl md:text-3xl text-gray-200 leading-relaxed font-light text-center">
             {t('To make surgery more')}{' '}
             <span className="text-teal font-medium">{t('equitable')}</span>,{' '}
