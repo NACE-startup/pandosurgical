@@ -39,9 +39,6 @@ const curatedNewsItems: NewsSlide[] = [
     photoSrc: mfcPhoto.src,
     photoAlt: "The Pando Surgical team celebrating at USC Viterbi's MEPC & MFC Awards Night",
     photoObjectPosition: 'center 20%',
-    // The photo's subjects (raised arms, faces) sit higher in the frame than the crop's true center,
-    // so a plain self-center leaves the text looking low relative to the photo. Nudge it up to match.
-    textOffsetClassName: '-translate-y-8 sm:-translate-y-16',
   },
   {
     key: 'pre-seed',
