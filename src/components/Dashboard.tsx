@@ -292,25 +292,29 @@ export function Dashboard({ isOpen, onClose, user }: DashboardProps) {
   const handleAddNewsPost = async () => {
     if (!user || !newNewsPost.headline.trim() || !newNewsPost.body.trim() || !newNewsPost.photoFile) return;
     setSavingNews(true);
-    const photoUrl = await uploadNewsPhoto(newNewsPost.photoFile);
-    if (!photoUrl) {
-      alert('Failed to upload photo. Please try again.');
-      setSavingNews(false);
-      return;
-    }
-    const id = await addNewsPost({
-      headline: newNewsPost.headline.trim(),
-      body: newNewsPost.body.trim(),
-      photoUrl,
-      createdBy: user.uid,
-      createdByEmail: user.email || ''
-    });
-    if (id) {
+    try {
+      const photoUrl = await uploadNewsPhoto(newNewsPost.photoFile);
+      if (!photoUrl) {
+        alert('Failed to upload photo. Please try again.');
+        return;
+      }
+      const id = await addNewsPost({
+        headline: newNewsPost.headline.trim(),
+        body: newNewsPost.body.trim(),
+        photoUrl,
+        createdBy: user.uid,
+        createdByEmail: user.email || ''
+      });
+      if (!id) {
+        alert('Failed to publish post. Please try again.');
+        return;
+      }
       setNewsPosts([{ id, headline: newNewsPost.headline.trim(), body: newNewsPost.body.trim(), photoUrl, createdBy: user.uid, createdByEmail: user.email || '' }, ...newsPosts]);
+      setNewNewsPost({ headline: '', body: '', photoFile: null, photoPreview: '' });
+      setShowNewsModal(false);
+    } finally {
+      setSavingNews(false);
     }
-    setNewNewsPost({ headline: '', body: '', photoFile: null, photoPreview: '' });
-    setShowNewsModal(false);
-    setSavingNews(false);
   };
 
   const handleDeleteNewsPost = async (id: string) => {

@@ -866,14 +866,46 @@ export interface NewsPost {
 }
 
 export const uploadNewsPhoto = async (file: File): Promise<string | null> => {
-  if (!app) return null;
+  if (!app) {
+    console.error('Cannot upload news photo: Firebase app not configured');
+    return null;
+  }
   try {
-    const { getStorage, ref: storageRef, uploadBytes, getDownloadURL } = await import('firebase/storage');
+    const { getStorage, ref: storageRef, uploadBytesResumable, getDownloadURL } = await import('firebase/storage');
     const storage = getStorage(app);
     const path = `news/${Date.now()}-${file.name}`;
     const fileRef = storageRef(storage, path);
-    await uploadBytes(fileRef, file);
-    return await getDownloadURL(fileRef);
+    console.log('Uploading news photo to', path, `(${(file.size / 1024).toFixed(0)} KB)`);
+
+    const uploadTask = uploadBytesResumable(fileRef, file);
+    await new Promise<void>((resolve, reject) => {
+      // Storage requests can hang indefinitely (misconfigured bucket, blocked
+      // request) instead of rejecting on their own, so force a failure after
+      // a minute rather than leaving the "Publishing..." button spinning forever.
+      const timeout = setTimeout(() => {
+        uploadTask.cancel();
+        reject(new Error('Upload timed out after 60s'));
+      }, 60000);
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+          console.log(`News photo upload: ${pct}%`);
+        },
+        (error) => {
+          clearTimeout(timeout);
+          reject(error);
+        },
+        () => {
+          clearTimeout(timeout);
+          resolve();
+        }
+      );
+    });
+
+    const url = await getDownloadURL(fileRef);
+    console.log('News photo uploaded successfully:', url);
+    return url;
   } catch (error) {
     console.error('Error uploading news photo:', error);
     return null;
