@@ -12,7 +12,7 @@ export const teamPeople: Person[] = [
   { name: 'Aiden Pan', role: 'CEO & Co-Founder', image: aidenImage.src, linkedin: 'https://www.linkedin.com/in/aidenpan/', description: 'USC Biomedical Engineering' },
   { name: 'Toshi Nagai', role: 'Co-Founder', image: toshiImage.src, linkedin: 'https://www.linkedin.com/in/toshio-nagai2029/', description: 'USC Biomedical Engineering and Mechanical Engineering' },
   { name: 'Derek Hua', role: 'Co-Founder and Head of Clinical Development', image: derekImage.src, linkedin: 'https://www.linkedin.com/in/derekhuausc/', description: 'USC Biomedical Engineering and Pre-Medicine' },
-  { name: 'Sean Lee', role: 'Co-Founder and Manager of Strategic Partners', image: seanImage.src, linkedin: 'https://www.linkedin.com/in/sean-long-siang-lee-9bbab8373/', description: 'Cornell University Biomedical Engineering' },
+  { name: 'Sean Lee', role: 'Manager of Strategic Partners', image: seanImage.src, linkedin: 'https://www.linkedin.com/in/sean-long-siang-lee-9bbab8373/', description: 'Cornell University Biomedical Engineering' },
 ];
 
 export const advisoryPeople: Person[] = [
