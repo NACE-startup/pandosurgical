@@ -11,6 +11,7 @@ import { getNewsPosts, NewsPost } from '@/lib/firebase';
 import mfcPhoto from '@/assets/mfc-award-photo.jpg';
 import patentPhoto from '@/assets/laprotator-patent-crop.png';
 import bullPhoto from '@/assets/wsbull.jpg';
+import uscTechstarsPhoto from '@/assets/usc-techstars-catalyst.jpg';
 
 interface NewsSlide {
   key: string;
@@ -24,6 +25,13 @@ interface NewsSlide {
 }
 
 const curatedNewsItems: NewsSlide[] = [
+  {
+    key: 'usc-techstars-catalyst',
+    headline: 'Accepted into USC and Techstars University Catalyst Pre-Accelerator',
+    body: 'Pando Surgical has officially been accepted into the USC and Techstars University Catalyst Pre-Accelerator, a high-impact program delivered in partnership with the USC Research and Innovation office. The program officially launched in late August in Los Angeles, bringing together the Pando Surgical leadership team, program directors, and a select cohort of fellow founders for collaborative kickoff sessions. Over the coming weeks, the company will engage in intensive mentorship and strategic development to accelerate its commercialization pathway alongside top-tier, research-backed ventures.',
+    photoSrc: uscTechstarsPhoto.src,
+    photoAlt: 'USC campus tower, marking the USC and Techstars University Catalyst Pre-Accelerator',
+  },
   {
     key: 'mfc-2026',
     headline: '2nd Place, USC Viterbi Min Family Challenge',
