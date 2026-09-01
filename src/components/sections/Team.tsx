@@ -7,7 +7,7 @@ import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { useLanguage } from '@/lib/LanguageContext';
 import { translateTeamPhotoAlt, translateLinkedInAria } from '@/lib/i18n';
 
-const CELL_WIDTH_CLASS = 'w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)]';
+const CELL_WIDTH_CLASS = 'w-[calc(50%-0.5rem)] sm:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)]';
 
 export function Team() {
   const { t, language } = useLanguage();
