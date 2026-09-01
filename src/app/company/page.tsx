@@ -31,6 +31,7 @@ const values = [
     name: 'Ergonomic',
     description: 'We are creating a world where the intersection between humans and technology is seamless.',
     photo: ergonomicPhoto,
+    photoClassName: 'object-[center_15%] sm:object-center',
   },
 ];
 
@@ -76,7 +77,7 @@ export default function CompanyPage() {
                 <img
                   src={value.photo.src}
                   alt=""
-                  className="w-full h-40 sm:h-48 object-cover rounded-sm mb-4"
+                  className={`w-full h-40 sm:h-48 object-cover rounded-sm mb-4 ${value.photoClassName ?? ''}`}
                 />
                 <p className="text-navy font-bold mb-2">
                   <T>{value.name}</T>

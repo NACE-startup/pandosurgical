@@ -113,7 +113,7 @@ export function NewsCarousel() {
             <div className="flex">
               {newsItems.map((item, index) => (
                 <div key={item.key} className="min-w-0 shrink-0 grow-0 basis-full">
-                  <div className="relative bg-navy h-[640px] sm:h-[480px] grid grid-cols-1 sm:grid-cols-2">
+                  <div className="relative bg-navy h-full min-h-[640px] sm:min-h-[480px] grid grid-cols-1 sm:grid-cols-2">
                     <div className="relative min-w-0 h-[220px] sm:h-full">
                       <img
                         src={item.photoSrc}
