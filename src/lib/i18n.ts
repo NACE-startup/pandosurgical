@@ -245,8 +245,8 @@ const translations: Record<Language, Record<string, string>> = {
     'Every surgeon deserves to feel supported. This starts with the tools they use.':
       'Todo cirujano merece sentirse respaldado, y eso comienza con las herramientas que utiliza.',
     Efficient: 'Eficiente',
-    'We design to improve surgical workflows, reducing operating time and improving patient outcomes.':
-      'Diseñamos para mejorar los flujos de trabajo quirúrgicos, reduciendo el tiempo de operación y mejorando los resultados para los pacientes.',
+    'We design to streamline surgical workflows, reducing operating time and improving outcomes.':
+      'Diseñamos para optimizar los flujos de trabajo quirúrgicos, reduciendo el tiempo de operación y mejorando los resultados.',
     'We are creating a world where the intersection between humans and technology is seamless.':
       'Estamos creando un mundo donde la intersección entre las personas y la tecnología sea completamente fluida.',
     'Get to know the people behind Pando Surgical': 'Conoce a las Personas Detrás de Pando Surgical',
@@ -510,8 +510,8 @@ const translations: Record<Language, Record<string, string>> = {
     'Every surgeon deserves to feel supported. This starts with the tools they use.':
       '每一位外科医生都应该获得支持，而这要从他们所使用的工具开始。',
     Efficient: '高效',
-    'We design to improve surgical workflows, reducing operating time and improving patient outcomes.':
-      '我们的设计致力于优化手术流程，缩短手术时间，改善患者预后。',
+    'We design to streamline surgical workflows, reducing operating time and improving outcomes.':
+      '我们的设计致力于优化手术流程，缩短手术时间，改善治疗效果。',
     'We are creating a world where the intersection between humans and technology is seamless.':
       '我们致力于打造一个人类与科技无缝衔接的世界。',
     'Get to know the people behind Pando Surgical': '认识Pando Surgical背后的团队',

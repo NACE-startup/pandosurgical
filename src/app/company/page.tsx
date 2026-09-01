@@ -24,13 +24,14 @@ const values = [
   },
   {
     name: 'Efficient',
-    description: 'We design to improve surgical workflows, reducing operating time and improving patient outcomes.',
+    description: 'We design to streamline surgical workflows, reducing operating time and improving outcomes.',
     photo: efficientPhoto,
   },
   {
     name: 'Ergonomic',
     description: 'We are creating a world where the intersection between humans and technology is seamless.',
     photo: ergonomicPhoto,
+    photoObjectPosition: 'center 5%',
   },
 ];
 
@@ -77,6 +78,7 @@ export default function CompanyPage() {
                   src={value.photo.src}
                   alt=""
                   className="w-full h-40 sm:h-48 object-cover rounded-sm mb-4"
+                  style={value.photoObjectPosition ? { objectPosition: value.photoObjectPosition } : undefined}
                 />
                 <p className="text-navy font-bold mb-2">
                   <T>{value.name}</T>
