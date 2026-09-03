@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description:
     'The LapRotator attaches to existing laparoscopic systems for intuitive one-handed rotation, giving surgeons enhanced control and reduced fatigue.',
   alternates: { canonical: '/product' },
-  openGraph: { url: '/product' },
+  openGraph: { url: '/product', images: ['/og-image.png'] },
 };
 
 const productJsonLd = {

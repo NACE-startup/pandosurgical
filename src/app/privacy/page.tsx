@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: 'Privacy Notice',
   description: 'How Pando Surgical collects, uses, and protects information.',
   alternates: { canonical: '/privacy' },
-  openGraph: { url: '/privacy' },
+  openGraph: { url: '/privacy', images: ['/og-image.png'] },
 };
 
 export default function PrivacyPage() {

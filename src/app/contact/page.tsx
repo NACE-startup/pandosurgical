@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description:
     'Get in touch with Pando Surgical about the LapRotator: product information, demo requests, partnership opportunities, and support.',
   alternates: { canonical: '/contact' },
-  openGraph: { url: '/contact' },
+  openGraph: { url: '/contact', images: ['/og-image.png'] },
 };
 
 export default function ContactPage() {

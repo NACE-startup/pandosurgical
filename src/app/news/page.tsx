@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: 'News',
   description: 'Latest news and milestones from Pando Surgical.',
   alternates: { canonical: '/news' },
-  openGraph: { url: '/news' },
+  openGraph: { url: '/news', images: ['/og-image.png'] },
 };
 
 export default function NewsPage() {

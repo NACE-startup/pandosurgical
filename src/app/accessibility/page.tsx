@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: 'Accessibility Statement',
   description: "Pando Surgical's commitment to an accessible website.",
   alternates: { canonical: '/accessibility' },
-  openGraph: { url: '/accessibility' },
+  openGraph: { url: '/accessibility', images: ['/og-image.png'] },
 };
 
 export default function AccessibilityPage() {

@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   description:
     'Pando Surgical is developing the LapRotator to make laparoscopic surgery more equitable and efficient for surgeons worldwide.',
   alternates: { canonical: '/company' },
-  openGraph: { url: '/company' },
+  openGraph: { url: '/company', images: ['/og-image.png'] },
 };
 
 const values = [

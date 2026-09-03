@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: 'Careers',
   description: 'Internship openings at Pando Surgical: Engineering Intern role.',
   alternates: { canonical: '/careers' },
-  openGraph: { url: '/careers' },
+  openGraph: { url: '/careers', images: ['/og-image.png'] },
 };
 
 export default function CareersPage() {

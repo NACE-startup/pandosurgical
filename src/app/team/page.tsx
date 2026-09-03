@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description:
     'Meet the founders and advisors building Pando Surgical, a team of USC Biomedical Engineers and clinical advisors developing the LapRotator.',
   alternates: { canonical: '/team' },
-  openGraph: { url: '/team' },
+  openGraph: { url: '/team', images: ['/og-image.png'] },
 };
 
 export default function TeamPage() {

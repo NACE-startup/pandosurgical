@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: 'Terms of Use',
   description: 'Terms governing the use of the Pando Surgical website.',
   alternates: { canonical: '/terms' },
-  openGraph: { url: '/terms' },
+  openGraph: { url: '/terms', images: ['/og-image.png'] },
 };
 
 export default function TermsPage() {

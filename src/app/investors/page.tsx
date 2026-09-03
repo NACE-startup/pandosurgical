@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: 'Investors & Resources',
   description: 'Investor resources for Pando Surgical, developer of the LapRotator.',
   alternates: { canonical: '/investors' },
-  openGraph: { url: '/investors' },
+  openGraph: { url: '/investors', images: ['/og-image.png'] },
 };
 
 const resources = [

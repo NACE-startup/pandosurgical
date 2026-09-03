@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: 'ENT Product',
   description: 'Pando Surgical is developing a new ergonomic ENT product, currently in stealth.',
   alternates: { canonical: '/product/ent' },
-  openGraph: { url: '/product/ent' },
+  openGraph: { url: '/product/ent', images: ['/og-image.png'] },
 };
 
 export default function EntProductPage() {
