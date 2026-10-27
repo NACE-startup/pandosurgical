@@ -112,10 +112,6 @@ const translations: Record<Language, Record<string, string>> = {
     'MD, PhD, FACS, Otolaryngology (ENT) Surgeon': 'MD, PhD, FACS, Cirujano Otorrinolaringólogo (ORL)',
     'Our Team': 'Nuestro Equipo',
 
-    // TeamHighlight quote
-    "We are a group of passionate undergrads who are hungry to make a change in the surgical space. We're giving it our all to make this happen. We'd like to think we are carbon atoms undergoing pressure to become diamonds.":
-      'Somos un grupo de estudiantes universitarios apasionados, con muchas ganas de generar un cambio en el mundo quirúrgico. Le estamos dando todo para lograrlo. Nos gusta pensar que somos átomos de carbono sometidos a presión para convertirnos en diamantes.',
-
     // News
     'News.': 'Noticias.',
     'Accepted into USC and Techstars University Catalyst Pre-Accelerator':
@@ -382,10 +378,6 @@ const translations: Record<Language, Record<string, string>> = {
     'PhD Mechanical Engineering': '机械工程博士',
     'MD, PhD, FACS, Otolaryngology (ENT) Surgeon': '医学博士、哲学博士、美国外科医师学院院士，耳鼻喉科医生',
     'Our Team': '我们的团队',
-
-    // TeamHighlight quote
-    "We are a group of passionate undergrads who are hungry to make a change in the surgical space. We're giving it our all to make this happen. We'd like to think we are carbon atoms undergoing pressure to become diamonds.":
-      '我们是一群充满热情的本科生，渴望在外科手术领域带来改变。我们正竭尽全力实现这个目标。我们愿意把自己看作承受压力、最终蜕变成钻石的碳原子。',
 
     // News
     'News.': '新闻。',
