@@ -1,7 +1,7 @@
 # Pando Surgical website
 
 Static marketing site for Pando Surgical. Plain HTML, one CSS file, one JS file. No framework, no npm.
-Live at https://n7na27.github.io/PandoWebsite/ (GitHub Pages, deploys from `main`).
+Deployed on Vercel (NACE-startup/pandosurgical) from `main`. The old Next.js app is kept on the `legacy-nextjs` branch.
 
 ## How the site is built
 
@@ -11,7 +11,7 @@ Live at https://n7na27.github.io/PandoWebsite/ (GitHub Pages, deploys from `main
   - Two themes are CSS variables at the top: **cold** (default, Figma "Website (Ver2-Cold)") and **warm** (cream, Figma "Website (Ver1)"). Any color that differs per theme goes in a variable, not a hard-coded value.
 - `js/main.js` holds all behavior: nav, theme toggle, reveal on scroll, tabs, modals, forms. Edit it directly.
 - `assets/img`, `assets/icons`, `assets/video` hold the media.
-- `vercel.json` tells Vercel (NACE-startup/pandosurgical, branch `new`) to serve the files as a static site. Their Vercel project is set to Next.js, so without it the build fails.
+- `vercel.json` tells Vercel (production branch `main`) to serve the files as a static site. Their Vercel project is set to Next.js, so without it the build fails.
 
 ## Design source of truth: Figma
 
@@ -54,9 +54,15 @@ Live at https://n7na27.github.io/PandoWebsite/ (GitHub Pages, deploys from `main
   - Check the change in the browser at 1512px and 375px wide.
   - When the user asks to see something first, show a preview and wait for their OK.
 - **Git:**
-  - Work on `main`. Pushing to `main` publishes the site.
+  - Work on `main`. Pushing to `main` publishes the site through Vercel.
   - Commit messages: a short summary line, then a few lines on what changed and why.
-- **Not connected yet:**
-  - The contact, careers and log in forms are front end only.
+- **Backend (Firebase project `pandosurgical-608c2`):**
+  - `js/firebase-config.js` holds the public web config, the `TEAM_EMAILS` list and the optional `APP_CHECK_SITE_KEY`. `js/firebase-init.js` starts Firebase.
+  - `js/backend.js` runs on every page: the contact, careers and newsletter forms (saved to Firestore, no email sending), log in and live news. `js/dashboard.js` runs the team dashboard at `dashboard.html`.
+  - The dashboard is for the team only, and it holds the inbox, applications, clinicians, newsletter, contacts, team invites and news posts.
+  - Spam protection: a hidden `website` honeypot field, a 3 second minimum before a form sends, a 30 second cooldown per browser, size limits in `firestore.rules`, and App Check once a reCAPTCHA v3 key is set.
+  - `firestore.rules` and `storage.rules` are the real security boundary. Keep the team email list the same in both files and in `firebase-config.js`. Deploy with `firebase deploy --only firestore:rules,storage`. The rules in the Firebase console may be newer than these files.
+  - Add every site domain under Firebase Auth → Authorized domains, or Google sign-in fails.
+- **Warm theme:** hidden. Set `THEME_SWITCHER = True` in `tools/build.py` and rebuild to show the Cold/Warm switch again.
   - Placeholders (stat source, some news dates) stay as they are until real content arrives.
 - **3D model:** `assets/model/laprotator.glb` comes from "LapRotator render (revB).blend" via `tools/model.py` (run it with Blender 5.2, see the script). The poster image is a capture of the first frame at 1512px.
