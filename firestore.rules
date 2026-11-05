@@ -1,0 +1,121 @@
+// Deploy: firebase deploy --only firestore:rules
+// If your project already has rules in the Firebase console, merge the
+// blocks below into those rules instead of replacing everything.
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Only these team emails get admin access (Dashboard: inbox, applications,
+    // clinician requests, newsletter signups, contacts, news, team). Anyone else
+    // who authenticates (e.g. via Google sign-in) gets no read access to admin data.
+    function isTeamMember() {
+      return request.auth != null &&
+        request.auth.token.email.lower() in [
+          'tnagai@usc.edu',
+          'pan.anye@gmail.com',
+          'derekhua2007@gmail.com',
+          'longseanlee@gmail.com'
+        ];
+    }
+
+    // Public marketing site: anyone may create a contact submission (no auth).
+    // Portal: team members may read / update / delete (inbox).
+    match /contactSubmissions/{submissionId} {
+      allow create: if request.resource.data.keys().hasAll(['fullName', 'email', 'inquiryType', 'message', 'read'])
+        && request.resource.data.fullName is string
+        && request.resource.data.email is string
+        && request.resource.data.inquiryType is string
+        && request.resource.data.message is string
+        && request.resource.data.message.size() <= 5000
+        && request.resource.data.fullName.size() <= 200
+        && request.resource.data.email.size() <= 320
+        && request.resource.data.keys().hasOnly(['fullName','email','inquiryType','message','phone','company','read','createdAt'])
+        && request.resource.data.read == false;
+
+      allow read, update, delete: if isTeamMember();
+    }
+
+    match /users/{userId} {
+      allow read: if isTeamMember();
+      allow create, update: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /teamInvites/{inviteId} {
+      allow read, write: if isTeamMember();
+    }
+
+    // Portal: shared address book any team member can add to / edit / delete.
+    match /teamContacts/{contactId} {
+      allow read, write: if isTeamMember();
+    }
+
+    // Team writes news posts in the portal; the public /news page reads them.
+    match /newsPosts/{postId} {
+      allow read: if true;
+      allow create, update, delete: if isTeamMember();
+    }
+
+    // Public careers page: anyone may submit an internship application (no auth).
+    // Portal: team members may read / update / delete (applicant review).
+    match /internshipApplications/{applicationId} {
+      allow create: if request.resource.data.keys().hasAll(['role', 'fullName', 'email', 'resumeLink', 'whyPassionate', 'whyPando', 'skillsets', 'read'])
+        && request.resource.data.role is string
+        && request.resource.data.fullName is string
+        && request.resource.data.email is string
+        && request.resource.data.resumeLink is string
+        && request.resource.data.whyPassionate is string
+        && request.resource.data.whyPando is string
+        && request.resource.data.skillsets is string
+        && request.resource.data.skillsets.size() <= 3000
+        && request.resource.data.whyPassionate.size() <= 3000
+        && request.resource.data.whyPando.size() <= 3000
+        && request.resource.data.fullName.size() <= 200
+        && request.resource.data.email.size() <= 320
+        && request.resource.data.resumeLink.size() <= 1000
+        && request.resource.data.keys().hasOnly(['role','fullName','email','resumeLink','whyPassionate','whyPando','skillsets','read','createdAt'])
+        && request.resource.data.read == false;
+
+      allow read, update, delete: if isTeamMember();
+    }
+
+    // Public site: anyone who says "yes, I'm a clinician" in the sign-up flow
+    // submits a request here (no auth). Portal: team members review it. A
+    // non-team Google sign-in may also look up its OWN email, to check
+    // "have I already registered?" before showing the sign-up choice again.
+    match /clinicianRequests/{requestId} {
+      allow create: if request.resource.data.keys().hasAll(['name', 'email', 'hospital', 'read'])
+        && request.resource.data.name is string
+        && request.resource.data.email is string
+        && request.resource.data.hospital is string
+        && request.resource.data.name.size() <= 200
+        && request.resource.data.email.size() <= 320
+        && request.resource.data.hospital.size() <= 300
+        && request.resource.data.keys().hasOnly(['name','email','hospital','phone','notes','read','createdAt'])
+        && request.resource.data.read == false;
+
+      allow read: if isTeamMember();
+      allow read: if request.auth != null && resource.data.email == request.auth.token.email.lower();
+      allow update, delete: if isTeamMember();
+    }
+
+    // Public site: anyone who says "no" in the sign-up flow submits a newsletter
+    // signup here (no auth). Portal: team members review it. Same self-lookup
+    // exception as clinicianRequests above.
+    match /newsletterSignups/{signupId} {
+      allow create: if request.resource.data.keys().hasAll(['name', 'email', 'interests', 'read'])
+        && request.resource.data.name is string
+        && request.resource.data.email is string
+        && request.resource.data.interests is list
+        && request.resource.data.interests.size() <= 20
+        && request.resource.data.name.size() <= 200
+        && request.resource.data.email.size() <= 320
+        && request.resource.data.keys().hasOnly(['name','email','interests','read','createdAt'])
+        && request.resource.data.read == false;
+
+      allow read: if isTeamMember();
+      allow read: if request.auth != null && resource.data.email == request.auth.token.email.lower();
+      allow update, delete: if isTeamMember();
+    }
+  }
+}

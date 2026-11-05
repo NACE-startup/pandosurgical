@@ -12,6 +12,12 @@ ROOT = Path(__file__).resolve().parent.parent
 ICONS = ROOT / "assets" / "icons"
 EMAIL = "contact@pandosurgical.com"
 
+# The warm (cream) theme is still in css/style.css and js/main.js. Set this to True to show
+# the Cold/Warm switch in the nav again and let visitors' saved choice apply.
+THEME_SWITCHER = False
+THEME_BTN = ('<button class="theme-toggle" data-theme-toggle><span class="swatch"></span><span class="theme-label">Cold</span></button>'
+             if THEME_SWITCHER else "")
+
 
 def svg(name, cls="", current=True):
     """Inline an icon. White fills/strokes become currentColor so CSS can color them."""
@@ -35,6 +41,15 @@ def social(name, label, href):
 COMPANY_LINKEDIN = "https://www.linkedin.com/company/pandosurgical/posts/?feedView=all"
 COMPANY_YOUTUBE = "https://www.youtube.com/@pandosurgical"
 
+
+HONEYPOT = '<div class="hp" aria-hidden="true"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>'
+
+NEWSLETTER = f"""<form class="newsletter" data-submit="newsletter">
+        <label for="nl-email">Get Pando news by email</label>
+        <div class="nl-row"><input id="nl-email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required><button class="btn btn-primary" type="submit">Subscribe</button></div>
+        {HONEYPOT}
+        <p class="form-note" role="status"></p>
+      </form>"""
 
 def nav(page):
     def cur(*names):
@@ -65,7 +80,7 @@ def nav(page):
     </nav>
     <div class="mobile-extra">
       <div class="row">
-        <button class="theme-toggle" data-theme-toggle><span class="swatch"></span><span class="theme-label">Cold</span></button>
+        {THEME_BTN}
       </div>
       <a class="btn btn-primary" href="contact.html">Get in touch</a>
     </div>
@@ -74,7 +89,7 @@ def nav(page):
   <div class="nav-right">
     <div class="nav-util glass">
       <span class="nav-link" title="Language">EN</span>
-      <button class="theme-toggle" data-theme-toggle><span class="swatch"></span><span class="theme-label">Cold</span></button>
+      {THEME_BTN}
     </div>
     <a class="btn btn-primary" href="contact.html">Get in touch</a>
   </div>
@@ -86,6 +101,7 @@ FOOTER = f"""<footer class="footer">
   <div class="footer-top">
     <div class="footer-brand">
       <p>Making surgical tools equitable, efficient, and ergonomic.</p>
+      {NEWSLETTER}
     </div>
     <div class="footer-cols">
       <div class="footer-col">
@@ -112,7 +128,7 @@ FOOTER = f"""<footer class="footer">
     </div>
     <div class="footer-right">
       <nav class="footer-legal" aria-label="Legal">
-        <button type="button" data-modal="login">Team Log in</button>
+        <button type="button" data-modal="login" data-login-link>Team Log in</button>
         <a href="privacy.html">Privacy Notice</a>
         <a href="terms.html">Terms of Use</a>
         <a href="accessibility.html">Accessibility Statement</a>
@@ -127,6 +143,7 @@ FOOTER_SIMPLE = f"""<footer class="footer-simple">
   <div class="fs-top">
     <div class="fs-brand">
       <p>Making surgical tools equitable, efficient, and ergonomic.</p>
+      {NEWSLETTER}
       <div class="socials">
         {social("linkedin", "Pando Surgical on LinkedIn", COMPANY_LINKEDIN)}
         {social("youtube", "Pando Surgical on YouTube", COMPANY_YOUTUBE)}
@@ -153,7 +170,7 @@ FOOTER_SIMPLE = f"""<footer class="footer-simple">
   <div class="fs-bottom">
     <small>© 2026 Pando Surgical, Inc. All rights reserved.</small>
     <nav class="fs-legal" aria-label="Legal">
-      <button type="button" data-modal="login">Team Log in</button>
+      <button type="button" data-modal="login" data-login-link>Team Log in</button>
       <a href="privacy.html">Privacy Notice</a>
       <a href="terms.html">Terms of Use</a>
       <a href="accessibility.html">Accessibility Statement</a>
@@ -170,28 +187,36 @@ LOGIN = f"""<div class="modal" id="login" role="dialog" aria-modal="true" aria-l
       <p>Sign in to access your account</p>
     </div>
     <button class="modal-close" aria-label="Close"><img src="assets/icons/icon-close.svg" alt=""></button>
-    <form class="login-body" data-demo="Sign in isn’t connected yet. This is a preview of the design.">
-      <button type="button" class="btn btn-google btn-block">{GOOGLE_G} Continue with Google</button>
+    <form class="login-body">
+      <button type="button" class="btn btn-google btn-block" data-google>{GOOGLE_G} Continue with Google</button>
       <div class="or">or</div>
+      <div class="field" data-signup-only hidden>
+        <label for="login-name">Your name</label>
+        <div class="input-icon"><input id="login-name" name="displayName" type="text" autocomplete="name"></div>
+      </div>
       <div class="field">
         <label for="login-email">Email address</label>
-        <div class="input-icon"><img src="assets/icons/icon-mail.svg" alt=""><input id="login-email" type="email" placeholder="you@example.com" autocomplete="email" required></div>
+        <div class="input-icon"><img src="assets/icons/icon-mail.svg" alt=""><input id="login-email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required></div>
       </div>
       <div class="field">
         <label for="login-pass">Password</label>
-        <div class="input-icon"><img src="assets/icons/icon-lock-field.svg" alt=""><input id="login-pass" type="password" placeholder="Enter your password" autocomplete="current-password" required>
+        <div class="input-icon"><img src="assets/icons/icon-lock-field.svg" alt=""><input id="login-pass" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required>
           <button type="button" class="eye" aria-label="Show password"><img src="assets/icons/icon-eye.svg" alt=""></button></div>
       </div>
-      <a class="forgot" href="mailto:{EMAIL}?subject=Password%20reset">Forgot password?</a>
+      <button type="button" class="forgot" data-forgot>Forgot password?</button>
       <button class="btn btn-primary btn-block" type="submit">Sign in</button>
       <p class="form-note" role="status"></p>
-      <p class="login-foot">Don’t have an account? <a href="mailto:{EMAIL}?subject=Request%20access">Request access</a></p>
+      <p class="login-foot">Need a team account? <button type="button" class="link-btn" data-login-toggle>Create one</button> · <a href="mailto:{EMAIL}?subject=Request%20access">Request access</a></p>
     </form>
   </div>
 </div>"""
 
 
-def page(filename, title, description, page_id, main, light=False, extra=""):
+THEME_SCRIPT = ('<script>try{var t=localStorage.getItem("pando-theme");if(t==="warm"||t==="cold")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>'
+                if THEME_SWITCHER else "")
+
+
+def page(filename, title, description, page_id, main, light=False, extra="", noindex=False, scripts=""):
     body_cls = "page-light" if light else "page-dark"
     full_title = "Pando Surgical" if page_id == "home" else f"{title} | Pando Surgical"
     out = f"""<!doctype html>
@@ -201,7 +226,8 @@ def page(filename, title, description, page_id, main, light=False, extra=""):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{full_title}</title>
 <meta name="description" content="{html.escape(description)}">
-<script>try{{var t=localStorage.getItem("pando-theme");if(t==="warm"||t==="cold")document.documentElement.setAttribute("data-theme",t)}}catch(e){{}}</script>
+{'<meta name="robots" content="noindex, nofollow">' if noindex else ""}
+{THEME_SCRIPT}
 <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -219,6 +245,8 @@ def page(filename, title, description, page_id, main, light=False, extra=""):
 {LOGIN}
 {extra}
 <script src="js/main.js"></script>
+<script type="module" src="js/backend.js"></script>
+{scripts}
 </body>
 </html>
 """
@@ -269,7 +297,7 @@ page("index.html", "Home", "Pando Surgical makes ergonomic surgical tools that a
   <div class="stat">
     <span class="stat-num" data-count="78" data-suffix="%">78%</span>
     <p class="stat-text">of surgeons report work-related pain or injury</p>
-    <p class="stat-src">[Source / citation placeholder]</p>
+    <p class="stat-src">Gabrielson AT, Wei J. <i>Int J Pediatr Otorhinolaryngol</i>. 2024;176:111765. <a href="https://doi.org/10.1016/j.ijporl.2023.111765" target="_blank" rel="noopener">doi:10.1016/j.ijporl.2023.111765</a></p>
   </div>
 </section>
 
@@ -554,7 +582,7 @@ page("careers.html", "Careers", "Join Pando Surgical: we're opening an internshi
     <h1 class="page-title">Careers</h1>
     <p>We’re opening an internship spot for an Engineering intern.</p>
   </div>
-  <form class="app-form" data-demo="Thanks! Online applications aren’t connected yet, so please email your answers and resume link to {EMAIL} for now.">
+  <form class="app-form" data-submit="careers">
     <p class="intro">We’re looking for an Engineering intern to join our team. Submit your resume and a few short answers below, and we’ll be in touch after reviewing your application. You can also reach us directly at <a href="mailto:{EMAIL}">{EMAIL}</a>.</p>
     <div class="row-2">
       <div class="field"><label for="c-name">Full name <span class="req">*</span></label><input id="c-name" name="name" autocomplete="name" required></div>
@@ -568,6 +596,7 @@ page("careers.html", "Careers", "Join Pando Surgical: we're opening an internshi
     {area(1, "Tell us about yourself")}
     {area(2, "Why Pando Surgical? Why this role?")}
     {area(3, "What skills can you bring to this role?")}
+    {HONEYPOT}
     <button class="btn btn-primary btn-block" type="submit">Submit application</button>
     <p class="form-note" role="status"></p>
   </form>
@@ -583,11 +612,13 @@ page("contact.html", "Contact Us", "Get in touch with Pando Surgical: surgeons, 
     <p>From surgeons, to hospitals, to partners and press, we read every message.</p>
   </div>
   <div class="contact-form">
-    <form data-demo="Thanks! The form isn’t connected yet, so please email {EMAIL} for now.">
+    <form data-submit="contact">
       <div class="field"><label for="f-name">Name</label><input id="f-name" name="name" autocomplete="name" required></div>
       <div class="field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email" required></div>
+      <div class="field"><label for="f-type">I’m reaching out as</label><select id="f-type" name="inquiryType"><option>Surgeon or clinician</option><option>Hospital or health system</option><option>Partner or supplier</option><option>Investor</option><option>Press</option><option>Other</option></select></div>
       <div class="field"><label for="f-msg">Message</label><textarea id="f-msg" name="message" required></textarea></div>
       <label class="consent"><input type="checkbox" required><span>By clicking “Send message”, you agree to our <a href="terms.html">Terms of Use</a> and <a href="privacy.html">Privacy Notice</a>.</span></label>
+      {HONEYPOT}
       <button class="btn btn-dark" type="submit">Send a Message</button>
       <p class="form-note" role="status"></p>
     </form>
@@ -628,5 +659,12 @@ legal("accessibility.html", "Accessibility Statement", "accessibility", "Pando S
     ("Ongoing work", "As a small, growing team, we are continuously improving the accessibility of this site, including color contrast, keyboard navigation, and screen reader support, as we add new pages and features."),
     ("Feedback", f"If you encounter any accessibility barriers on this site, please let us know at {MAIL} so we can address them."),
 ])
+
+# ---------------------------------------------------------------- Team dashboard
+page("dashboard.html", "Team Dashboard", "Pando Surgical team dashboard.", "dashboard", """
+<section class="dashboard">
+  <div id="dash"><p class="dash-empty">Loading…</p></div>
+</section>
+""", light=True, noindex=True, scripts='<script type="module" src="js/dashboard.js"></script>')
 
 print("Built pages in", ROOT)
