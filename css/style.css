@@ -943,3 +943,14 @@ select {
   .dash-card-head { flex-direction: column; gap: 4px; }
   .dash-fields { grid-template-columns: 1fr; }
 }
+
+/* ---------- Languages ---------- */
+html:lang(zh)[data-theme] { --font: "Onest", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif; }
+html:lang(ja)[data-theme] { --font: "Onest", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", system-ui, sans-serif; }
+:lang(zh) h1, :lang(zh) h2, :lang(zh) h3, :lang(ja) h1, :lang(ja) h2, :lang(ja) h3 { letter-spacing: 0; line-break: strict; word-break: keep-all; overflow-wrap: anywhere; }
+:lang(es) h1, :lang(es) h2 { hyphens: auto; }
+.lang-dd .dd-panel { left: auto; right: 0; min-width: 140px; }
+.lang-dd .dd-toggle { white-space: nowrap; }
+.lang-row { flex-wrap: wrap; }
+.lang-row .nav-link { padding: 0; }
+.lang-note { margin: 8px 0 0; font-size: 15px; font-weight: 500; color: var(--gold); }

@@ -51,7 +51,7 @@ async function start() {
 
   const camera = new THREE.PerspectiveCamera(24, 1, 0.1, 50);
 
-  const gltf = await new GLTFLoader().loadAsync("assets/model/laprotator.glb");
+  const gltf = await new GLTFLoader().loadAsync("/assets/model/laprotator.glb");
   const model = gltf.scene;
   model.traverse((o) => { if (o.isMesh) o.material.envMapIntensity = 0.7; }); // softer reflections than the full room
 

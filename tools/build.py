@@ -82,13 +82,14 @@ def nav(page):
       <div class="row">
         {THEME_BTN}
       </div>
+      @@LANGROW@@
       <a class="btn btn-primary" href="contact.html">Get in touch</a>
     </div>
     <button class="nav-burger" aria-label="Menu" aria-expanded="false"><span></span></button>
   </div>
   <div class="nav-right">
     <div class="nav-util glass">
-      <span class="nav-link" title="Language">EN</span>
+      @@LANGMENU@@
       {THEME_BTN}
     </div>
     <a class="btn btn-primary" href="contact.html">Get in touch</a>
@@ -666,5 +667,10 @@ page("dashboard.html", "Team Dashboard", "Pando Surgical team dashboard.", "dash
   <div id="dash"><p class="dash-empty">Loading…</p></div>
 </section>
 """, light=True, noindex=True, scripts='<script type="module" src="js/dashboard.js"></script>')
+
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import i18n
+i18n.localize(ROOT)
 
 print("Built pages in", ROOT)

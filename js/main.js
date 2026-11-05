@@ -6,6 +6,9 @@
   var body = document.body;
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  /* Text shown by scripts. Language pages define window.PANDO_T (English -> translation). */
+  function t(s) { return (window.PANDO_T && window.PANDO_T[s]) || s; }
+
   function store(key, value) {
     try {
       if (value === undefined) return localStorage.getItem(key);
@@ -241,7 +244,7 @@
       var input = btn.parentNode.querySelector("input");
       var show = input.type === "password";
       input.type = show ? "text" : "password";
-      btn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+      btn.setAttribute("aria-label", t(show ? "Hide password" : "Show password"));
     });
   });
 
@@ -251,9 +254,9 @@
     var counter = document.getElementById(ta.getAttribute("aria-describedby"));
     function update() {
       var n = ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0;
-      counter.textContent = n + "/" + max + " words";
+      counter.textContent = n + "/" + max + " " + t("words");
       counter.classList.toggle("over", n > max);
-      ta.setCustomValidity(n > max ? "Please keep this under " + max + " words." : "");
+      ta.setCustomValidity(n > max ? t("Please keep this under {n} words.").replace("{n}", max) : "");
     }
     ta.addEventListener("input", update);
     update();
