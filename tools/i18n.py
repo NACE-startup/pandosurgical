@@ -164,6 +164,34 @@ def pretty_links(html, lang):
     return html
 
 
+OG_LOCALE = {"en": "en_US", "es": "es_ES", "zh": "zh_CN", "ja": "ja_JP"}
+OG_IMAGE = SITE_URL + "/assets/img/og-image.png"
+
+
+def social_tags(html, lang, name):
+    """Link preview tags (Open Graph and Twitter) built from the page's own title and description."""
+    title = re.search(r"<title>(.*?)</title>", html, re.S)
+    desc = re.search(r'<meta name="description" content="([^"]*)"', html)
+    if not title or not desc:
+        return html
+    t, d, url = title.group(1), desc.group(1), SITE_URL + _url(lang, name)
+    tags = (
+        '<meta property="og:type" content="website">\n'
+        '<meta property="og:site_name" content="Pando Surgical">\n'
+        f'<meta property="og:title" content="{t}">\n'
+        f'<meta property="og:description" content="{d}">\n'
+        f'<meta property="og:url" content="{url}">\n'
+        f'<meta property="og:image" content="{OG_IMAGE}">\n'
+        '<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n'
+        f'<meta property="og:locale" content="{OG_LOCALE[lang]}">\n'
+        '<meta name="twitter:card" content="summary_large_image">\n'
+        f'<meta name="twitter:title" content="{t}">\n'
+        f'<meta name="twitter:description" content="{d}">\n'
+        f'<meta name="twitter:image" content="{OG_IMAGE}">\n'
+        f'<link rel="canonical" href="{url}">\n')
+    return html.replace("</head>", tags + "</head>", 1)
+
+
 def _fix_paths(html):
     """Pages in a language folder load shared files from the site root."""
     return re.sub(r'\b(src|href|poster)="((?:assets|css|js)/[^"]*)"', r'\1="/\2"', html)
@@ -193,7 +221,7 @@ def localize(root):
         # English page: fill in the menu, add hreflang tags.
         d, mo = _menu("en", p.name, chev)
         en = src.replace("@@LANGMENU@@", d).replace("@@LANGROW@@", mo).replace("</head>", _hreflang(p.name) + "</head>", 1)
-        p.write_text(pretty_links(en, "en"))
+        p.write_text(social_tags(pretty_links(en, "en"), "en", p.name))
 
         found = set()
         if p.name in LEGAL:  # only the nav and footer of legal pages get translated
@@ -218,7 +246,7 @@ def localize(root):
                 page = translate_html(head, table, set()) + sep + main + sep2 + translate_html(tail, table, set())
             else:
                 page = translate_html(page, table, set())
-            page = pretty_links(_fix_paths(page), code).replace('<html lang="en"', f'<html lang="{code}"', 1)
+            page = social_tags(pretty_links(_fix_paths(page), code), code, p.name).replace('<html lang="en"', f'<html lang="{code}"', 1)
             t = {k: tables[code][k] for k in JS_STRINGS if k in tables[code]}
             page = page.replace("<head>", "<head>\n<script>window.PANDO_T=" + json.dumps(t, ensure_ascii=False) + "</script>", 1)
             out = root / code
