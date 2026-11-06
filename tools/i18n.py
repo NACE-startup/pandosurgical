@@ -192,6 +192,39 @@ def social_tags(html, lang, name):
     return html.replace("</head>", tags + "</head>", 1)
 
 
+def structured_data(html, lang, name):
+    """Tells search engines the site's name and logo (home page of each language)."""
+    if name != "index.html":
+        return html
+    data = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {"@type": "Organization", "@id": SITE_URL + "/#org", "name": "Pando Surgical", "url": SITE_URL + "/",
+             "logo": SITE_URL + "/assets/icons/favicon-512.png",
+             "email": "contact@pandosurgical.com",
+             "sameAs": ["https://www.linkedin.com/company/pandosurgical/", "https://www.youtube.com/@pandosurgical"]},
+            {"@type": "WebSite", "@id": SITE_URL + "/#site", "name": "Pando Surgical", "url": SITE_URL + "/",
+             "inLanguage": lang, "publisher": {"@id": SITE_URL + "/#org"}},
+        ],
+    }
+    tag = '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + "</script>\n"
+    return html.replace("</head>", tag + "</head>", 1)
+
+
+def write_seo_files(root, names):
+    """sitemap.xml (with every language) and robots.txt."""
+    urls = []
+    for name in names:
+        alts = "".join(f'<xhtml:link rel="alternate" hreflang="{c}" href="{SITE_URL}{_url(c, name)}"/>' for c, _s, _f in LANGS)
+        alts += f'<xhtml:link rel="alternate" hreflang="x-default" href="{SITE_URL}{_url("en", name)}"/>'
+        for c, _s, _f in LANGS:
+            urls.append(f"<url><loc>{SITE_URL}{_url(c, name)}</loc>{alts}</url>")
+    (root / "sitemap.xml").write_text(
+        '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" '
+        'xmlns:xhtml="http://www.w3.org/1999/xhtml">\n' + "\n".join(urls) + "\n</urlset>\n")
+    (root / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard\n\nSitemap: {SITE_URL}/sitemap.xml\n")
+
+
 def _fix_paths(html):
     """Pages in a language folder load shared files from the site root."""
     return re.sub(r'\b(src|href|poster)="((?:assets|css|js)/[^"]*)"', r'\1="/\2"', html)
@@ -221,7 +254,7 @@ def localize(root):
         # English page: fill in the menu, add hreflang tags.
         d, mo = _menu("en", p.name, chev)
         en = src.replace("@@LANGMENU@@", d).replace("@@LANGROW@@", mo).replace("</head>", _hreflang(p.name) + "</head>", 1)
-        p.write_text(social_tags(pretty_links(en, "en"), "en", p.name))
+        p.write_text(structured_data(social_tags(pretty_links(en, "en"), "en", p.name), "en", p.name))
 
         found = set()
         if p.name in LEGAL:  # only the nav and footer of legal pages get translated
@@ -246,13 +279,14 @@ def localize(root):
                 page = translate_html(head, table, set()) + sep + main + sep2 + translate_html(tail, table, set())
             else:
                 page = translate_html(page, table, set())
-            page = social_tags(pretty_links(_fix_paths(page), code), code, p.name).replace('<html lang="en"', f'<html lang="{code}"', 1)
+            page = structured_data(social_tags(pretty_links(_fix_paths(page), code), code, p.name), code, p.name).replace('<html lang="en"', f'<html lang="{code}"', 1)
             t = {k: tables[code][k] for k in JS_STRINGS if k in tables[code]}
             page = page.replace("<head>", "<head>\n<script>window.PANDO_T=" + json.dumps(t, ensure_ascii=False) + "</script>", 1)
             out = root / code
             out.mkdir(exist_ok=True)
             (out / p.name).write_text(page)
 
+    write_seo_files(root, [p.name for p in pages if p.name not in SKIP])
     english_keys |= set(JS_STRINGS) | {NOTICE_EN}
     (root / "translations").mkdir(exist_ok=True)
     (root / "translations" / "_keys.json").write_text(json.dumps(sorted(english_keys), ensure_ascii=False, indent=1))
