@@ -1,6 +1,6 @@
 /* Backend for the public pages: forms, log in and live news.
    Every form writes to Firestore (rules in firestore.rules). The team reads
-   submissions in dashboard.html. */
+   submissions at /dashboard. */
 import { auth, db, isTeam } from "./firebase-init.js";
 import { TEAM_EMAILS } from "./firebase-config.js";
 import {
@@ -140,7 +140,7 @@ async function saveUser(user) {
 async function afterSignIn(user) {
   if (isTeam(user)) {
     await saveUser(user);
-    location.href = "dashboard.html";
+    location.href = "/dashboard";
   } else {
     say(t("This account doesn’t have team access. Use “Request access” below."));
     await signOut(auth);
@@ -211,7 +211,7 @@ if (loginForm) {
 onAuthStateChanged(auth, function (user) {
   var team = isTeam(user);
   document.querySelectorAll("[data-login-link]").forEach(function (el) {
-    if (team) { el.textContent = t("Dashboard"); el.removeAttribute("data-modal"); el.onclick = function () { location.href = "dashboard.html"; }; }
+    if (team) { el.textContent = t("Dashboard"); el.removeAttribute("data-modal"); el.onclick = function () { location.href = "/dashboard"; }; }
   });
 });
 

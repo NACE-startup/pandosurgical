@@ -125,7 +125,7 @@ def translate_html(html, table, found):
 # ---- language menu ----------------------------------------------------------------------
 def _url(lang, name):
     base = "/" if lang == "en" else f"/{lang}/"
-    return base if name == "index.html" else base + name
+    return base if name == "index.html" else base + name[: -len(".html")]
 
 
 def _menu(lang, name, chev):
@@ -144,6 +144,24 @@ def _menu(lang, name, chev):
 def _hreflang(name):
     tags = "".join(f'<link rel="alternate" hreflang="{c}" href="{SITE_URL}{_url(c, name)}">\n' for c, _s, _f in LANGS)
     return tags + f'<link rel="alternate" hreflang="x-default" href="{SITE_URL}{_url("en", name)}">\n'
+
+
+def pretty_links(html, lang):
+    """Links without .html (the site serves /about for about.html). Always from the site root."""
+    base = "/" if lang == "en" else f"/{lang}/"
+
+    def local(m):
+        name, tail = m.group(1), m.group(2)
+        return 'href="%s%s%s"' % (base, "" if name == "index" else name, tail)
+
+    html = re.sub(r'href="([a-z]+)\.html((?:#[^"]*)?)"', local, html)
+    # Links that already start from the root, or carry the full address
+    def root(m):
+        pre, path = m.group(1), m.group(2)
+        path = re.sub(r"index$", "", path)
+        return 'href="%s%s"' % (pre, path)
+    html = re.sub(r'href="((?:%s)?/(?:(?:es|zh|ja)/)?)([a-z]*)\.html"' % re.escape(SITE_URL), root, html)
+    return html
 
 
 def _fix_paths(html):
@@ -169,13 +187,13 @@ def localize(root):
             chev = re.search(r'aria-controls="dd-product">Product (<svg.*?</svg>)', src, re.S)
             chev = chev.group(1) if chev else ""
         if p.name in SKIP:
-            p.write_text(src.replace("@@LANGMENU@@", "").replace("@@LANGROW@@", ""))
+            p.write_text(pretty_links(src.replace("@@LANGMENU@@", "").replace("@@LANGROW@@", ""), "en"))
             continue
 
         # English page: fill in the menu, add hreflang tags.
         d, mo = _menu("en", p.name, chev)
         en = src.replace("@@LANGMENU@@", d).replace("@@LANGROW@@", mo).replace("</head>", _hreflang(p.name) + "</head>", 1)
-        p.write_text(en)
+        p.write_text(pretty_links(en, "en"))
 
         found = set()
         if p.name in LEGAL:  # only the nav and footer of legal pages get translated
@@ -200,7 +218,7 @@ def localize(root):
                 page = translate_html(head, table, set()) + sep + main + sep2 + translate_html(tail, table, set())
             else:
                 page = translate_html(page, table, set())
-            page = _fix_paths(page).replace('<html lang="en"', f'<html lang="{code}"', 1)
+            page = pretty_links(_fix_paths(page), code).replace('<html lang="en"', f'<html lang="{code}"', 1)
             t = {k: tables[code][k] for k in JS_STRINGS if k in tables[code]}
             page = page.replace("<head>", "<head>\n<script>window.PANDO_T=" + json.dumps(t, ensure_ascii=False) + "</script>", 1)
             out = root / code

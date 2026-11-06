@@ -47,7 +47,7 @@ Deployed on Vercel (NACE-startup/pandosurgical) from `main`. The old Next.js app
 
 ## Working on it
 
-- **Local preview:** run `python3 -m http.server 8765` from the repo root (in the background), then open http://localhost:8765/.
+- **Local preview:** run `python3 tools/serve.py` (in the background), then open http://localhost:8765/. It serves clean URLs like Vercel does (`/about`, not `/about.html`), which a plain `http.server` can't.
   - The browser caches CSS and JS. Reload with a cache bust, for example `fetch('css/style.css', {cache: 'reload'})`, before checking a change.
   - The built-in preview launcher can't read `~/Documents` (macOS privacy), so start the server from a shell instead.
 - **Before pushing:**
