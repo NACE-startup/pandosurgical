@@ -219,7 +219,7 @@ THEME_SCRIPT = ('<script>try{var t=localStorage.getItem("pando-theme");if(t==="w
 
 def page(filename, title, description, page_id, main, light=False, extra="", noindex=False, scripts=""):
     body_cls = "page-light" if light else "page-dark"
-    full_title = "Pando Surgical | One-Handed Laparoscope Rotation Device" if page_id == "home" else f"{title} | Pando Surgical"
+    full_title = "Pando Surgical" if page_id == "home" else f"{title} | Pando Surgical"
     out = f"""<!doctype html>
 <html lang="en" data-theme="cold">
 <head>
@@ -273,7 +273,7 @@ logo_imgs = "".join(f'<img src="assets/icons/{f}.svg" alt="{a}" width="{w}">' fo
 logo_imgs_dup = "".join(f'<img src="assets/icons/{f}.svg" alt="" aria-hidden="true" width="{w}">' for f, a, w in LOGOS)
 WORDS = ["supported.", "considered.", "included.", "understood.", "heard."]
 
-page("index.html", "Home", "Pando Surgical's LapRotator enables simple, intuitive laparoscope rotation for surgeons. Experience precise one-handed motion control in minimally invasive surgery.", "home", f"""
+page("index.html", "Home", "Pando Surgical makes ergonomic surgical tools that adapt to the surgeon, not the other way around.", "home", f"""
 <section class="hero">
   <div class="hero-fade"></div>
   <div class="hero-content">
